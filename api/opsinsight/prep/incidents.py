@@ -57,3 +57,42 @@ def clean_events(raw: pd.DataFrame, window=DEFAULT_WINDOW, log: QualityLog = Non
     for c in EMPTY_COLS:
         df[f"has_{c}"] = df[c].notna()
     return df.drop(columns=EMPTY_COLS + ["notify"]).reset_index(drop=True)
+
+TEXT_COLS = ["caller_id", "opened_by", "contact_type", "location", "category", "subcategory",
+             "u_symptom", "assignment_group", "final_assignment_group", "final_closed_code"]
+
+
+def collapse_to_tickets(events: pd.DataFrame, log: QualityLog = None) -> pd.DataFrame:
+    """One row per ticket: first event = known at opening, last event = outcome. Notebook 02, steps 10-12."""
+    log = log or QualityLog()
+    # drop_duplicates keeps the REAL first/last row; groupby().first() would mix values from later rows
+    first = events.drop_duplicates("number", keep="first").set_index("number")
+    last = events.drop_duplicates("number", keep="last").set_index("number")
+
+    at_open = ["opened_at", "caller_id", "opened_by", "contact_type", "location", "category",
+               "subcategory", "u_symptom", "impact_n", "urgency_n", "priority_n", "assignment_group",
+               "knowledge", "u_priority_confirmation", "notify_email", "has_cmdb_ci", "has_problem_id",
+               "has_rfc", "has_vendor", "has_caused_by", "incident_state"]
+    t = first[at_open].rename(columns={"incident_state": "first_state_seen"})
+
+    # outcomes: for the target and root-cause analysis only, never model inputs
+    t["final_made_sla"] = last["made_sla"]
+    t["final_reassignment_count"] = last["reassignment_count"]
+    t["final_reopen_count"] = last["reopen_count"]
+    t["final_sys_mod_count"] = last["sys_mod_count"]
+    t["final_assignment_group"] = last["assignment_group"]
+    t["final_closed_code"] = last["closed_code"]
+    t["resolved_at"] = last["resolved_at"]
+    t["closed_at"] = last["closed_at"]
+    t["n_events"] = events.groupby("number").size()
+
+    # THE TARGET: 1 = breached SLA, 0 = made SLA
+    t["breached"] = (~t["final_made_sla"].astype(bool)).astype(int)
+    t["hours_to_resolve"] = (t["resolved_at"] - t["opened_at"]).dt.total_seconds() / 3600
+    t = t.reset_index()
+    t[TEXT_COLS] = t[TEXT_COLS].fillna("Unknown")
+
+    if not t["number"].is_unique:
+        raise ValueError("duplicate tickets after collapsing")
+    log.add("final: one row per ticket", len(events), len(t), "events collapsed into tickets")
+    return t

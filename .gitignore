@@ -1,0 +1,11 @@
+# big data files never go into Git
+data/zips/
+data/raw/
+data/interim/
+data/processed/
+
+# Python / Jupyter clutter
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc

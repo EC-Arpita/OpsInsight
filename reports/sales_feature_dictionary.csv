@@ -1,0 +1,42 @@
+feature,how_it_is_computed,group,known_at_order_approval
+approve_hour,hour of approval (0-23),time,yes
+approve_weekday,day of week of approval (0=Mon),time,yes
+is_weekend,1 if approved on Sat/Sun,time,yes
+purchase_month,month of purchase (1-12),time,yes
+is_holiday_season,1 if purchased 15 Nov - 31 Dec (Black Friday + Christmas),time,yes
+promised_days,days between approval and the promised delivery date,time,yes
+approval_lag_hours,hours between purchase and approval,time,yes
+days_to_ship_limit,days the seller has (from approval) to hand the order to the carrier,time,yes
+distance_km,haversine distance between seller and customer zip (km); missing if a zip has no coordinates,geography,yes
+same_state,1 if seller and customer are in the same state,geography,yes
+n_items,number of items in the order,order content,yes
+n_products,distinct products,order content,yes
+n_sellers,distinct sellers,order content,yes
+n_categories,distinct product categories,order content,yes
+items_price,total item price (BRL),order content,yes
+items_freight,total freight charged (BRL),order content,yes
+freight_ratio,freight / item price,order content,yes
+total_weight_g,total weight of all items (g),order content,yes
+total_volume_cm3,total volume of all items (cm³),order content,yes
+product_photos_qty,photos of the main product,order content,yes
+product_description_length,description length of the main product,order content,yes
+is_multi_seller,1 if more than one seller,order content,yes
+payment_total,total paid (BRL),payment,yes
+n_payments,number of payment parts,payment,yes
+max_installments,max number of instalments,payment,yes
+used_voucher,1 if a voucher was used,payment,yes
+approved_was_missing,1 if approval time was missing in the raw data,payment,yes
+is_repeat_customer,1 if the same customer_unique_id ordered before,customer,yes
+seller_past_late_rate,"smoothed late rate of earlier orders with the same main_seller_id, delivered before this approval (m=20)",history,yes
+category_past_late_rate,"smoothed late rate of earlier orders with the same main_category, delivered before this approval (m=20)",history,yes
+route_past_late_rate,"smoothed late rate of earlier orders with the same route, delivered before this approval (m=20)",history,yes
+customer_state_past_late_rate,"smoothed late rate of earlier orders with the same customer_state, delivered before this approval (m=20)",history,yes
+seller_past_dispatch_days,smoothed average days the seller took to hand earlier orders to the carrier,history,yes
+seller_orders_last_7d,orders the main seller received in the 7 days before approval,workload,yes
+seller_orders_last_30d,orders the main seller received in the 30 days before approval,workload,yes
+customer_state_cat,"customer_state, top 27 values from training period, rest = 'Other'",category,yes
+seller_state_cat,"seller_state, top 27 values from training period, rest = 'Other'",category,yes
+customer_region_cat,"customer_region, top 6 values from training period, rest = 'Other'",category,yes
+seller_region_cat,"seller_region, top 6 values from training period, rest = 'Other'",category,yes
+main_category_cat,"main_category, top 40 values from training period, rest = 'Other'",category,yes
+main_payment_type_cat,"main_payment_type, top 5 values from training period, rest = 'Other'",category,yes

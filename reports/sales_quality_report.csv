@@ -1,0 +1,7 @@
+step,rows_before,rows_after,rows_removed,note
+1. load orders,99441,99441,0,
+2. keep purchases 1 Jan 2017 – 31 Aug 2018,99441,99092,349,
+3. drop impossible timelines,99092,98907,185,
+geo: drop points outside Brazil,1000163,1000121,42,
+4. drop orders with no items,98907,98168,739,
+5. model rows = delivered with a delivery date,98168,96019,2149,"others kept, flagged 0"

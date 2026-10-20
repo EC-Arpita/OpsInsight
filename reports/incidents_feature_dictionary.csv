@@ -1,0 +1,34 @@
+feature,how_it_is_computed,group,known_at_ticket_opening
+open_hour,hour of opened_at (0-23),time,yes
+open_weekday,day of week of opened_at (0=Mon),time,yes
+is_weekend,1 if opened on Sat/Sun,time,yes
+is_business_hours,1 if opened Mon-Fri 08:00-17:59,time,yes
+priority_n,"priority number, 1=Critical 4=Low",severity,yes
+impact_n,"impact number, 1=High",severity,yes
+urgency_n,"urgency number, 1=High",severity,yes
+impact_x_urgency,impact_n * urgency_n,severity,yes
+knowledge,1 if knowledge was set on the first event,flags,yes
+u_priority_confirmation,1 if u_priority_confirmation was set on the first event,flags,yes
+notify_email,1 if notify_email was set on the first event,flags,yes
+has_cmdb_ci,1 if has_cmdb_ci was set on the first event,flags,yes
+has_problem_id,1 if has_problem_id was set on the first event,flags,yes
+group_opened_last_24h,tickets the same assignment_group received in the previous 24h,workload,yes
+group_opened_last_7d,tickets the same assignment_group received in the previous 7 days,workload,yes
+group_backlog_at_open,tickets of the same group opened earlier and not yet resolved,workload,yes
+all_opened_last_24h,tickets the whole helpdesk received in the previous 24h,workload,yes
+assignment_group_past_breach_rate,smoothed breach rate of earlier tickets with the same assignment_group resolved before this one opened (m=20),history,yes
+category_past_breach_rate,smoothed breach rate of earlier tickets with the same category resolved before this one opened (m=20),history,yes
+location_past_breach_rate,smoothed breach rate of earlier tickets with the same location resolved before this one opened (m=20),history,yes
+caller_id_past_breach_rate,smoothed breach rate of earlier tickets with the same caller_id resolved before this one opened (m=20),history,yes
+recent_breach_rate_7d,smoothed breach rate of ALL tickets resolved in the 7 days before this one opened,history,yes
+recent_resolved_7d,number of tickets resolved helpdesk-wide in the 7 days before opening,history,yes
+group_recent_breach_rate_7d,same as recent_breach_rate_7d but only for the same assignment_group,history,yes
+category_past_log_hours,smoothed mean log(1+hours to resolve) of earlier resolved tickets in the same category,history,yes
+caller_tickets_last_30d,tickets the same caller opened in the previous 30 days,history,yes
+contact_type_cat,"contact_type, top 5 values from training period, rest = 'Other'",category,yes
+category_cat,"category, top 30 values from training period, rest = 'Other'",category,yes
+subcategory_cat,"subcategory, top 50 values from training period, rest = 'Other'",category,yes
+u_symptom_cat,"u_symptom, top 50 values from training period, rest = 'Other'",category,yes
+location_cat,"location, top 30 values from training period, rest = 'Other'",category,yes
+assignment_group_cat,"assignment_group, top 30 values from training period, rest = 'Other'",category,yes
+opened_by_cat,"opened_by, top 30 values from training period, rest = 'Other'",category,yes

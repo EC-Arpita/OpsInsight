@@ -1,0 +1,7 @@
+step,rows_before,rows_after,rows_removed,note
+1. load raw file,141712,141712,0,"24,918 tickets"
+2. drop incident_state == -100,141712,141707,5,
+3. drop exact duplicate rows,141707,141707,0,
+7. keep tickets opened 29 Feb – 31 May 2016,141707,140060,1647,"tickets 24,918 → 24,644"
+8. drop tickets with impossible timelines,140060,140060,0,0 tickets
+12. final: one row per ticket,140060,24644,115416,events collapsed into tickets

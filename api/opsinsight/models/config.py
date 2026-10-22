@@ -18,6 +18,10 @@ MODELS_DIR = ROOT / "models"
 LGBM_PARAMS = dict(n_estimators=300, learning_rate=0.03, num_leaves=15, min_child_samples=200, reg_lambda=5,
                    subsample=0.8, subsample_freq=1, colsample_bytree=0.8, random_state=42, verbose=-1)
 
+# Step 5 result: averaging LightGBM with logistic regression ranks better on the validation period
+USE_BLEND = True
+
+
 DOMAINS = {
     "incidents": {
         "features_file": ROOT / "data/processed/incidents_features.parquet",

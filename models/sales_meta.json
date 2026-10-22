@@ -1,7 +1,7 @@
 {
   "domain": "sales",
-  "trained_at": "2026-10-22T18:57:22Z",
-  "algorithm": "LightGBM (gradient boosted trees)",
+  "trained_at": "2026-10-22T19:14:45Z",
+  "algorithm": "LightGBM + logistic regression (average of both risks)",
   "params": {
     "n_estimators": 300,
     "learning_rate": 0.03,
@@ -219,16 +219,16 @@
     "main_payment_type_cat": "credit_card"
   },
   "risk_thresholds": {
-    "high": 0.2090310628662293,
-    "medium": 0.08012507602448693,
+    "high": 0.18647498258176357,
+    "medium": 0.07468527952935998,
     "rule": "high = top 10% of test-period risk, medium = top 40%"
   },
   "metrics": {
-    "test_auc": 0.715,
-    "train_auc": 0.836,
+    "test_auc": 0.732,
+    "train_auc": 0.813,
     "base_rate_test": 0.053,
-    "precision_top_10pct": 0.103,
-    "lift_top_10pct": 1.94,
+    "precision_top_10pct": 0.106,
+    "lift_top_10pct": 1.99,
     "train_rows": 76815,
     "test_rows": 19204
   }

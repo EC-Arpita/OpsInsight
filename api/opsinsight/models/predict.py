@@ -50,6 +50,9 @@ def predict(domain: str, rows: pd.DataFrame, top_k: int = 3) -> list:
     labels = LABELS.get(domain, {})
     X = _align(rows, meta)
     risk = model.predict_proba(X)[:, 1]
+    if bundle.get("lr") is not None:                          # blend (Step 5): average with logistic regression
+        risk = (risk + bundle["lr"].predict_proba(X)[:, 1]) / 2
+
     contrib = model.predict(X, pred_contrib=True)[:, :-1]      # SHAP values (log-odds); last column = bias
     dist = np.array(meta["test_risk_distribution"])
     hi, med = meta["risk_thresholds"]["high"], meta["risk_thresholds"]["medium"]

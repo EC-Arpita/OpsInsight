@@ -1371,37 +1371,279 @@
     }
   ],
   "forecast": {
-    "method": "seasonal naive (same weekday, last 4 weeks)",
+    "method": "weekday average x recent trend",
     "horizon_days": 7,
-    "note": "Recent weeks are under-counted because slow orders hadn't been delivered when data was exported.",
-    "daily": [
+    "backtest_mean_abs_error": [
       {
-        "date": "2018-08-30",
-        "expected_orders": 254.0
+        "method": "weekday average x recent trend",
+        "mean_abs_error": 11.59
       },
       {
-        "date": "2018-08-31",
-        "expected_orders": 222.0
+        "method": "same day last week",
+        "mean_abs_error": 12.84
       },
       {
-        "date": "2018-09-01",
-        "expected_orders": 170.0
+        "method": "weekday average (4 weeks)",
+        "mean_abs_error": 17.05
       },
       {
-        "date": "2018-09-02",
-        "expected_orders": 184.0
+        "method": "flat 4-week average",
+        "mean_abs_error": 17.85
+      }
+    ],
+    "history_end": "2018-08-08",
+    "note": "The last 21 days of the file were left out: orders to distant regions reach the export late, so those days look falsely quiet. The forecast starts after the last complete day.",
+    "busy_rule": "expected orders > last 4-week daily average x 1.2, and at least 10 orders more",
+    "regions": [
+      {
+        "region": "Southeast",
+        "expected_orders_7d": 1541,
+        "usual_orders_7d": 1196,
+        "busy_days": 3,
+        "daily": [
+          {
+            "date": "2018-08-09",
+            "expected_orders": 197.5,
+            "usual_orders": 170.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-10",
+            "expected_orders": 189.1,
+            "usual_orders": 170.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-11",
+            "expected_orders": 166.6,
+            "usual_orders": 170.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-12",
+            "expected_orders": 187.8,
+            "usual_orders": 170.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-13",
+            "expected_orders": 262.9,
+            "usual_orders": 170.8,
+            "busy": true
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 269.3,
+            "usual_orders": 170.8,
+            "busy": true
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 267.7,
+            "usual_orders": 170.8,
+            "busy": true
+          }
+        ]
       },
       {
-        "date": "2018-09-03",
-        "expected_orders": 240.0
+        "region": "South",
+        "expected_orders_7d": 281,
+        "usual_orders_7d": 229,
+        "busy_days": 3,
+        "daily": [
+          {
+            "date": "2018-08-09",
+            "expected_orders": 36.6,
+            "usual_orders": 32.6,
+            "busy": false
+          },
+          {
+            "date": "2018-08-10",
+            "expected_orders": 35.7,
+            "usual_orders": 32.6,
+            "busy": false
+          },
+          {
+            "date": "2018-08-11",
+            "expected_orders": 26.7,
+            "usual_orders": 32.6,
+            "busy": false
+          },
+          {
+            "date": "2018-08-12",
+            "expected_orders": 38.1,
+            "usual_orders": 32.6,
+            "busy": false
+          },
+          {
+            "date": "2018-08-13",
+            "expected_orders": 56.6,
+            "usual_orders": 32.6,
+            "busy": true
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 43.7,
+            "usual_orders": 32.6,
+            "busy": true
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 43.7,
+            "usual_orders": 32.6,
+            "busy": true
+          }
+        ]
       },
       {
-        "date": "2018-09-04",
-        "expected_orders": 234.0
+        "region": "Northeast",
+        "expected_orders_7d": 198,
+        "usual_orders_7d": 177,
+        "busy_days": 0,
+        "daily": [
+          {
+            "date": "2018-08-09",
+            "expected_orders": 34.1,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-10",
+            "expected_orders": 28.5,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-11",
+            "expected_orders": 26.6,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-12",
+            "expected_orders": 17.9,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-13",
+            "expected_orders": 29.9,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 29.1,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 31.9,
+            "usual_orders": 25.3,
+            "busy": false
+          }
+        ]
       },
       {
-        "date": "2018-09-05",
-        "expected_orders": 217.0
+        "region": "Central-West",
+        "expected_orders_7d": 122,
+        "usual_orders_7d": 106,
+        "busy_days": 0,
+        "daily": [
+          {
+            "date": "2018-08-09",
+            "expected_orders": 12.9,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-10",
+            "expected_orders": 22.7,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-11",
+            "expected_orders": 12.1,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-12",
+            "expected_orders": 13.8,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-13",
+            "expected_orders": 19.9,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 19.0,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 21.6,
+            "usual_orders": 15.1,
+            "busy": false
+          }
+        ]
+      },
+      {
+        "region": "North",
+        "expected_orders_7d": 34,
+        "usual_orders_7d": 35,
+        "busy_days": 0,
+        "daily": [
+          {
+            "date": "2018-08-09",
+            "expected_orders": 4.1,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-10",
+            "expected_orders": 6.3,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-11",
+            "expected_orders": 3.4,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-12",
+            "expected_orders": 2.9,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-13",
+            "expected_orders": 5.8,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 5.1,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 6.3,
+            "usual_orders": 5.0,
+            "busy": false
+          }
+        ]
       }
     ]
   },

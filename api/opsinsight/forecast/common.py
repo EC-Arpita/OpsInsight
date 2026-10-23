@@ -57,3 +57,17 @@ METHODS = {
     "weekday average (4 weeks)": weekday_average_4w,
     "weekday average x recent trend": weekday_average_x_trend,
 }
+
+
+
+
+def backtest(counts: pd.DataFrame, origins=(14, 7)) -> pd.DataFrame:
+    """Average error (items per group per day) of each method when forecasting from 14 and 7 days before the end."""
+    rows = []
+    for name, f in METHODS.items():
+        errors = []
+        for back in origins:
+            hist, actual = counts.iloc[:-back], counts.iloc[-back:][:HORIZON]
+            errors.append(np.abs(f(hist) - actual.to_numpy()).mean())
+        rows.append({"method": name, "mean_abs_error": round(float(np.mean(errors)), 2)})
+    return pd.DataFrame(rows).sort_values("mean_abs_error").reset_index(drop=True)

@@ -25,3 +25,35 @@ def daily_counts(df: pd.DataFrame, time_col: str, group_col: str, groups) -> pd.
     out = d.groupby([d[time_col].dt.normalize(), group_col]).size().unstack(fill_value=0)
     days = pd.date_range(df[time_col].min().normalize(), df[time_col].max().normalize(), freq="D")
     return out.reindex(days, fill_value=0).reindex(columns=list(groups), fill_value=0)
+
+
+
+# --- forecasting methods: history (days x groups) -> next 7 days (7 x groups) ---
+def same_day_last_week(h):
+    return h.iloc[-7:].to_numpy()
+
+
+def flat_average_4w(h):
+    return np.tile(h.iloc[-28:].mean().to_numpy(), (HORIZON, 1))
+
+
+def weekday_average_4w(h):
+    last = h.iloc[-28:]
+    profile = last.groupby(last.index.dayofweek).mean()
+    days = pd.date_range(h.index[-1] + pd.Timedelta(days=1), periods=HORIZON, freq="D")
+    return profile.reindex(days.dayofweek).to_numpy()
+
+
+def weekday_average_x_trend(h):
+    """Weekday shape from 4 weeks, scaled by how busy the last week was compared with those 4 weeks."""
+    base = weekday_average_4w(h)
+    level = h.iloc[-7:].mean() / h.iloc[-28:].mean().replace(0, np.nan)
+    return base * level.fillna(1).clip(0.5, 1.5).to_numpy()
+
+
+METHODS = {
+    "same day last week": same_day_last_week,
+    "flat 4-week average": flat_average_4w,
+    "weekday average (4 weeks)": weekday_average_4w,
+    "weekday average x recent trend": weekday_average_x_trend,
+}

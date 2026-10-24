@@ -156,7 +156,7 @@ def incident_analysis(tickets, features, quality, dataset_name="Incident log"):
     cur_r2 = cur[cur["final_reassignment_count"] >= 2]
     ro1 = inc.loc[inc["final_reopen_count"] > 0, "breached"].mean()
     ro0 = inc.loc[inc["final_reopen_count"] == 0, "breached"].mean()
-    teams = bd("assignment_group", "", top=30)["rows"]
+    teams = bd("assignment_group", "", top=30)["rows"] or bd("assignment_group", "", top=30, min_n=1)["rows"]   # small files: no team has 50
     big = [t for t in teams if t["tickets"] >= 150] or teams      # small files: fall back to all teams
     worst = max(big, key=lambda t: t["breach_rate"])
     root_causes = [

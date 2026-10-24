@@ -50,7 +50,8 @@ def fact_cards(analysis: dict) -> list:
         days = [d["date"] for d in g["daily"] if d["overload"]]
         add(f"FC:{g['team']}", f"Forecast for {g['team']}: {g['expected_tickets_7d']} tickets expected next 7 days, "
                                f"capacity {g['expected_capacity_7d']}; "
-                               + (f"overloaded on {', '.join(days)}." if days else "within capacity every day."))
+                               + (f"overloaded on all {len(days)} days ({days[0]} to {days[-1]})." if days and len(days) == len(g["daily"])
+                                  else f"overloaded on {', '.join(days)}." if days else "within capacity every day."))
     for g in fc.get("regions", []):
         days = [d["date"] for d in g["daily"] if d["busy"]]
         add(f"FC:{g['region']}", f"Forecast for {g['region']}: {g['expected_orders_7d']} orders expected next 7 days, "

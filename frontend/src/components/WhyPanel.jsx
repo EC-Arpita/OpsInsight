@@ -67,7 +67,7 @@ export default function WhyPanel({ item, words }) {
         <div>
           <h3>Details</h3>
           <dl className="facts">
-            {Object.entries(item.context).map(([k, v]) => (
+            {Object.entries(item.context).filter(([, v]) => v != null).map(([k, v]) => (
               <div key={k}><dt>{LABELS[k] || k}</dt><dd>{show(v)}</dd></div>
             ))}
           </dl>

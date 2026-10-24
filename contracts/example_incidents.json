@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "meta": {
     "analysis_id": "inc-2026-10-24",
-    "generated_at": "2026-10-24T14:52:03Z",
+    "generated_at": "2026-10-24T19:07:05Z",
     "domain": "support_tickets",
     "dataset_name": "UCI Incident Management Process Enriched Event Log",
     "item_type": "ticket",
@@ -373,14 +373,14 @@
           "flag": "above_average"
         },
         {
-          "value": "Group 9",
-          "tickets": 52,
-          "breach_rate": 0.865,
+          "value": "Group 57",
+          "tickets": 83,
+          "breach_rate": 0.542,
           "breaches": 45,
           "share_of_all_breaches": 0.041,
-          "vs_overall_breach_rate": 0.641,
-          "median_resolution_hours": 1212.7,
-          "avg_reassignments": 1.63,
+          "vs_overall_breach_rate": 0.318,
+          "median_resolution_hours": 89.8,
+          "avg_reassignments": 1.02,
           "flag": "above_average"
         },
         {
@@ -395,14 +395,14 @@
           "flag": "above_average"
         },
         {
-          "value": "Group 57",
-          "tickets": 83,
-          "breach_rate": 0.542,
+          "value": "Group 9",
+          "tickets": 52,
+          "breach_rate": 0.865,
           "breaches": 45,
           "share_of_all_breaches": 0.041,
-          "vs_overall_breach_rate": 0.318,
-          "median_resolution_hours": 89.8,
-          "avg_reassignments": 1.02,
+          "vs_overall_breach_rate": 0.641,
+          "median_resolution_hours": 1212.7,
+          "avg_reassignments": 1.63,
           "flag": "above_average"
         }
       ]

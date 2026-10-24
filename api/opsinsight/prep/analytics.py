@@ -28,7 +28,7 @@ def kpi(id, label, now, before, unit, definition, higher_is_better, warn=None, c
         status, trend = "info", (None if change is None else "up" if change > 0 else "down" if change < 0 else "flat")
     else:
         if mode == "change":
-            bad = -chg_pct if higher_is_better else chg_pct
+            bad = 0 if chg_pct is None else (-chg_pct if higher_is_better else chg_pct)   # no earlier value: no alarm
             status = "critical" if bad >= crit else "warning" if bad >= warn else "good"
         elif higher_is_better:
             status = "critical" if now <= crit else "warning" if now <= warn else "good"
@@ -184,7 +184,12 @@ def incident_analysis(tickets, features, quality, dataset_name="Incident log"):
          "share_of_breaches_current_period": num(cur.loc[cur["final_reopen_count"] > 0, "breached"].sum() / cur["breached"].sum()),
          "confidence": "medium", "linked_recommendations": []},
     ]
-
+    # a file without reassignment or reopen counts (filled with 0) can't show those causes or KPIs
+    gone = {"RC1", "reassignment_rate"} if pd.isna(r1) else set()
+    gone |= {"RC3", "reopen_rate"} if pd.isna(ro1) else set()
+    root_causes = [rc for rc in root_causes if rc["id"] not in gone]
+    kpis = [k for k in kpis if k["id"] not in gone]
+    
     return {
         "schema_version": "1.0",
         "meta": {"analysis_id": "inc-" + _now()[:10], "generated_at": _now(), "domain": "support_tickets",
@@ -282,6 +287,20 @@ def sales_analysis(orders, features, quality, dataset_name="Sales orders"):
          "affected_orders_current_period": int(cur["late"].sum()), "share_of_late_current_period": 1.0,
          "confidence": "high", "linked_recommendations": []},
     ]
+    
+        # an orders file without items, ship dates, reviews or Brazilian states can't show those parts
+    gone = set()
+    if not d["revenue"].sum():
+        gone.add("revenue")
+    if d["dispatch_days"].isna().all():
+        gone |= {"avg_dispatch_days", "RC1"}
+    if d["review_score"].isna().all():
+        gone |= {"avg_review_score", "RC4"}
+    if ne.empty or sp.empty:
+        gone.add("RC2")
+    kpis = [k for k in kpis if k["id"] not in gone]
+    root_causes = [rc for rc in root_causes if rc["id"] not in gone]
+
 
     return {
         "schema_version": "1.0",

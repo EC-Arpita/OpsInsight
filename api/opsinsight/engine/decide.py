@@ -54,8 +54,9 @@ def add_decisions(analysis: dict, domain: str, tables: dict) -> dict:
         orders, features = tables["orders"], tables["features"]
         est = sales_estimates(orders, features)
         replay = replay_dispatch(orders, features)
-        est["seller_dispatch_deadline"]["method"] += (f" Replay check: replaying each order with a typical dispatch time "
-                                                      f"avoids {replay['late_orders_avoided']} late orders (optimistic upper end).")
+        if "seller_dispatch_deadline" in est:
+            est["seller_dispatch_deadline"]["method"] += (f" Replay check: replaying each order with a typical dispatch time "
+                                                          f"avoids {replay['late_orders_avoided']} late orders (optimistic upper end).")
         base = est["_baseline"]
         cur_late = base["late_rate"]
         texts = {}

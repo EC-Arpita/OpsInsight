@@ -64,7 +64,7 @@ def build_recommendations(domain: str, findings: dict, estimates: dict, plan_tex
         if entry is None or entry["rec_id"] in used:
             continue                                        # no proven action for this type, or already proposed
         est = estimates.get(entry["estimate"])
-        if est is None:
+        if est is None or est["saved"] <= 0:               # no estimate, or an action that would change nothing
             continue
         used.add(entry["rec_id"])
         subject = f.get("subject")

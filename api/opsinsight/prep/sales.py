@@ -122,7 +122,8 @@ def clean_and_join(tables: dict, window=DEFAULT_WINDOW, log: QualityLog = None) 
     df = safe_merge(df, rev_one, "order_id", "reviews")
     df = safe_merge(df, sellers, "main_seller_id", "sellers")
     before = len(df)
-    df = df[df["n_items"].notna()].copy()
+    if len(items_agg):                                     # no items file at all: keep every order
+        df = df[df["n_items"].notna()].copy()
     log.add("drop orders with no items", before, len(df))
 
     # target
@@ -146,7 +147,7 @@ CATEGORY_PLAN = {"customer_state": 27, "seller_state": 27, "customer_region": 6,
 
 
 def _haversine_km(lat1, lng1, lat2, lng2):
-    lat1, lng1, lat2, lng2 = map(np.radians, [lat1, lng1, lat2, lng2])
+    lat1, lng1, lat2, lng2 = (np.radians(pd.to_numeric(x, errors="coerce")) for x in (lat1, lng1, lat2, lng2))   # empty file: text dtype
     a = np.sin((lat2 - lat1) / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin((lng2 - lng1) / 2) ** 2
     return 6371 * 2 * np.arcsin(np.sqrt(a))
 
@@ -182,7 +183,7 @@ def build_features(orders: pd.DataFrame, test_share=0.2, m=20):
     # geography
     df["distance_km"] = _haversine_km(df["customer_lat"], df["customer_lng"], df["seller_lat"], df["seller_lng"])
     df["same_state"] = (df["customer_state"] == df["seller_state"]).astype(int)
-    df["customer_region"] = df["customer_state"].map(REGION).fillna("Unknown")
+    df["customer_region"] = df["customer_state"].map(REGION).fillna(df["customer_state"]).fillna("Unknown")   # non-Brazil: keep own region
     df["seller_region"] = df["seller_state"].map(REGION).fillna("Unknown")
     fd.add("distance_km", "haversine distance between seller and customer zip (km); missing if a zip has no coordinates", "geography")
     fd.add("same_state", "1 if seller and customer are in the same state", "geography")
@@ -211,7 +212,7 @@ def build_features(orders: pd.DataFrame, test_share=0.2, m=20):
 
     # history: only outcomes known at approval
     prior = df.loc[df["split"] == "train", "late"].mean()
-    df["route"] = df["seller_state"].fillna("?") + "→" + df["customer_state"].fillna("?")
+    df["route"] = df["seller_state"].fillna("?").astype(str) + "→" + df["customer_state"].fillna("?").astype(str)
     for key, label in [("main_seller_id", "seller"), ("main_category", "category"), ("route", "route"),
                        ("customer_state", "customer_state")]:
         df[f"{label}_past_late_rate"], _ = past_mean(df, key, "late", "delivered_at", "approved_at", prior, m)
@@ -240,6 +241,8 @@ def build_features(orders: pd.DataFrame, test_share=0.2, m=20):
         fd.add(f"{col}_cat", f"{col}, top {n} values from training period, rest = 'Other'", "category")
 
     features = df[["order_id", "purchased_at", "approved_at", "split"] + fd.names + ["late"]].copy()
+    numeric = [c for c in fd.names if not c.endswith("_cat")]
+    features[numeric] = features[numeric].apply(pd.to_numeric, errors="coerce")   # an empty optional file reads as text
     leaky = {"delivered_at", "carrier_at", "review_score", "days_late", "_dispatch_days", "order_status"} & set(features.columns)
     if leaky:
         raise ValueError(f"leaky columns in features: {leaky}")

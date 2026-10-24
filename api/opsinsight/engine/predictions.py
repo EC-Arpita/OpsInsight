@@ -10,6 +10,9 @@ ACTIONS = {"incidents": "Fast-track: senior agent picks it up within 1 hour",
 def _ts(v):
     return None if pd.isna(v) else f"{pd.Timestamp(v):%Y-%m-%dT%H:%M}"
 
+def _v(v):
+    return None if pd.isna(v) else v                       # empty value -> null (JSON has no NaN)
+
 
 def _context(domain, row):
     if domain == "incidents":
@@ -17,10 +20,11 @@ def _context(domain, row):
                 "subcategory": row["subcategory"], "priority": None if pd.isna(row["priority_n"]) else int(row["priority_n"]),
                 "location": row["location"], "contact_type": row["contact_type"]}
     return {"approved_at": _ts(row["approved_at"]), "promised_by": _ts(row["estimated_at"])[:10] if _ts(row["estimated_at"]) else None,
-            "customer_state": row["customer_state"], "customer_city": row["customer_city"], "seller_id": row["main_seller_id"],
-            "seller_state": row["seller_state"], "category": row["main_category"],
-            "order_value": round(float(row["payment_total"]), 2), "n_items": int(row["n_items"]),
-            "payment_type": row["main_payment_type"]}
+            "customer_state": _v(row["customer_state"]), "customer_city": _v(row["customer_city"]),
+            "seller_id": _v(row["main_seller_id"]), "seller_state": _v(row["seller_state"]), "category": _v(row["main_category"]),
+            "order_value": None if pd.isna(row["payment_total"]) else round(float(row["payment_total"]), 2),
+            "n_items": None if pd.isna(row["n_items"]) else int(row["n_items"]),         # orders-only files have neither
+            "payment_type": _v(row["main_payment_type"])}
 
 
 def _similar(domain, row, history):
@@ -44,6 +48,7 @@ def predictions_section(domain: str, table: pd.DataFrame, features: pd.DataFrame
     scored["risk"] = scored["prediction"].map(lambda p: p["risk"])
     best = scored.sort_values("risk", ascending=False).head(top)
     rows = table.set_index(id_col)
+    rows.index = rows.index.astype(str)                    # predictions use text ids; some files have numbers
     train_ids = set(features.loc[features["split"] == "train", id_col])
     history = table[table[id_col].isin(train_ids)]
     if domain == "sales":

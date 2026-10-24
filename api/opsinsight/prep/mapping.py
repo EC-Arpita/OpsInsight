@@ -12,14 +12,14 @@ SCHEMAS = {
     "incidents": {
         "number": (True, ["ticket_id", "ticket_no", "ticket_number", "incident_id", "incident_number", "case_id", "id"], None),
         "opened_at": (True, ["created_at", "created_date", "open_date", "opened_date", "created", "creation_time", "reported_at"], None),
-        "sys_updated_at": (True, ["updated_at", "updated", "last_updated", "modified_at", "event_time", "timestamp"], None),
-        "sys_mod_count": (True, ["update_number", "event_number", "update_count", "version", "mod_count", "sequence"], None),
-        "made_sla": (True, ["sla_met", "within_sla", "sla_achieved", "met_sla", "sla_ok"], None),
+        "sys_updated_at": (False, ["updated_at", "updated", "last_updated", "modified_at", "event_time", "timestamp"], None),
+        "sys_mod_count": (False, ["update_number", "event_number", "update_count", "version", "mod_count", "sequence"], 0),
+        "made_sla": (True, ["sla_met", "within_sla", "sla_achieved", "met_sla", "sla_ok", "sla_status", "sla"], None),
         "assignment_group": (True, ["team", "assigned_team", "support_group", "queue", "group", "resolver_group"], None),
         "priority": (True, ["priority_level", "prio", "severity_priority"], None),
         "category": (True, ["ticket_category", "issue_category", "type", "issue_type"], None),
         "resolved_at": (True, ["resolved_date", "resolution_date", "resolved", "fixed_at", "solved_at"], None),
-        "closed_at": (True, ["closed_date", "close_date", "closed", "completed_at"], None),
+        "closed_at": (False, ["closed_date", "close_date", "closed", "completed_at"], None),
         "incident_state": (False, ["state", "status", "ticket_status", "stage"], "Unknown"),
         "subcategory": (False, ["sub_category", "subcat", "ticket_subcategory"], None),
         "u_symptom": (False, ["symptom", "issue", "problem_description"], None),
@@ -48,6 +48,7 @@ SCHEMAS = {
         "order_delivered_carrier_date": (False, ["shipped_at", "ship_date", "dispatch_date", "handed_to_carrier"], None),
         "order_delivered_customer_date": (True, ["delivered_at", "delivery_date", "received_at"], None),
         "order_estimated_delivery_date": (True, ["promised_date", "estimated_delivery", "eta", "expected_delivery"], None),
+        "customer_state": (False, ["region", "state", "customer_region", "order_region", "delivery_region", "zone"], None),
     },
 }
 MIN_SCORE = 0.6     # below this, no automatic match: the analyst picks by hand

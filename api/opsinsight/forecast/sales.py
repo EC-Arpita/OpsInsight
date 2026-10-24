@@ -10,7 +10,7 @@ LEAVE_OUT_LAST_DAYS = 21  # orders to far regions reach the export late, so the 
 
 def region_counts(orders: pd.DataFrame) -> pd.DataFrame:
     """Orders placed per customer region per day (every order, delivered or not)."""
-    orders = orders.assign(customer_region=orders["customer_state"].map(REGION).fillna("Unknown"))
+    orders = orders.assign(customer_region=orders["customer_state"].map(REGION).fillna(orders["customer_state"]).fillna("Unknown"))
     regions = list(orders["customer_region"].value_counts().index.drop("Unknown", errors="ignore"))
     return daily_counts(orders, "purchased_at", "customer_region", regions)
 

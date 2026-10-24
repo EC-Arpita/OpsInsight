@@ -18,9 +18,8 @@ export default function RiskList({ predictions, words }) {
         <ul>
           {items.map((it) => {
             const c = it.context;
-            const sub = words.item === "ticket"
-              ? `${c.team}, ${c.category}`
-              : `${c.seller_state} to ${c.customer_state}, ${c.category.replaceAll("_", " ")}`;
+            const route = [c.seller_state, c.customer_state].filter(Boolean).join(" to ");   // orders-only files have no seller or category
+            const sub = words.item === "ticket" ? `${c.team}, ${c.category}` : [route, c.category?.replaceAll("_", " ")].filter(Boolean).join(", ");
             return (
               <li key={it.id}>
                 <button

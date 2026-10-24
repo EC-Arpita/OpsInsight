@@ -38,9 +38,10 @@ def ticket_estimates(tickets: pd.DataFrame, features: pd.DataFrame, worst_team: 
     out = {}
     r1 = tickets.loc[tickets["final_reassignment_count"] == 1, "breached"].mean()   # whole data, as in the root cause
     r2 = cur[cur["final_reassignment_count"] >= 2]
-    out["route_first_time"] = _result(r2["breached"].sum() - len(r2) * r1, n, bad,
-        "Tickets with 2+ reassignments in the current period assumed to breach at the 1-reassignment rate.",
-        ["Better routing cuts repeat reassignments, not the first one"])
+    if pd.notna(r1):                                   # files without reassignment counts can't estimate this
+        out["route_first_time"] = _result(r2["breached"].sum() - len(r2) * r1, n, bad,
+            "Tickets with 2+ reassignments in the current period assumed to breach at the 1-reassignment rate.",
+            ["Better routing cuts repeat reassignments, not the first one"])
     if worst_team:
         w = cur[cur["assignment_group"] == worst_team]
         out["rebalance_team"] = _result(max(0.0, w["breached"].sum() - len(w) * bad / n), n, bad,
@@ -95,8 +96,10 @@ def sales_estimates(orders: pd.DataFrame, features: pd.DataFrame) -> dict:
     q50, q90 = d["dispatch_days"].quantile([0.5, 0.9])
     medium_rate = d.loc[d["dispatch_days"].between(q50, q90), "late"].mean()
     slow = cur[cur["dispatch_days"] >= q90]
-    out = {"seller_dispatch_deadline": _result(slow["late"].sum() - len(slow) * medium_rate, n, bad,
-        "Slow-dispatch orders assumed to be late at the rate of medium-dispatch orders.", ["Sellers respond to alerts"])}
+    out = {}
+    if d["dispatch_days"].notna().any():                   # needs ship dates; an orders-only file may not have them
+        out["seller_dispatch_deadline"] = _result(slow["late"].sum() - len(slow) * medium_rate, n, bad,
+            "Slow-dispatch orders assumed to be late at the rate of medium-dispatch orders.", ["Sellers respond to alerts"])
     ne = cur[cur["customer_state"].isin(NORTHEAST)]
     out["region_buffer_days"] = _result(ne["late"].sum() * 0.40, n, bad,
         "Assumes 40% of North-East late orders arrive within the added buffer (validate with delivery-day distribution).",

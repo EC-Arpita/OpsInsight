@@ -35,6 +35,52 @@ def _mapping(upload: dict, overrides: dict | None) -> dict:
     mapping.update(overrides or {})                       # the analyst's corrections win
     return {k: v for k, v in mapping.items() if v}       # an empty value means "not in my file"
 
+YES = {"true", "yes", "y", "1", "met", "achieved", "within", "ok", "on time"}
+PRIORITY_WORDS = {"critical": 1, "urgent": 1, "high": 2, "medium": 3, "moderate": 3, "normal": 3, "low": 4}
+
+
+def standardise_tickets(df: pd.DataFrame) -> pd.DataFrame:
+    """Another company's tickets -> the forms the cleaning code expects (dates, True/False SLA, numbered priority)."""
+    df = df.copy()
+    for c in inc.DATE_COLS:                                # any date style -> 13/02/2016 09:47
+        if df[c].notna().any():
+            df[c] = to_dates(df[c]).dt.strftime(inc.DATE_FORMAT)
+    if df["made_sla"].dtype != bool:                       # "Met"/"Missed", "Yes"/"No", 1/0 -> True/False
+        df["made_sla"] = df["made_sla"].astype(str).str.strip().str.lower().isin(YES)
+    for c in ["priority", "impact", "urgency"]:            # "High" -> "2 - High", so a number can be read
+        text = df[c].astype(str).str.strip()
+        number = text.str.lower().map(PRIORITY_WORDS)
+        fix = number.notna() & ~text.str.contains(r"\d")
+        df.loc[fix, c] = number[fix].astype(int).astype(str) + " - " + text[fix]
+    return df
+
+SALES_DATES = ["order_purchase_timestamp", "order_approved_at", "order_delivered_carrier_date",
+               "order_delivered_customer_date", "order_estimated_delivery_date"]
+DELIVERED = {"delivered", "complete", "completed", "closed", "done", "fulfilled"}
+OLIST_COLUMNS = {
+    "items": ["order_id", "order_item_id", "product_id", "seller_id", "shipping_limit_date", "price", "freight_value"],
+    "payments": ["order_id", "payment_sequential", "payment_type", "payment_installments", "payment_value"],
+    "reviews": ["review_id", "order_id", "review_score", "review_comment_title", "review_comment_message",
+                "review_creation_date", "review_answer_timestamp"],
+    "customers": ["customer_id", "customer_unique_id", "customer_zip_code_prefix", "customer_city", "customer_state"],
+    "sellers": ["seller_id", "seller_zip_code_prefix", "seller_city", "seller_state"],
+    "products": ["product_id", "product_category_name", "product_name_lenght", "product_description_lenght",
+                 "product_photos_qty", "product_weight_g", "product_length_cm", "product_height_cm", "product_width_cm"],
+    "geolocation": ["geolocation_zip_code_prefix", "geolocation_lat", "geolocation_lng", "geolocation_city", "geolocation_state"],
+    "translation": ["product_category_name", "product_category_name_english"],
+}
+
+
+def standardise_orders(df: pd.DataFrame) -> pd.DataFrame:
+    """Another company's orders -> Olist forms (year-first dates, 'delivered' as the finished status)."""
+    df = df.copy()
+    for c in SALES_DATES:
+        if df[c].notna().any():
+            df[c] = to_dates(df[c])
+    status = df["order_status"].astype(str).str.strip().str.lower()
+    df["order_status"] = status.where(~status.isin(DELIVERED), "delivered")
+    return df
+
 
 def run_tickets(upload, mapping, sla_rules=None) -> tuple:
     raw = read_table(Path(upload["folder"]) / upload["main_file"])
@@ -43,7 +89,7 @@ def run_tickets(upload, mapping, sla_rules=None) -> tuple:
             raise UploadError("This file has no 'SLA met' column. Send SLA rules (hours allowed per priority).")
         raw = apply_sla_rules(raw, mapping, sla_rules)
         mapping = {**mapping, "made_sla": "made_sla"}
-    df = apply_mapping(raw, mapping, "incidents")
+    df = standardise_tickets(apply_mapping(raw, mapping, "incidents"))
     log = QualityLog()
     first_rows = df.drop_duplicates("number")["opened_at"]      # one opening time per ticket
     events = inc.clean_events(df, window=auto_window(first_rows), log=log)
@@ -61,12 +107,19 @@ def run_sales(upload, mapping) -> tuple:
     orders_raw = read_table(folder / upload["main_file"])
     work = folder / "standard"                             # Olist file names, the format the sales pipeline reads
     work.mkdir(exist_ok=True)
-    apply_mapping(orders_raw, mapping, "sales_orders").to_csv(work / sal.FILES["orders"], index=False)
+    orders = standardise_orders(apply_mapping(orders_raw, mapping, "sales_orders"))
+    region = orders.pop("customer_state")                  # the region lives in the customers file in Olist's format
+    orders.to_csv(work / sal.FILES["orders"], index=False)
     for key, name in sal.FILES.items():
-        if key != "orders":
-            if not (folder / name).exists():
-                raise UploadError(f"Sales uploads need all 9 files; {name} is missing.")
+        if key == "orders":
+            continue
+        if (folder / name).exists():
             (work / name).write_bytes((folder / name).read_bytes())
+        elif key == "customers" and region.notna().any():  # no customers file: take the region from the orders file
+            customers = pd.DataFrame({"customer_id": orders["customer_id"], "customer_state": region})
+            customers.drop_duplicates("customer_id").reindex(columns=OLIST_COLUMNS["customers"]).to_csv(work / name, index=False)
+        else:                                              # only the orders file is required: the rest start empty
+            pd.DataFrame(columns=OLIST_COLUMNS[key]).to_csv(work / name, index=False)
     out = sal.prepare_sales(work, window=auto_window(orders_raw[mapping["order_purchase_timestamp"]]))
     orders, features = out["orders"], out["features"]
     analysis = sales_analysis(orders, features, out["quality"], f"{upload['company']} sales orders")

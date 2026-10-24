@@ -9,3 +9,9 @@ data/processed/
 __pycache__/
 .ipynb_checkpoints/
 *.pyc
+
+.DS_Store
+data/
+
+frontend/node_modules/
+frontend/dist/

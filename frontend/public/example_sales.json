@@ -1,0 +1,3203 @@
+{
+  "schema_version": "1.0",
+  "meta": {
+    "analysis_id": "sales-2026-10-24",
+    "generated_at": "2026-10-24T14:52:03Z",
+    "domain": "sales_orders",
+    "dataset_name": "Olist Brazilian E-Commerce",
+    "item_type": "order",
+    "target": {
+      "name": "late_delivery",
+      "definition": "delivered after the estimated (promised) delivery date"
+    },
+    "prediction_moment": "when the order is approved",
+    "data_period": {
+      "start": "2017-01-05",
+      "end": "2018-08-29"
+    },
+    "current_period": {
+      "start": "2018-05-26",
+      "end": "2018-08-29"
+    },
+    "previous_period": {
+      "start": "2018-02-20",
+      "end": "2018-05-26"
+    },
+    "currency": "BRL",
+    "timezone": "America/Sao_Paulo"
+  },
+  "data_quality": {
+    "rows_in_raw_file": 99441,
+    "orders_used_for_analysis": 96019,
+    "cleaning_steps": [
+      {
+        "step": "1. load orders",
+        "rows_before": 99441,
+        "rows_after": 99441,
+        "rows_removed": 0,
+        "note": ""
+      },
+      {
+        "step": "2. keep purchases 1 Jan 2017 \u2013 31 Aug 2018",
+        "rows_before": 99441,
+        "rows_after": 99092,
+        "rows_removed": 349,
+        "note": ""
+      },
+      {
+        "step": "3. drop impossible timelines",
+        "rows_before": 99092,
+        "rows_after": 98907,
+        "rows_removed": 185,
+        "note": ""
+      },
+      {
+        "step": "geo: drop points outside Brazil",
+        "rows_before": 1000163,
+        "rows_after": 1000121,
+        "rows_removed": 42,
+        "note": ""
+      },
+      {
+        "step": "4. drop orders with no items",
+        "rows_before": 98907,
+        "rows_after": 98168,
+        "rows_removed": 739,
+        "note": ""
+      },
+      {
+        "step": "5. model rows = delivered with a delivery date",
+        "rows_before": 98168,
+        "rows_after": 96019,
+        "rows_removed": 2149,
+        "note": "others kept, flagged 0"
+      }
+    ],
+    "warnings": [
+      {
+        "level": "warning",
+        "message": "Recent orders are right-censored: slow orders from late Aug 2018 had not arrived at export time, so the current late rate is understated."
+      },
+      {
+        "level": "info",
+        "message": "275 customer and 216 seller locations could not be geocoded; distance is empty for those orders."
+      },
+      {
+        "level": "info",
+        "message": "Only delivered orders are used for late-delivery analysis; 2,149 other orders are kept for status analysis."
+      }
+    ],
+    "modules": [
+      {
+        "module": "kpis",
+        "enabled": true
+      },
+      {
+        "module": "root_cause",
+        "enabled": true
+      },
+      {
+        "module": "late_risk_model",
+        "enabled": true
+      },
+      {
+        "module": "forecast",
+        "enabled": true
+      },
+      {
+        "module": "revenue_impact",
+        "enabled": true
+      }
+    ]
+  },
+  "kpis": [
+    {
+      "id": "orders_delivered",
+      "label": "Orders delivered",
+      "value": 19204,
+      "unit": "orders",
+      "previous_value": 22105,
+      "change": -2901,
+      "change_pct": -13.1,
+      "trend": "down",
+      "higher_is_better": null,
+      "status": "info",
+      "status_rule": null,
+      "definition": "Delivered orders purchased in the period"
+    },
+    {
+      "id": "revenue",
+      "label": "Revenue (items + freight)",
+      "value": 3141322.0,
+      "unit": "BRL",
+      "previous_value": 3592162.0,
+      "change": -450840.0,
+      "change_pct": -12.6,
+      "trend": "worsening",
+      "higher_is_better": true,
+      "status": "warning",
+      "status_rule": {
+        "mode": "change",
+        "warning": 5,
+        "critical": 20,
+        "meaning": "thresholds on % change in the bad direction"
+      },
+      "definition": "Sum of item price and freight"
+    },
+    {
+      "id": "late_delivery_rate",
+      "label": "Late delivery rate",
+      "value": 0.053,
+      "unit": "ratio",
+      "previous_value": 0.135,
+      "change": -0.082,
+      "change_pct": -60.6,
+      "trend": "improving",
+      "higher_is_better": false,
+      "status": "good",
+      "status_rule": {
+        "mode": "level",
+        "warning": 0.07,
+        "critical": 0.1,
+        "meaning": "thresholds on the value"
+      },
+      "definition": "Share delivered after the promised date"
+    },
+    {
+      "id": "avg_delivery_days",
+      "label": "Average delivery time",
+      "value": 8.8,
+      "unit": "days",
+      "previous_value": 13.7,
+      "change": -4.9,
+      "change_pct": -36.0,
+      "trend": "improving",
+      "higher_is_better": false,
+      "status": "good",
+      "status_rule": {
+        "mode": "level",
+        "warning": 12,
+        "critical": 15,
+        "meaning": "thresholds on the value"
+      },
+      "definition": "Days from purchase to delivery"
+    },
+    {
+      "id": "avg_dispatch_days",
+      "label": "Average seller dispatch time",
+      "value": 2.29,
+      "unit": "days",
+      "previous_value": 2.56,
+      "change": -0.27,
+      "change_pct": -10.5,
+      "trend": "improving",
+      "higher_is_better": false,
+      "status": "good",
+      "status_rule": {
+        "mode": "level",
+        "warning": 3,
+        "critical": 4,
+        "meaning": "thresholds on the value"
+      },
+      "definition": "Days from approval to carrier pickup"
+    },
+    {
+      "id": "avg_review_score",
+      "label": "Average review score",
+      "value": 4.31,
+      "unit": "stars (1-5)",
+      "previous_value": 4.03,
+      "change": 0.28,
+      "change_pct": 6.9,
+      "trend": "improving",
+      "higher_is_better": true,
+      "status": "good",
+      "status_rule": {
+        "mode": "level",
+        "warning": 4.0,
+        "critical": 3.5,
+        "meaning": "thresholds on the value"
+      },
+      "definition": "Mean review score of delivered orders"
+    }
+  ],
+  "trends": {
+    "granularity": "week",
+    "series": [
+      {
+        "week_ending": "2017-01-08",
+        "orders": 44,
+        "late_rate": 0.023,
+        "revenue": 3651.0,
+        "avg_delivery_days": 11.5
+      },
+      {
+        "week_ending": "2017-01-15",
+        "orders": 73,
+        "late_rate": 0.068,
+        "revenue": 12582.0,
+        "avg_delivery_days": 14.8
+      },
+      {
+        "week_ending": "2017-01-22",
+        "orders": 189,
+        "late_rate": 0.011,
+        "revenue": 27206.0,
+        "avg_delivery_days": 11.8
+      },
+      {
+        "week_ending": "2017-01-29",
+        "orders": 331,
+        "late_rate": 0.027,
+        "revenue": 60741.0,
+        "avg_delivery_days": 12.9
+      },
+      {
+        "week_ending": "2017-02-05",
+        "orders": 431,
+        "late_rate": 0.035,
+        "revenue": 78241.0,
+        "avg_delivery_days": 12.6
+      },
+      {
+        "week_ending": "2017-02-12",
+        "orders": 510,
+        "late_rate": 0.029,
+        "revenue": 86764.0,
+        "avg_delivery_days": 12.2
+      },
+      {
+        "week_ending": "2017-02-19",
+        "orders": 379,
+        "late_rate": 0.018,
+        "revenue": 59815.0,
+        "avg_delivery_days": 13.3
+      },
+      {
+        "week_ending": "2017-02-26",
+        "orders": 349,
+        "late_rate": 0.043,
+        "revenue": 50344.0,
+        "avg_delivery_days": 14.7
+      },
+      {
+        "week_ending": "2017-03-05",
+        "orders": 461,
+        "late_rate": 0.063,
+        "revenue": 77517.0,
+        "avg_delivery_days": 12.7
+      },
+      {
+        "week_ending": "2017-03-12",
+        "orders": 548,
+        "late_rate": 0.044,
+        "revenue": 85379.0,
+        "avg_delivery_days": 12.9
+      },
+      {
+        "week_ending": "2017-03-19",
+        "orders": 591,
+        "late_rate": 0.063,
+        "revenue": 106515.0,
+        "avg_delivery_days": 13.8
+      },
+      {
+        "week_ending": "2017-03-26",
+        "orders": 623,
+        "late_rate": 0.059,
+        "revenue": 96929.0,
+        "avg_delivery_days": 12.4
+      },
+      {
+        "week_ending": "2017-04-02",
+        "orders": 546,
+        "late_rate": 0.048,
+        "revenue": 95902.0,
+        "avg_delivery_days": 13.2
+      },
+      {
+        "week_ending": "2017-04-09",
+        "orders": 563,
+        "late_rate": 0.066,
+        "revenue": 98871.0,
+        "avg_delivery_days": 13.9
+      },
+      {
+        "week_ending": "2017-04-16",
+        "orders": 421,
+        "late_rate": 0.093,
+        "revenue": 64812.0,
+        "avg_delivery_days": 15.1
+      },
+      {
+        "week_ending": "2017-04-23",
+        "orders": 545,
+        "late_rate": 0.103,
+        "revenue": 96343.0,
+        "avg_delivery_days": 15.8
+      },
+      {
+        "week_ending": "2017-04-30",
+        "orders": 644,
+        "late_rate": 0.07,
+        "revenue": 101474.0,
+        "avg_delivery_days": 15.2
+      },
+      {
+        "week_ending": "2017-05-07",
+        "orders": 750,
+        "late_rate": 0.036,
+        "revenue": 112881.0,
+        "avg_delivery_days": 13.6
+      },
+      {
+        "week_ending": "2017-05-14",
+        "orders": 753,
+        "late_rate": 0.057,
+        "revenue": 126078.0,
+        "avg_delivery_days": 11.1
+      },
+      {
+        "week_ending": "2017-05-21",
+        "orders": 916,
+        "late_rate": 0.026,
+        "revenue": 139951.0,
+        "avg_delivery_days": 10.5
+      },
+      {
+        "week_ending": "2017-05-28",
+        "orders": 759,
+        "late_rate": 0.033,
+        "revenue": 129451.0,
+        "avg_delivery_days": 10.5
+      },
+      {
+        "week_ending": "2017-06-04",
+        "orders": 799,
+        "late_rate": 0.03,
+        "revenue": 128653.0,
+        "avg_delivery_days": 11.7
+      },
+      {
+        "week_ending": "2017-06-11",
+        "orders": 814,
+        "late_rate": 0.028,
+        "revenue": 123407.0,
+        "avg_delivery_days": 12.1
+      },
+      {
+        "week_ending": "2017-06-18",
+        "orders": 725,
+        "late_rate": 0.051,
+        "revenue": 114725.0,
+        "avg_delivery_days": 12.8
+      },
+      {
+        "week_ending": "2017-06-25",
+        "orders": 635,
+        "late_rate": 0.041,
+        "revenue": 101016.0,
+        "avg_delivery_days": 11.3
+      },
+      {
+        "week_ending": "2017-07-02",
+        "orders": 705,
+        "late_rate": 0.034,
+        "revenue": 106620.0,
+        "avg_delivery_days": 11.6
+      },
+      {
+        "week_ending": "2017-07-09",
+        "orders": 793,
+        "late_rate": 0.034,
+        "revenue": 120749.0,
+        "avg_delivery_days": 11.9
+      },
+      {
+        "week_ending": "2017-07-16",
+        "orders": 924,
+        "late_rate": 0.038,
+        "revenue": 131865.0,
+        "avg_delivery_days": 12.3
+      },
+      {
+        "week_ending": "2017-07-23",
+        "orders": 933,
+        "late_rate": 0.033,
+        "revenue": 138146.0,
+        "avg_delivery_days": 11.3
+      },
+      {
+        "week_ending": "2017-07-30",
+        "orders": 890,
+        "late_rate": 0.034,
+        "revenue": 126822.0,
+        "avg_delivery_days": 11.3
+      },
+      {
+        "week_ending": "2017-08-06",
+        "orders": 954,
+        "late_rate": 0.034,
+        "revenue": 137518.0,
+        "avg_delivery_days": 11.1
+      },
+      {
+        "week_ending": "2017-08-13",
+        "orders": 909,
+        "late_rate": 0.032,
+        "revenue": 144979.0,
+        "avg_delivery_days": 11.1
+      },
+      {
+        "week_ending": "2017-08-20",
+        "orders": 1008,
+        "late_rate": 0.031,
+        "revenue": 143084.0,
+        "avg_delivery_days": 11.2
+      },
+      {
+        "week_ending": "2017-08-27",
+        "orders": 862,
+        "late_rate": 0.03,
+        "revenue": 122807.0,
+        "avg_delivery_days": 11.0
+      },
+      {
+        "week_ending": "2017-09-03",
+        "orders": 979,
+        "late_rate": 0.039,
+        "revenue": 199711.0,
+        "avg_delivery_days": 11.2
+      },
+      {
+        "week_ending": "2017-09-10",
+        "orders": 879,
+        "late_rate": 0.05,
+        "revenue": 150770.0,
+        "avg_delivery_days": 12.0
+      },
+      {
+        "week_ending": "2017-09-17",
+        "orders": 1136,
+        "late_rate": 0.078,
+        "revenue": 181510.0,
+        "avg_delivery_days": 12.0
+      },
+      {
+        "week_ending": "2017-09-24",
+        "orders": 956,
+        "late_rate": 0.052,
+        "revenue": 146229.0,
+        "avg_delivery_days": 11.9
+      },
+      {
+        "week_ending": "2017-10-01",
+        "orders": 925,
+        "late_rate": 0.027,
+        "revenue": 160890.0,
+        "avg_delivery_days": 11.7
+      },
+      {
+        "week_ending": "2017-10-08",
+        "orders": 975,
+        "late_rate": 0.036,
+        "revenue": 164000.0,
+        "avg_delivery_days": 12.2
+      },
+      {
+        "week_ending": "2017-10-15",
+        "orders": 1030,
+        "late_rate": 0.059,
+        "revenue": 170925.0,
+        "avg_delivery_days": 12.1
+      },
+      {
+        "week_ending": "2017-10-22",
+        "orders": 1105,
+        "late_rate": 0.057,
+        "revenue": 187811.0,
+        "avg_delivery_days": 11.6
+      },
+      {
+        "week_ending": "2017-10-29",
+        "orders": 950,
+        "late_rate": 0.048,
+        "revenue": 158203.0,
+        "avg_delivery_days": 11.6
+      },
+      {
+        "week_ending": "2017-11-05",
+        "orders": 900,
+        "late_rate": 0.063,
+        "revenue": 162910.0,
+        "avg_delivery_days": 12.2
+      },
+      {
+        "week_ending": "2017-11-12",
+        "orders": 1168,
+        "late_rate": 0.06,
+        "revenue": 180022.0,
+        "avg_delivery_days": 12.9
+      },
+      {
+        "week_ending": "2017-11-19",
+        "orders": 1259,
+        "late_rate": 0.098,
+        "revenue": 201307.0,
+        "avg_delivery_days": 13.7
+      },
+      {
+        "week_ending": "2017-11-26",
+        "orders": 2915,
+        "late_rate": 0.194,
+        "revenue": 464133.0,
+        "avg_delivery_days": 16.7
+      },
+      {
+        "week_ending": "2017-12-03",
+        "orders": 2046,
+        "late_rate": 0.167,
+        "revenue": 307783.0,
+        "avg_delivery_days": 16.3
+      },
+      {
+        "week_ending": "2017-12-10",
+        "orders": 1631,
+        "late_rate": 0.12,
+        "revenue": 252279.0,
+        "avg_delivery_days": 16.1
+      },
+      {
+        "week_ending": "2017-12-17",
+        "orders": 1367,
+        "late_rate": 0.063,
+        "revenue": 214100.0,
+        "avg_delivery_days": 15.1
+      },
+      {
+        "week_ending": "2017-12-24",
+        "orders": 952,
+        "late_rate": 0.068,
+        "revenue": 145866.0,
+        "avg_delivery_days": 15.1
+      },
+      {
+        "week_ending": "2017-12-31",
+        "orders": 857,
+        "late_rate": 0.036,
+        "revenue": 117037.0,
+        "avg_delivery_days": 14.2
+      },
+      {
+        "week_ending": "2018-01-07",
+        "orders": 1341,
+        "late_rate": 0.04,
+        "revenue": 207574.0,
+        "avg_delivery_days": 13.7
+      },
+      {
+        "week_ending": "2018-01-14",
+        "orders": 1738,
+        "late_rate": 0.045,
+        "revenue": 271037.0,
+        "avg_delivery_days": 13.9
+      },
+      {
+        "week_ending": "2018-01-21",
+        "orders": 1704,
+        "late_rate": 0.076,
+        "revenue": 251463.0,
+        "avg_delivery_days": 13.9
+      },
+      {
+        "week_ending": "2018-01-28",
+        "orders": 1545,
+        "late_rate": 0.084,
+        "revenue": 241040.0,
+        "avg_delivery_days": 14.2
+      },
+      {
+        "week_ending": "2018-02-04",
+        "orders": 1561,
+        "late_rate": 0.079,
+        "revenue": 227884.0,
+        "avg_delivery_days": 15.6
+      },
+      {
+        "week_ending": "2018-02-11",
+        "orders": 1541,
+        "late_rate": 0.097,
+        "revenue": 232024.0,
+        "avg_delivery_days": 16.6
+      },
+      {
+        "week_ending": "2018-02-18",
+        "orders": 1595,
+        "late_rate": 0.147,
+        "revenue": 223393.0,
+        "avg_delivery_days": 16.1
+      },
+      {
+        "week_ending": "2018-02-25",
+        "orders": 1713,
+        "late_rate": 0.213,
+        "revenue": 242361.0,
+        "avg_delivery_days": 17.6
+      },
+      {
+        "week_ending": "2018-03-04",
+        "orders": 1849,
+        "late_rate": 0.29,
+        "revenue": 295734.0,
+        "avg_delivery_days": 19.1
+      },
+      {
+        "week_ending": "2018-03-11",
+        "orders": 1598,
+        "late_rate": 0.277,
+        "revenue": 261457.0,
+        "avg_delivery_days": 18.1
+      },
+      {
+        "week_ending": "2018-03-18",
+        "orders": 1541,
+        "late_rate": 0.231,
+        "revenue": 247879.0,
+        "avg_delivery_days": 16.8
+      },
+      {
+        "week_ending": "2018-03-25",
+        "orders": 1671,
+        "late_rate": 0.141,
+        "revenue": 263989.0,
+        "avg_delivery_days": 13.9
+      },
+      {
+        "week_ending": "2018-04-01",
+        "orders": 1431,
+        "late_rate": 0.135,
+        "revenue": 232026.0,
+        "avg_delivery_days": 13.9
+      },
+      {
+        "week_ending": "2018-04-08",
+        "orders": 1555,
+        "late_rate": 0.081,
+        "revenue": 258879.0,
+        "avg_delivery_days": 11.9
+      },
+      {
+        "week_ending": "2018-04-15",
+        "orders": 1522,
+        "late_rate": 0.04,
+        "revenue": 264632.0,
+        "avg_delivery_days": 11.6
+      },
+      {
+        "week_ending": "2018-04-22",
+        "orders": 1637,
+        "late_rate": 0.045,
+        "revenue": 265814.0,
+        "avg_delivery_days": 11.5
+      },
+      {
+        "week_ending": "2018-04-29",
+        "orders": 1643,
+        "late_rate": 0.046,
+        "revenue": 268838.0,
+        "avg_delivery_days": 11.2
+      },
+      {
+        "week_ending": "2018-05-06",
+        "orders": 1727,
+        "late_rate": 0.041,
+        "revenue": 276525.0,
+        "avg_delivery_days": 10.7
+      },
+      {
+        "week_ending": "2018-05-13",
+        "orders": 1938,
+        "late_rate": 0.077,
+        "revenue": 333822.0,
+        "avg_delivery_days": 10.6
+      },
+      {
+        "week_ending": "2018-05-20",
+        "orders": 1792,
+        "late_rate": 0.161,
+        "revenue": 294556.0,
+        "avg_delivery_days": 12.2
+      },
+      {
+        "week_ending": "2018-05-27",
+        "orders": 939,
+        "late_rate": 0.055,
+        "revenue": 152233.0,
+        "avg_delivery_days": 12.4
+      },
+      {
+        "week_ending": "2018-06-03",
+        "orders": 1069,
+        "late_rate": 0.004,
+        "revenue": 206706.0,
+        "avg_delivery_days": 11.5
+      },
+      {
+        "week_ending": "2018-06-10",
+        "orders": 1414,
+        "late_rate": 0.013,
+        "revenue": 238452.0,
+        "avg_delivery_days": 10.1
+      },
+      {
+        "week_ending": "2018-06-17",
+        "orders": 1481,
+        "late_rate": 0.022,
+        "revenue": 254504.0,
+        "avg_delivery_days": 9.1
+      },
+      {
+        "week_ending": "2018-06-24",
+        "orders": 1434,
+        "late_rate": 0.012,
+        "revenue": 224066.0,
+        "avg_delivery_days": 8.5
+      },
+      {
+        "week_ending": "2018-07-01",
+        "orders": 1364,
+        "late_rate": 0.007,
+        "revenue": 217121.0,
+        "avg_delivery_days": 8.4
+      },
+      {
+        "week_ending": "2018-07-08",
+        "orders": 1166,
+        "late_rate": 0.016,
+        "revenue": 183250.0,
+        "avg_delivery_days": 8.6
+      },
+      {
+        "week_ending": "2018-07-15",
+        "orders": 969,
+        "late_rate": 0.061,
+        "revenue": 180128.0,
+        "avg_delivery_days": 11.3
+      },
+      {
+        "week_ending": "2018-07-22",
+        "orders": 1640,
+        "late_rate": 0.039,
+        "revenue": 256873.0,
+        "avg_delivery_days": 9.0
+      },
+      {
+        "week_ending": "2018-07-29",
+        "orders": 1603,
+        "late_rate": 0.039,
+        "revenue": 278037.0,
+        "avg_delivery_days": 8.3
+      },
+      {
+        "week_ending": "2018-08-05",
+        "orders": 1990,
+        "late_rate": 0.138,
+        "revenue": 318871.0,
+        "avg_delivery_days": 8.7
+      },
+      {
+        "week_ending": "2018-08-12",
+        "orders": 1921,
+        "late_rate": 0.126,
+        "revenue": 317113.0,
+        "avg_delivery_days": 8.5
+      },
+      {
+        "week_ending": "2018-08-19",
+        "orders": 1820,
+        "late_rate": 0.073,
+        "revenue": 283457.0,
+        "avg_delivery_days": 7.6
+      },
+      {
+        "week_ending": "2018-08-26",
+        "orders": 1044,
+        "late_rate": 0.068,
+        "revenue": 143818.0,
+        "avg_delivery_days": 5.5
+      },
+      {
+        "week_ending": "2018-09-02",
+        "orders": 116,
+        "late_rate": 0.06,
+        "revenue": 11996.0,
+        "avg_delivery_days": 2.2
+      }
+    ]
+  },
+  "breakdowns": [
+    {
+      "dimension": "customer_state",
+      "label": "Customer state",
+      "sorted_by": "late_orders",
+      "rows": [
+        {
+          "value": "SP",
+          "orders": 8906,
+          "late_rate": 0.074,
+          "late_orders": 662,
+          "share_of_all_late": 0.65,
+          "vs_overall_late_rate": 0.021,
+          "avg_delivery_days": 6.5,
+          "avg_review_score": 4.32,
+          "revenue": 1254867.0,
+          "flag": "above_average"
+        },
+        {
+          "value": "RJ",
+          "orders": 2201,
+          "late_rate": 0.044,
+          "late_orders": 96,
+          "share_of_all_late": 0.094,
+          "vs_overall_late_rate": -0.009,
+          "avg_delivery_days": 9.7,
+          "avg_review_score": 4.27,
+          "revenue": 366422.0,
+          "flag": "normal"
+        },
+        {
+          "value": "MG",
+          "orders": 2119,
+          "late_rate": 0.016,
+          "late_orders": 34,
+          "share_of_all_late": 0.033,
+          "vs_overall_late_rate": -0.037,
+          "avg_delivery_days": 8.3,
+          "avg_review_score": 4.34,
+          "revenue": 359558.0,
+          "flag": "normal"
+        },
+        {
+          "value": "BA",
+          "orders": 635,
+          "late_rate": 0.052,
+          "late_orders": 33,
+          "share_of_all_late": 0.032,
+          "vs_overall_late_rate": -0.001,
+          "avg_delivery_days": 14.8,
+          "avg_review_score": 4.19,
+          "revenue": 123300.0,
+          "flag": "normal"
+        },
+        {
+          "value": "PR",
+          "orders": 971,
+          "late_rate": 0.025,
+          "late_orders": 24,
+          "share_of_all_late": 0.024,
+          "vs_overall_late_rate": -0.028,
+          "avg_delivery_days": 8.7,
+          "avg_review_score": 4.38,
+          "revenue": 154492.0,
+          "flag": "normal"
+        },
+        {
+          "value": "RS",
+          "orders": 928,
+          "late_rate": 0.026,
+          "late_orders": 24,
+          "share_of_all_late": 0.024,
+          "vs_overall_late_rate": -0.027,
+          "avg_delivery_days": 11.0,
+          "avg_review_score": 4.37,
+          "revenue": 158116.0,
+          "flag": "normal"
+        },
+        {
+          "value": "ES",
+          "orders": 355,
+          "late_rate": 0.054,
+          "late_orders": 19,
+          "share_of_all_late": 0.019,
+          "vs_overall_late_rate": 0.001,
+          "avg_delivery_days": 12.3,
+          "avg_review_score": 4.23,
+          "revenue": 73690.0,
+          "flag": "normal"
+        },
+        {
+          "value": "MA",
+          "orders": 113,
+          "late_rate": 0.142,
+          "late_orders": 16,
+          "share_of_all_late": 0.016,
+          "vs_overall_late_rate": 0.089,
+          "avg_delivery_days": 17.7,
+          "avg_review_score": 4.03,
+          "revenue": 21622.0,
+          "flag": "above_average"
+        }
+      ]
+    },
+    {
+      "dimension": "main_category",
+      "label": "Product category",
+      "sorted_by": "late_orders",
+      "rows": [
+        {
+          "value": "health_beauty",
+          "orders": 2291,
+          "late_rate": 0.071,
+          "late_orders": 162,
+          "share_of_all_late": 0.159,
+          "vs_overall_late_rate": 0.018,
+          "avg_delivery_days": 9.1,
+          "avg_review_score": 4.38,
+          "revenue": 396891.0,
+          "flag": "above_average"
+        },
+        {
+          "value": "housewares",
+          "orders": 1514,
+          "late_rate": 0.056,
+          "late_orders": 85,
+          "share_of_all_late": 0.083,
+          "vs_overall_late_rate": 0.003,
+          "avg_delivery_days": 7.9,
+          "avg_review_score": 4.35,
+          "revenue": 228839.0,
+          "flag": "normal"
+        },
+        {
+          "value": "bed_bath_table",
+          "orders": 1769,
+          "late_rate": 0.038,
+          "late_orders": 68,
+          "share_of_all_late": 0.067,
+          "vs_overall_late_rate": -0.015,
+          "avg_delivery_days": 8.5,
+          "avg_review_score": 4.16,
+          "revenue": 242174.0,
+          "flag": "normal"
+        },
+        {
+          "value": "watches_gifts",
+          "orders": 1378,
+          "late_rate": 0.042,
+          "late_orders": 58,
+          "share_of_all_late": 0.057,
+          "vs_overall_late_rate": -0.011,
+          "avg_delivery_days": 9.4,
+          "avg_review_score": 4.13,
+          "revenue": 290623.0,
+          "flag": "normal"
+        },
+        {
+          "value": "auto",
+          "orders": 936,
+          "late_rate": 0.059,
+          "late_orders": 55,
+          "share_of_all_late": 0.054,
+          "vs_overall_late_rate": 0.006,
+          "avg_delivery_days": 8.5,
+          "avg_review_score": 4.32,
+          "revenue": 157543.0,
+          "flag": "normal"
+        },
+        {
+          "value": "sports_leisure",
+          "orders": 1251,
+          "late_rate": 0.044,
+          "late_orders": 55,
+          "share_of_all_late": 0.054,
+          "vs_overall_late_rate": -0.009,
+          "avg_delivery_days": 8.2,
+          "avg_review_score": 4.42,
+          "revenue": 185021.0,
+          "flag": "normal"
+        },
+        {
+          "value": "computers_accessories",
+          "orders": 1135,
+          "late_rate": 0.046,
+          "late_orders": 52,
+          "share_of_all_late": 0.051,
+          "vs_overall_late_rate": -0.007,
+          "avg_delivery_days": 9.3,
+          "avg_review_score": 4.31,
+          "revenue": 152788.0,
+          "flag": "normal"
+        },
+        {
+          "value": "furniture_decor",
+          "orders": 996,
+          "late_rate": 0.044,
+          "late_orders": 44,
+          "share_of_all_late": 0.043,
+          "vs_overall_late_rate": -0.009,
+          "avg_delivery_days": 9.3,
+          "avg_review_score": 4.31,
+          "revenue": 162881.0,
+          "flag": "normal"
+        }
+      ]
+    },
+    {
+      "dimension": "main_seller_id",
+      "label": "Seller",
+      "sorted_by": "late_orders",
+      "rows": [
+        {
+          "value": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "orders": 221,
+          "late_rate": 0.145,
+          "late_orders": 32,
+          "share_of_all_late": 0.031,
+          "vs_overall_late_rate": 0.092,
+          "avg_delivery_days": 14.4,
+          "avg_review_score": 4.21,
+          "revenue": 29288.0,
+          "flag": "above_average"
+        },
+        {
+          "value": "6560211a19b47992c3666cc44a7e94c0",
+          "orders": 546,
+          "late_rate": 0.049,
+          "late_orders": 27,
+          "share_of_all_late": 0.027,
+          "vs_overall_late_rate": -0.004,
+          "avg_delivery_days": 7.1,
+          "avg_review_score": 3.97,
+          "revenue": 47041.0,
+          "flag": "normal"
+        },
+        {
+          "value": "16090f2ca825584b5a147ab24aa30c86",
+          "orders": 153,
+          "late_rate": 0.124,
+          "late_orders": 19,
+          "share_of_all_late": 0.019,
+          "vs_overall_late_rate": 0.071,
+          "avg_delivery_days": 6.8,
+          "avg_review_score": 4.13,
+          "revenue": 9908.0,
+          "flag": "above_average"
+        },
+        {
+          "value": "c70c1b0d8ca86052f45a432a38b73958",
+          "orders": 176,
+          "late_rate": 0.097,
+          "late_orders": 17,
+          "share_of_all_late": 0.017,
+          "vs_overall_late_rate": 0.044,
+          "avg_delivery_days": 8.6,
+          "avg_review_score": 4.35,
+          "revenue": 26653.0,
+          "flag": "above_average"
+        },
+        {
+          "value": "beadbee30901a7f61d031b6b686095ad",
+          "orders": 63,
+          "late_rate": 0.254,
+          "late_orders": 16,
+          "share_of_all_late": 0.016,
+          "vs_overall_late_rate": 0.201,
+          "avg_delivery_days": 14.1,
+          "avg_review_score": 3.94,
+          "revenue": 5260.0,
+          "flag": "above_average"
+        },
+        {
+          "value": "1025f0e2d44d7041d6cf58b6550e0bfa",
+          "orders": 304,
+          "late_rate": 0.049,
+          "late_orders": 15,
+          "share_of_all_late": 0.015,
+          "vs_overall_late_rate": -0.004,
+          "avg_delivery_days": 10.0,
+          "avg_review_score": 4.29,
+          "revenue": 59756.0,
+          "flag": "normal"
+        },
+        {
+          "value": "d13e50eaa47b4cbe9eb81465865d8cfc",
+          "orders": 65,
+          "late_rate": 0.215,
+          "late_orders": 14,
+          "share_of_all_late": 0.014,
+          "vs_overall_late_rate": 0.162,
+          "avg_delivery_days": 5.0,
+          "avg_review_score": 4.82,
+          "revenue": 7811.0,
+          "flag": "above_average"
+        },
+        {
+          "value": "ea8482cd71df3c1969d7b9473ff13abc",
+          "orders": 180,
+          "late_rate": 0.072,
+          "late_orders": 13,
+          "share_of_all_late": 0.013,
+          "vs_overall_late_rate": 0.019,
+          "avg_delivery_days": 8.9,
+          "avg_review_score": 4.3,
+          "revenue": 9337.0,
+          "flag": "above_average"
+        }
+      ]
+    }
+  ],
+  "root_causes": [
+    {
+      "id": "RC1",
+      "title": "Slow seller dispatch",
+      "category": "supplier",
+      "finding": "Orders the seller took 6.0+ days to ship are late 21% of the time vs 5% when shipped within 1.8 days.",
+      "evidence": [
+        {
+          "segment": "dispatch \u2264 1.8 days",
+          "late_rate": 0.055,
+          "orders": 48009
+        },
+        {
+          "segment": "dispatch \u2265 6.0 days",
+          "late_rate": 0.213,
+          "orders": 9602
+        }
+      ],
+      "affected_orders_current_period": 1580,
+      "share_of_late_current_period": 0.287,
+      "confidence": "high",
+      "linked_recommendations": [
+        "REC1"
+      ]
+    },
+    {
+      "id": "RC2",
+      "title": "Long-distance deliveries to the North-East",
+      "category": "logistics",
+      "finding": "North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo.",
+      "evidence": [
+        {
+          "segment": "North-East states",
+          "late_rate": 0.144,
+          "orders": 9002
+        },
+        {
+          "segment": "S\u00e3o Paulo (SP)",
+          "late_rate": 0.059,
+          "orders": 40335
+        }
+      ],
+      "affected_orders_current_period": 1708,
+      "share_of_late_current_period": 0.087,
+      "confidence": "high",
+      "linked_recommendations": [
+        "REC2"
+      ]
+    },
+    {
+      "id": "RC3",
+      "title": "Tight delivery promises",
+      "category": "policy",
+      "finding": "Orders with the shortest 25% of promises are late 9% vs 6% for the longest 25%.",
+      "evidence": [
+        {
+          "segment": "shortest 25% promises",
+          "late_rate": 0.088
+        },
+        {
+          "segment": "longest 25% promises",
+          "late_rate": 0.059
+        }
+      ],
+      "affected_orders_current_period": null,
+      "share_of_late_current_period": null,
+      "confidence": "medium",
+      "linked_recommendations": [
+        "REC2"
+      ]
+    },
+    {
+      "id": "RC4",
+      "title": "Business impact: late orders damage reviews",
+      "category": "customer",
+      "finding": "Late orders average 2.6 stars vs 4.3 on time.",
+      "evidence": [
+        {
+          "segment": "on time",
+          "avg_review_score": 4.3
+        },
+        {
+          "segment": "late",
+          "avg_review_score": 2.56
+        }
+      ],
+      "affected_orders_current_period": 1018,
+      "share_of_late_current_period": 1.0,
+      "confidence": "high",
+      "linked_recommendations": []
+    }
+  ],
+  "anomalies": [
+    {
+      "week_ending": "2017-11-26",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.194,
+      "expected": 0.05,
+      "deviation_score": 5.3,
+      "severity": "critical",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2017-12-03",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.167,
+      "expected": 0.05,
+      "deviation_score": 4.3,
+      "severity": "critical",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2017-12-10",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.12,
+      "expected": 0.05,
+      "deviation_score": 2.6,
+      "severity": "warning",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2018-02-18",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.147,
+      "expected": 0.05,
+      "deviation_score": 3.6,
+      "severity": "warning",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2018-02-25",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.213,
+      "expected": 0.05,
+      "deviation_score": 6.0,
+      "severity": "critical",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2018-03-04",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.29,
+      "expected": 0.05,
+      "deviation_score": 8.9,
+      "severity": "critical",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2018-03-11",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.277,
+      "expected": 0.05,
+      "deviation_score": 8.4,
+      "severity": "critical",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2018-03-18",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.231,
+      "expected": 0.05,
+      "deviation_score": 6.7,
+      "severity": "critical",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2018-03-25",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.141,
+      "expected": 0.05,
+      "deviation_score": 3.4,
+      "severity": "warning",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2018-04-01",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.135,
+      "expected": 0.05,
+      "deviation_score": 3.1,
+      "severity": "warning",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2018-05-20",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.161,
+      "expected": 0.05,
+      "deviation_score": 4.1,
+      "severity": "critical",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2018-08-05",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.138,
+      "expected": 0.05,
+      "deviation_score": 3.3,
+      "severity": "warning",
+      "direction": "above_normal"
+    },
+    {
+      "week_ending": "2018-08-12",
+      "metric": "late_rate",
+      "label": "Weekly late delivery rate",
+      "actual": 0.126,
+      "expected": 0.05,
+      "deviation_score": 2.8,
+      "severity": "warning",
+      "direction": "above_normal"
+    }
+  ],
+  "forecast": {
+    "method": "weekday average x recent trend",
+    "horizon_days": 7,
+    "backtest_mean_abs_error": [
+      {
+        "method": "weekday average x recent trend",
+        "mean_abs_error": 11.59
+      },
+      {
+        "method": "same day last week",
+        "mean_abs_error": 12.84
+      },
+      {
+        "method": "weekday average (4 weeks)",
+        "mean_abs_error": 17.05
+      },
+      {
+        "method": "flat 4-week average",
+        "mean_abs_error": 17.85
+      }
+    ],
+    "history_end": "2018-08-08",
+    "note": "The last 21 days of the file were left out: orders to distant regions reach the export late, so those days look falsely quiet. The forecast starts after the last complete day.",
+    "busy_rule": "expected orders > last 4-week daily average x 1.2, and at least 10 orders more",
+    "regions": [
+      {
+        "region": "Southeast",
+        "expected_orders_7d": 1541,
+        "usual_orders_7d": 1196,
+        "busy_days": 3,
+        "daily": [
+          {
+            "date": "2018-08-09",
+            "expected_orders": 197.5,
+            "usual_orders": 170.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-10",
+            "expected_orders": 189.1,
+            "usual_orders": 170.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-11",
+            "expected_orders": 166.6,
+            "usual_orders": 170.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-12",
+            "expected_orders": 187.8,
+            "usual_orders": 170.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-13",
+            "expected_orders": 262.9,
+            "usual_orders": 170.8,
+            "busy": true
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 269.3,
+            "usual_orders": 170.8,
+            "busy": true
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 267.7,
+            "usual_orders": 170.8,
+            "busy": true
+          }
+        ]
+      },
+      {
+        "region": "South",
+        "expected_orders_7d": 281,
+        "usual_orders_7d": 229,
+        "busy_days": 3,
+        "daily": [
+          {
+            "date": "2018-08-09",
+            "expected_orders": 36.6,
+            "usual_orders": 32.6,
+            "busy": false
+          },
+          {
+            "date": "2018-08-10",
+            "expected_orders": 35.7,
+            "usual_orders": 32.6,
+            "busy": false
+          },
+          {
+            "date": "2018-08-11",
+            "expected_orders": 26.7,
+            "usual_orders": 32.6,
+            "busy": false
+          },
+          {
+            "date": "2018-08-12",
+            "expected_orders": 38.1,
+            "usual_orders": 32.6,
+            "busy": false
+          },
+          {
+            "date": "2018-08-13",
+            "expected_orders": 56.6,
+            "usual_orders": 32.6,
+            "busy": true
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 43.7,
+            "usual_orders": 32.6,
+            "busy": true
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 43.7,
+            "usual_orders": 32.6,
+            "busy": true
+          }
+        ]
+      },
+      {
+        "region": "Northeast",
+        "expected_orders_7d": 198,
+        "usual_orders_7d": 177,
+        "busy_days": 0,
+        "daily": [
+          {
+            "date": "2018-08-09",
+            "expected_orders": 34.1,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-10",
+            "expected_orders": 28.5,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-11",
+            "expected_orders": 26.6,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-12",
+            "expected_orders": 17.9,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-13",
+            "expected_orders": 29.9,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 29.1,
+            "usual_orders": 25.3,
+            "busy": false
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 31.9,
+            "usual_orders": 25.3,
+            "busy": false
+          }
+        ]
+      },
+      {
+        "region": "Central-West",
+        "expected_orders_7d": 122,
+        "usual_orders_7d": 106,
+        "busy_days": 0,
+        "daily": [
+          {
+            "date": "2018-08-09",
+            "expected_orders": 12.9,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-10",
+            "expected_orders": 22.7,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-11",
+            "expected_orders": 12.1,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-12",
+            "expected_orders": 13.8,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-13",
+            "expected_orders": 19.9,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 19.0,
+            "usual_orders": 15.1,
+            "busy": false
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 21.6,
+            "usual_orders": 15.1,
+            "busy": false
+          }
+        ]
+      },
+      {
+        "region": "North",
+        "expected_orders_7d": 34,
+        "usual_orders_7d": 35,
+        "busy_days": 0,
+        "daily": [
+          {
+            "date": "2018-08-09",
+            "expected_orders": 4.1,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-10",
+            "expected_orders": 6.3,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-11",
+            "expected_orders": 3.4,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-12",
+            "expected_orders": 2.9,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-13",
+            "expected_orders": 5.8,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 5.1,
+            "usual_orders": 5.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 6.3,
+            "usual_orders": 5.0,
+            "busy": false
+          }
+        ]
+      }
+    ]
+  },
+  "predictions": {
+    "count_shown": 10,
+    "sorted_by": "risk",
+    "risk_level_rules": {
+      "high": "risk \u2265 0.186 (top 10%)",
+      "medium": "risk \u2265 0.075 (top 40%)",
+      "low": "below medium"
+    },
+    "items": [
+      {
+        "id": "97415fb39aa90a8bfea4424d7bfbc5db",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-20T16:13",
+          "promised_by": "2018-08-31",
+          "customer_state": "RJ",
+          "customer_city": "rio de janeiro",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 153.1,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.785,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 10.32,
+            "typical_value": 23.17,
+            "effect": 1.057,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 10.32 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "customer_state_cat",
+            "label": "Customer state",
+            "value": "RJ",
+            "typical_value": "SP",
+            "effect": 0.505,
+            "direction": "increases risk",
+            "sentence": "Customer state: RJ (most common: SP), increases risk"
+          },
+          {
+            "feature": "seller_past_dispatch_days",
+            "label": "Seller's usual dispatch time (days)",
+            "value": 4.51,
+            "typical_value": 2.64,
+            "effect": 0.444,
+            "direction": "increases risk",
+            "sentence": "Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (79%) of late delivery, mainly because: Days promised for delivery: 10.32 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 19,
+          "late_rate": 0.053,
+          "avg_delivery_days": 19.7
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": false,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "3e734ad65fdbca928a1a4de48d096ce4",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-21T10:51",
+          "promised_by": "2018-09-03",
+          "customer_state": "RJ",
+          "customer_city": "rio de janeiro",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 94.74,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.741,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 12.55,
+            "typical_value": 23.17,
+            "effect": 1.003,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 12.55 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "customer_state_cat",
+            "label": "Customer state",
+            "value": "RJ",
+            "typical_value": "SP",
+            "effect": 0.521,
+            "direction": "increases risk",
+            "sentence": "Customer state: RJ (most common: SP), increases risk"
+          },
+          {
+            "feature": "seller_past_dispatch_days",
+            "label": "Seller's usual dispatch time (days)",
+            "value": 4.49,
+            "typical_value": 2.64,
+            "effect": 0.426,
+            "direction": "increases risk",
+            "sentence": "Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (74%) of late delivery, mainly because: Days promised for delivery: 12.55 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 19,
+          "late_rate": 0.053,
+          "avg_delivery_days": 19.7
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": false,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "11cfb7ef8394269889a34ee7832fe16c",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-20T22:35",
+          "promised_by": "2018-09-05",
+          "customer_state": "RJ",
+          "customer_city": "nova iguacu",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 94.74,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.699,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 15.06,
+            "typical_value": 23.17,
+            "effect": 0.925,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 15.06 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "customer_state_cat",
+            "label": "Customer state",
+            "value": "RJ",
+            "typical_value": "SP",
+            "effect": 0.545,
+            "direction": "increases risk",
+            "sentence": "Customer state: RJ (most common: SP), increases risk"
+          },
+          {
+            "feature": "distance_km",
+            "label": "Seller-to-customer distance (km)",
+            "value": 2252.44,
+            "typical_value": 442.78,
+            "effect": 0.415,
+            "direction": "increases risk",
+            "sentence": "Seller-to-customer distance (km): 2,252.44 (usual: 442.78), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (70%) of late delivery, mainly because: Days promised for delivery: 15.06 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller-to-customer distance (km): 2,252.44 (usual: 442.78), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 19,
+          "late_rate": 0.053,
+          "avg_delivery_days": 19.7
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": false,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "7484cb86db28da2d4d7c3f41dc265201",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-20T19:10",
+          "promised_by": "2018-09-04",
+          "customer_state": "RJ",
+          "customer_city": "rio de janeiro",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 94.74,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.688,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 14.2,
+            "typical_value": 23.17,
+            "effect": 0.943,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 14.2 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "customer_state_cat",
+            "label": "Customer state",
+            "value": "RJ",
+            "typical_value": "SP",
+            "effect": 0.518,
+            "direction": "increases risk",
+            "sentence": "Customer state: RJ (most common: SP), increases risk"
+          },
+          {
+            "feature": "seller_past_dispatch_days",
+            "label": "Seller's usual dispatch time (days)",
+            "value": 4.51,
+            "typical_value": 2.64,
+            "effect": 0.446,
+            "direction": "increases risk",
+            "sentence": "Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (69%) of late delivery, mainly because: Days promised for delivery: 14.2 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 19,
+          "late_rate": 0.053,
+          "avg_delivery_days": 19.7
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": false,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "38fc09accaec15642b3f2ce5fc46ebb0",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-21T04:50",
+          "promised_by": "2018-09-04",
+          "customer_state": "MS",
+          "customer_city": "campo grande",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 153.1,
+          "n_items": 1,
+          "payment_type": "boleto"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.636,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 13.8,
+            "typical_value": 23.17,
+            "effect": 1.039,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 13.8 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "seller_past_dispatch_days",
+            "label": "Seller's usual dispatch time (days)",
+            "value": 4.51,
+            "typical_value": 2.64,
+            "effect": 0.41,
+            "direction": "increases risk",
+            "sentence": "Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk"
+          },
+          {
+            "feature": "distance_km",
+            "label": "Seller-to-customer distance (km)",
+            "value": 2288.25,
+            "typical_value": 442.78,
+            "effect": 0.383,
+            "direction": "increases risk",
+            "sentence": "Seller-to-customer distance (km): 2,288.25 (usual: 442.78), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (64%) of late delivery, mainly because: Days promised for delivery: 13.8 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk; Seller-to-customer distance (km): 2,288.25 (usual: 442.78), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 1,
+          "late_rate": 0.0,
+          "avg_delivery_days": 18.5
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": false,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "6c353b764e0d5e28cb2852e8e8603def",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-07-14T14:50",
+          "promised_by": "2018-08-03",
+          "customer_state": "SE",
+          "customer_city": "aracaju",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 144.12,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.591,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "customer_state_cat",
+            "label": "Customer state",
+            "value": "SE",
+            "typical_value": "SP",
+            "effect": 0.851,
+            "direction": "increases risk",
+            "sentence": "Customer state: SE (most common: SP), increases risk"
+          },
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 19.38,
+            "typical_value": 23.17,
+            "effect": 0.615,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 19.38 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "seller_past_dispatch_days",
+            "label": "Seller's usual dispatch time (days)",
+            "value": 3.85,
+            "typical_value": 2.64,
+            "effect": 0.386,
+            "direction": "increases risk",
+            "sentence": "Seller's usual dispatch time (days): 3.85 (usual: 2.64), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (59%) of late delivery, mainly because: Customer state: SE (most common: SP), increases risk; Days promised for delivery: 19.38 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 3.85 (usual: 2.64), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 2,
+          "late_rate": 1.0,
+          "avg_delivery_days": 36.9
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "be72c04d946d396d2383f4fd49a4f19f",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-14T10:15",
+          "promised_by": "2018-08-31",
+          "customer_state": "PA",
+          "customer_city": "belem",
+          "seller_id": "f7ba60f8c3f99e7ee4042fdef03b70c4",
+          "seller_state": "SP",
+          "category": "health_beauty",
+          "order_value": 351.22,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.577,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "customer_state_cat",
+            "label": "Customer state",
+            "value": "PA",
+            "typical_value": "SP",
+            "effect": 1.001,
+            "direction": "increases risk",
+            "sentence": "Customer state: PA (most common: SP), increases risk"
+          },
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 16.57,
+            "typical_value": 23.17,
+            "effect": 0.804,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 16.57 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "distance_km",
+            "label": "Seller-to-customer distance (km)",
+            "value": 2479.69,
+            "typical_value": 442.78,
+            "effect": 0.453,
+            "direction": "increases risk",
+            "sentence": "Seller-to-customer distance (km): 2,479.69 (usual: 442.78), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (58%) of late delivery, mainly because: Customer state: PA (most common: SP), increases risk; Days promised for delivery: 16.57 (usual: 23.17), increases risk; Seller-to-customer distance (km): 2,479.69 (usual: 442.78), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 565,
+          "late_rate": 0.154,
+          "avg_delivery_days": 24.8
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": false,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "f3a3becaf45a4f7799cd93b1fdeea2c7",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-07T13:15",
+          "promised_by": "2018-08-24",
+          "customer_state": "PA",
+          "customer_city": "belem",
+          "seller_id": "f7ba60f8c3f99e7ee4042fdef03b70c4",
+          "seller_state": "SP",
+          "category": "health_beauty",
+          "order_value": 351.22,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.572,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "customer_state_cat",
+            "label": "Customer state",
+            "value": "PA",
+            "typical_value": "SP",
+            "effect": 0.994,
+            "direction": "increases risk",
+            "sentence": "Customer state: PA (most common: SP), increases risk"
+          },
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 16.45,
+            "typical_value": 23.17,
+            "effect": 0.802,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 16.45 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "distance_km",
+            "label": "Seller-to-customer distance (km)",
+            "value": 2479.97,
+            "typical_value": 442.78,
+            "effect": 0.455,
+            "direction": "increases risk",
+            "sentence": "Seller-to-customer distance (km): 2,479.97 (usual: 442.78), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (57%) of late delivery, mainly because: Customer state: PA (most common: SP), increases risk; Days promised for delivery: 16.45 (usual: 23.17), increases risk; Seller-to-customer distance (km): 2,479.97 (usual: 442.78), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 565,
+          "late_rate": 0.154,
+          "avg_delivery_days": 24.8
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": false,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "458e6791b5c8c62d0a48aae7f660b637",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-21T11:31",
+          "promised_by": "2018-09-06",
+          "customer_state": "PE",
+          "customer_city": "cumaru",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 162.12,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.538,
+          "risk_level": "high",
+          "risk_percentile": 99.9,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 15.52,
+            "typical_value": 23.17,
+            "effect": 0.857,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 15.52 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "seller_past_dispatch_days",
+            "label": "Seller's usual dispatch time (days)",
+            "value": 4.49,
+            "typical_value": 2.64,
+            "effect": 0.433,
+            "direction": "increases risk",
+            "sentence": "Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk"
+          },
+          {
+            "feature": "customer_state_cat",
+            "label": "Customer state",
+            "value": "PE",
+            "typical_value": "SP",
+            "effect": 0.414,
+            "direction": "increases risk",
+            "sentence": "Customer state: PE (most common: SP), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (54%) of late delivery, mainly because: Days promised for delivery: 15.52 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk; Customer state: PE (most common: SP), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 8,
+          "late_rate": 0.25,
+          "avg_delivery_days": 18.3
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": false,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "ab42eac47de85e36ba4622c26f9c9dcd",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-07-10T11:55",
+          "promised_by": "2018-07-31",
+          "customer_state": "BA",
+          "customer_city": "salvador",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 79.32,
+          "n_items": 1,
+          "payment_type": "voucher"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.502,
+          "risk_level": "high",
+          "risk_percentile": 99.9,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "customer_state_cat",
+            "label": "Customer state",
+            "value": "BA",
+            "typical_value": "SP",
+            "effect": 0.836,
+            "direction": "increases risk",
+            "sentence": "Customer state: BA (most common: SP), increases risk"
+          },
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 20.5,
+            "typical_value": 23.17,
+            "effect": 0.554,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 20.5 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "seller_past_dispatch_days",
+            "label": "Seller's usual dispatch time (days)",
+            "value": 3.73,
+            "typical_value": 2.64,
+            "effect": 0.362,
+            "direction": "increases risk",
+            "sentence": "Seller's usual dispatch time (days): 3.73 (usual: 2.64), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (50%) of late delivery, mainly because: Customer state: BA (most common: SP), increases risk; Days promised for delivery: 20.5 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 3.73 (usual: 2.64), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 7,
+          "late_rate": 0.429,
+          "avg_delivery_days": 20.3
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": false,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "id": "REC1",
+      "title": "Enforce a dispatch deadline for slow sellers",
+      "type": "supplier",
+      "description": "Alert sellers whose dispatch time is in the slowest 10%; escalate after 2 days; deprioritise repeat offenders in search.",
+      "target": {
+        "sellers": "slowest 10% by dispatch time"
+      },
+      "evidence": [
+        "RC1: Orders the seller took 6.0+ days to ship are late 21% of the time vs 5% when shipped within 1.8 days."
+      ],
+      "expected_impact": {
+        "metric": "late_delivery_rate",
+        "baseline": 0.053,
+        "expected": 0.045,
+        "change_pct_points": -0.8,
+        "late_orders_avoided_per_period": 163,
+        "range_late_orders_avoided": [
+          81,
+          163
+        ]
+      },
+      "estimate_method": "Slow-dispatch orders assumed to be late at the rate of medium-dispatch orders. Replay check: replaying each order with a typical dispatch time avoids 258 late orders (optimistic upper end).",
+      "assumptions": [
+        "Sellers respond to alerts"
+      ],
+      "confidence": "high",
+      "effort": "medium",
+      "suggested_owner": "Seller operations",
+      "linked_findings": [
+        "RC1"
+      ],
+      "linked_root_causes": [
+        "RC1"
+      ],
+      "status": "pending",
+      "approval": {
+        "decided_by": null,
+        "decided_at": null,
+        "decision": null,
+        "comment": null
+      },
+      "quick_win": false
+    },
+    {
+      "id": "REC3",
+      "title": "Proactively handle the 10% highest-risk orders",
+      "type": "prioritisation",
+      "description": "For each order in the model's top 10%: nudge the seller, upgrade carrier, and send the customer a delivery update.",
+      "target": {
+        "orders": "the model's top 10% risk"
+      },
+      "evidence": [
+        "RISK: The 10% of orders the model flags hold 20% of all late orders (1.99x the normal rate)."
+      ],
+      "expected_impact": {
+        "metric": "late_delivery_rate",
+        "baseline": 0.053,
+        "expected": 0.05,
+        "change_pct_points": -0.3,
+        "late_orders_avoided_per_period": 61,
+        "range_late_orders_avoided": [
+          30,
+          61
+        ]
+      },
+      "estimate_method": "Assumes proactive handling prevents 30% of late deliveries among flagged orders (to be validated).",
+      "assumptions": [
+        "30% prevention rate is an assumption"
+      ],
+      "confidence": "medium",
+      "effort": "medium",
+      "suggested_owner": "Customer experience team",
+      "linked_findings": [
+        "RISK"
+      ],
+      "linked_root_causes": [],
+      "status": "pending",
+      "approval": {
+        "decided_by": null,
+        "decided_at": null,
+        "decision": null,
+        "comment": null
+      },
+      "quick_win": false
+    },
+    {
+      "id": "REC2",
+      "title": "Add buffer days to promises for North-East routes",
+      "type": "policy",
+      "description": "Add 2-3 days to the promised date for high-risk routes so promises match reality.",
+      "target": {
+        "customer_states": "North-East"
+      },
+      "evidence": [
+        "RC2: North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo."
+      ],
+      "expected_impact": {
+        "metric": "late_delivery_rate",
+        "baseline": 0.053,
+        "expected": 0.051,
+        "change_pct_points": -0.2,
+        "late_orders_avoided_per_period": 36,
+        "range_late_orders_avoided": [
+          18,
+          36
+        ]
+      },
+      "estimate_method": "Assumes 40% of North-East late orders arrive within the added buffer (validate with delivery-day distribution).",
+      "assumptions": [
+        "Slightly longer promises don't reduce conversion much"
+      ],
+      "confidence": "high",
+      "effort": "low",
+      "suggested_owner": "Logistics manager",
+      "linked_findings": [
+        "RC2"
+      ],
+      "linked_root_causes": [
+        "RC2"
+      ],
+      "status": "pending",
+      "approval": {
+        "decided_by": null,
+        "decided_at": null,
+        "decision": null,
+        "comment": null
+      },
+      "quick_win": false
+    },
+    {
+      "id": "REC4",
+      "title": "Warn sellers and couriers in Southeast before its busy days",
+      "type": "capacity",
+      "description": "Tell sellers and couriers in Southeast a few days ahead: about 287 more orders than usual are expected on 2018-08-13, 2018-08-14, 2018-08-15.",
+      "target": {
+        "region": "Southeast"
+      },
+      "evidence": [
+        "FC-Southeast: Southeast is expected to get about 287 orders more than usual on 2018-08-13, 2018-08-14, 2018-08-15."
+      ],
+      "expected_impact": {
+        "metric": "late_delivery_rate",
+        "baseline": 0.053,
+        "expected": 0.053,
+        "change_pct_points": 0.0,
+        "late_orders_avoided_per_period": 5,
+        "range_late_orders_avoided": [
+          2,
+          5
+        ]
+      },
+      "estimate_method": "About 287 extra orders expected; they are assumed late at this period's rate (5.3%), and an early warning is assumed to prevent 30% of those.",
+      "assumptions": [
+        "Early warning prevents 30% of the extra lateness (to be validated)"
+      ],
+      "confidence": "medium",
+      "effort": "low",
+      "suggested_owner": "Logistics manager",
+      "linked_findings": [
+        "FC-Southeast"
+      ],
+      "linked_root_causes": [],
+      "status": "pending",
+      "approval": {
+        "decided_by": null,
+        "decided_at": null,
+        "decision": null,
+        "comment": null
+      },
+      "quick_win": false
+    }
+  ],
+  "impact_simulation": {
+    "period": "current",
+    "baseline": {
+      "orders": 19204,
+      "late_orders": 1018,
+      "late_rate": 0.053
+    },
+    "scenarios": [
+      {
+        "recommendation_id": "REC1",
+        "late_rate": 0.045,
+        "late_orders_avoided": 163
+      },
+      {
+        "recommendation_id": "REC3",
+        "late_rate": 0.05,
+        "late_orders_avoided": 61
+      },
+      {
+        "recommendation_id": "REC2",
+        "late_rate": 0.051,
+        "late_orders_avoided": 36
+      },
+      {
+        "recommendation_id": "REC4",
+        "late_rate": 0.053,
+        "late_orders_avoided": 5
+      }
+    ],
+    "replays": {
+      "dispatch": {
+        "rule": "orders whose seller took 6.0+ days to ship are replayed as if shipped in 1.8 days",
+        "orders": 19204,
+        "late_before": 1018,
+        "late_after": 760,
+        "late_orders_avoided": 258,
+        "late_rate_before": 0.053,
+        "late_rate_after": 0.04
+      }
+    },
+    "note": "Scenarios are estimated separately and are not additive (they overlap)."
+  },
+  "model_performance": {
+    "algorithm": "LightGBM + logistic regression (average of both risks)",
+    "test_auc": 0.732,
+    "train_auc": 0.813,
+    "base_rate_test": 0.053,
+    "precision_top_10pct": 0.106,
+    "lift_top_10pct": 1.99,
+    "n_features": 41,
+    "train_rows": 76815,
+    "test_rows": 19204,
+    "validation": "time-based split: trained on older orders, tested on newest 20%",
+    "test_period": {
+      "start": "2018-05-26",
+      "end": "2018-08-29"
+    }
+  },
+  "ranked_findings": {
+    "rule": "score = size x confidence x urgency; confidence high 1.0, medium 0.7, low 0.5",
+    "items": [
+      {
+        "id": "RC1",
+        "type": "supplier",
+        "title": "Slow seller dispatch",
+        "finding": "Orders the seller took 6.0+ days to ship are late 21% of the time vs 5% when shipped within 1.8 days.",
+        "subject": null,
+        "size": 0.287,
+        "confidence": "high",
+        "urgency": 1.0,
+        "score": 0.287,
+        "evidence": [
+          {
+            "segment": "dispatch \u2264 1.8 days",
+            "late_rate": 0.055,
+            "orders": 48009
+          },
+          {
+            "segment": "dispatch \u2265 6.0 days",
+            "late_rate": 0.213,
+            "orders": 9602
+          }
+        ],
+        "source": "root_causes",
+        "rank": 1,
+        "why": "Ranked 1: 29% of this period's problems are linked to it; confidence high (score 0.287)."
+      },
+      {
+        "id": "RISK",
+        "type": "high_risk",
+        "title": "High-risk new orders",
+        "finding": "The 10% of orders the model flags hold 20% of all late orders (1.99x the normal rate).",
+        "subject": null,
+        "size": 0.199,
+        "confidence": "medium",
+        "urgency": 1.0,
+        "score": 0.139,
+        "evidence": [
+          {
+            "precision_top_10pct": 0.106,
+            "base_rate": 0.053
+          }
+        ],
+        "source": "predictions",
+        "rank": 2,
+        "why": "Ranked 2: 20% of all problems sit in the riskiest 10% of items; confidence medium (score 0.139)."
+      },
+      {
+        "id": "FC-Southeast",
+        "type": "busy",
+        "title": "Southeast unusually busy next week",
+        "finding": "Southeast is expected to get about 287 orders more than usual on 2018-08-13, 2018-08-14, 2018-08-15.",
+        "subject": "Southeast",
+        "size": 0.132,
+        "confidence": "medium",
+        "urgency": 1.0,
+        "score": 0.092,
+        "evidence": [
+          {
+            "date": "2018-08-13",
+            "expected_orders": 262.9,
+            "usual_orders": 170.8,
+            "busy": true
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 269.3,
+            "usual_orders": 170.8,
+            "busy": true
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 267.7,
+            "usual_orders": 170.8,
+            "busy": true
+          }
+        ],
+        "source": "forecast",
+        "rank": 3,
+        "why": "Ranked 3: 13% of next week's expected orders are extra above the usual level; confidence medium (score 0.092)."
+      },
+      {
+        "id": "RC2",
+        "type": "logistics",
+        "title": "Long-distance deliveries to the North-East",
+        "finding": "North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo.",
+        "subject": null,
+        "size": 0.087,
+        "confidence": "high",
+        "urgency": 1.0,
+        "score": 0.087,
+        "evidence": [
+          {
+            "segment": "North-East states",
+            "late_rate": 0.144,
+            "orders": 9002
+          },
+          {
+            "segment": "S\u00e3o Paulo (SP)",
+            "late_rate": 0.059,
+            "orders": 40335
+          }
+        ],
+        "source": "root_causes",
+        "rank": 4,
+        "why": "Ranked 4: 9% of this period's problems are linked to it; confidence high (score 0.087)."
+      },
+      {
+        "id": "RC3",
+        "type": "policy",
+        "title": "Tight delivery promises",
+        "finding": "Orders with the shortest 25% of promises are late 9% vs 6% for the longest 25%.",
+        "subject": null,
+        "size": null,
+        "confidence": "medium",
+        "urgency": 1.0,
+        "score": null,
+        "evidence": [
+          {
+            "segment": "shortest 25% promises",
+            "late_rate": 0.088
+          },
+          {
+            "segment": "longest 25% promises",
+            "late_rate": 0.059
+          }
+        ],
+        "source": "root_causes",
+        "rank": 5,
+        "why": "Not ranked by number: its size is not measured yet, so it follows the measured findings."
+      }
+    ],
+    "watch": [
+      {
+        "id": "FC-South",
+        "type": "busy",
+        "title": "South unusually busy next week",
+        "finding": "South is expected to get about 46 orders more than usual on 2018-08-13, 2018-08-14, 2018-08-15.",
+        "subject": "South",
+        "size": 0.021,
+        "confidence": "medium",
+        "urgency": 1.0,
+        "score": 0.015,
+        "evidence": [
+          {
+            "date": "2018-08-13",
+            "expected_orders": 56.6,
+            "usual_orders": 32.6,
+            "busy": true
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 43.7,
+            "usual_orders": 32.6,
+            "busy": true
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 43.7,
+            "usual_orders": 32.6,
+            "busy": true
+          }
+        ],
+        "source": "forecast",
+        "rank": null,
+        "why": "On the watch list: too small to act on now."
+      }
+    ],
+    "history": [
+      {
+        "id": "AN-2017-11-26",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2017-11-26",
+        "finding": "19.4% against a normal 5.0% (deviation score 5.3).",
+        "subject": null,
+        "size": 0.53,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2017-11-26",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.194,
+            "expected": 0.05,
+            "deviation_score": 5.3,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2017-12-03",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2017-12-03",
+        "finding": "16.7% against a normal 5.0% (deviation score 4.3).",
+        "subject": null,
+        "size": 0.43,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2017-12-03",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.167,
+            "expected": 0.05,
+            "deviation_score": 4.3,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2017-12-10",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2017-12-10",
+        "finding": "12.0% against a normal 5.0% (deviation score 2.6).",
+        "subject": null,
+        "size": 0.26,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2017-12-10",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.12,
+            "expected": 0.05,
+            "deviation_score": 2.6,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-02-18",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-02-18",
+        "finding": "14.7% against a normal 5.0% (deviation score 3.6).",
+        "subject": null,
+        "size": 0.36,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-02-18",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.147,
+            "expected": 0.05,
+            "deviation_score": 3.6,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-02-25",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-02-25",
+        "finding": "21.3% against a normal 5.0% (deviation score 6.0).",
+        "subject": null,
+        "size": 0.6,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-02-25",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.213,
+            "expected": 0.05,
+            "deviation_score": 6.0,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-03-04",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-03-04",
+        "finding": "29.0% against a normal 5.0% (deviation score 8.9).",
+        "subject": null,
+        "size": 0.89,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-03-04",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.29,
+            "expected": 0.05,
+            "deviation_score": 8.9,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-03-11",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-03-11",
+        "finding": "27.7% against a normal 5.0% (deviation score 8.4).",
+        "subject": null,
+        "size": 0.8400000000000001,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-03-11",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.277,
+            "expected": 0.05,
+            "deviation_score": 8.4,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-03-18",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-03-18",
+        "finding": "23.1% against a normal 5.0% (deviation score 6.7).",
+        "subject": null,
+        "size": 0.67,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-03-18",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.231,
+            "expected": 0.05,
+            "deviation_score": 6.7,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-03-25",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-03-25",
+        "finding": "14.1% against a normal 5.0% (deviation score 3.4).",
+        "subject": null,
+        "size": 0.33999999999999997,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-03-25",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.141,
+            "expected": 0.05,
+            "deviation_score": 3.4,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-04-01",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-04-01",
+        "finding": "13.5% against a normal 5.0% (deviation score 3.1).",
+        "subject": null,
+        "size": 0.31,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-04-01",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.135,
+            "expected": 0.05,
+            "deviation_score": 3.1,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-05-20",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-05-20",
+        "finding": "16.1% against a normal 5.0% (deviation score 4.1).",
+        "subject": null,
+        "size": 0.41,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-05-20",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.161,
+            "expected": 0.05,
+            "deviation_score": 4.1,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-08-05",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-08-05",
+        "finding": "13.8% against a normal 5.0% (deviation score 3.3).",
+        "subject": null,
+        "size": 0.32999999999999996,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-08-05",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.138,
+            "expected": 0.05,
+            "deviation_score": 3.3,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-08-12",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-08-12",
+        "finding": "12.6% against a normal 5.0% (deviation score 2.8).",
+        "subject": null,
+        "size": 0.27999999999999997,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-08-12",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.126,
+            "expected": 0.05,
+            "deviation_score": 2.8,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      }
+    ],
+    "context": [
+      {
+        "id": "RC4",
+        "title": "Business impact: late orders damage reviews",
+        "category": "customer",
+        "finding": "Late orders average 2.6 stars vs 4.3 on time.",
+        "evidence": [
+          {
+            "segment": "on time",
+            "avg_review_score": 4.3
+          },
+          {
+            "segment": "late",
+            "avg_review_score": 2.56
+          }
+        ],
+        "affected_orders_current_period": 1018,
+        "share_of_late_current_period": 1.0,
+        "confidence": "high",
+        "linked_recommendations": []
+      }
+    ],
+    "note": "Findings are correlations in historical data; the simulation estimates the effect of acting on them."
+  },
+  "priority_queue": {
+    "rule": "orders sorted by money at risk (risk x order value); the team handles 50 a day",
+    "today": [
+      {
+        "id": "be72c04d946d396d2383f4fd49a4f19f",
+        "risk": 0.577,
+        "weight": 351.22,
+        "score": 202.65,
+        "region": "PA",
+        "why": "risk 58% x order value R$ 351.22 = R$ 202.65 at risk",
+        "rank": 1
+      },
+      {
+        "id": "f3a3becaf45a4f7799cd93b1fdeea2c7",
+        "risk": 0.572,
+        "weight": 351.22,
+        "score": 200.9,
+        "region": "PA",
+        "why": "risk 57% x order value R$ 351.22 = R$ 200.90 at risk",
+        "rank": 2
+      },
+      {
+        "id": "97415fb39aa90a8bfea4424d7bfbc5db",
+        "risk": 0.785,
+        "weight": 153.1,
+        "score": 120.18,
+        "region": "RJ",
+        "why": "risk 78% x order value R$ 153.10 = R$ 120.18 at risk",
+        "rank": 3
+      },
+      {
+        "id": "38fc09accaec15642b3f2ce5fc46ebb0",
+        "risk": 0.636,
+        "weight": 153.1,
+        "score": 97.37,
+        "region": "MS",
+        "why": "risk 64% x order value R$ 153.10 = R$ 97.37 at risk",
+        "rank": 4
+      },
+      {
+        "id": "458e6791b5c8c62d0a48aae7f660b637",
+        "risk": 0.538,
+        "weight": 162.12,
+        "score": 87.22,
+        "region": "PE",
+        "why": "risk 54% x order value R$ 162.12 = R$ 87.22 at risk",
+        "rank": 5
+      },
+      {
+        "id": "6c353b764e0d5e28cb2852e8e8603def",
+        "risk": 0.591,
+        "weight": 144.12,
+        "score": 85.17,
+        "region": "SE",
+        "why": "risk 59% x order value R$ 144.12 = R$ 85.17 at risk",
+        "rank": 6
+      },
+      {
+        "id": "3e734ad65fdbca928a1a4de48d096ce4",
+        "risk": 0.741,
+        "weight": 94.74,
+        "score": 70.2,
+        "region": "RJ",
+        "why": "risk 74% x order value R$ 94.74 = R$ 70.20 at risk",
+        "rank": 7
+      },
+      {
+        "id": "11cfb7ef8394269889a34ee7832fe16c",
+        "risk": 0.699,
+        "weight": 94.74,
+        "score": 66.22,
+        "region": "RJ",
+        "why": "risk 70% x order value R$ 94.74 = R$ 66.22 at risk",
+        "rank": 8
+      },
+      {
+        "id": "7484cb86db28da2d4d7c3f41dc265201",
+        "risk": 0.688,
+        "weight": 94.74,
+        "score": 65.18,
+        "region": "RJ",
+        "why": "risk 69% x order value R$ 94.74 = R$ 65.18 at risk",
+        "rank": 9
+      },
+      {
+        "id": "ab42eac47de85e36ba4622c26f9c9dcd",
+        "risk": 0.502,
+        "weight": 79.32,
+        "score": 39.82,
+        "region": "BA",
+        "why": "risk 50% x order value R$ 79.32 = R$ 39.82 at risk",
+        "rank": 10
+      }
+    ],
+    "later": []
+  }
+}

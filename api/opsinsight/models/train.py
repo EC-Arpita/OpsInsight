@@ -15,7 +15,7 @@ import pandas as pd
 import lightgbm as lgb
 from sklearn.metrics import roc_auc_score
 
-from .config import DOMAINS, LGBM_PARAMS, MODELS_DIR, USE_BLEND
+from .config import DOMAINS, LGBM_PARAMS, MODELS_DIR, UPLOAD_MODELS_DIR, USE_BLEND
 
 
 def split_xy(df, cfg):
@@ -23,13 +23,13 @@ def split_xy(df, cfg):
     return X, df[cfg["target"]]
 
 
-def train_domain(domain: str, params: dict = None, save=True, blend=None) -> dict:
+def train_domain(domain: str, params: dict = None, save=True, blend=None, df=None, name=None) -> dict:
     """Train on the 'train' split, evaluate on 'test', save model + metadata.
     blend=True also trains a logistic regression and averages the two risks (Step 5).
     Returns the metadata dict (metrics, thresholds, feature list)."""
     blend = USE_BLEND if blend is None else blend
     cfg = DOMAINS[domain]
-    df = pd.read_parquet(cfg["features_file"])
+    df = pd.read_parquet(cfg["features_file"]) if df is None else df
     X, y = split_xy(df, cfg)
     is_train = (df["split"] == "train").values
 
@@ -75,7 +75,12 @@ def train_domain(domain: str, params: dict = None, save=True, blend=None) -> dic
             "train_rows": int(is_train.sum()), "test_rows": int((~is_train).sum()),
         },
     }
-    if save:
+    if save and name:                                   # an uploaded company's own model
+        UPLOAD_MODELS_DIR.mkdir(parents=True, exist_ok=True)
+        joblib.dump({"model": model, "lr": lr, "meta": meta}, UPLOAD_MODELS_DIR / f"{name}.joblib")
+        from .predict import load
+        load.cache_clear()                              # a re-run of the same upload must use the new model
+    elif save:
         MODELS_DIR.mkdir(exist_ok=True)
         joblib.dump({"model": model, "lr": lr, "meta": meta}, MODELS_DIR / f"{domain}.joblib")
         (MODELS_DIR / f"{domain}_meta.json").write_text(

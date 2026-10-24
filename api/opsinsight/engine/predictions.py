@@ -40,11 +40,11 @@ def _similar(domain, row, history):
             "avg_delivery_days": round(float(days.mean()), 1) if len(same) else None}
 
 
-def predictions_section(domain: str, table: pd.DataFrame, features: pd.DataFrame, top: int = 10) -> dict:
+def predictions_section(domain: str, table: pd.DataFrame, features: pd.DataFrame, top: int = 10, model: str = None) -> dict:
     """Score the current period (the 'test' rows) and keep the riskiest items, with context and reasons."""
     id_col, target = ("number", "breached") if domain == "incidents" else ("order_id", "late")
     current = features[features["split"] == "test"]
-    scored = pd.DataFrame(predict(domain, current))
+    scored = pd.DataFrame(predict(domain, current, model=model))
     scored["risk"] = scored["prediction"].map(lambda p: p["risk"])
     best = scored.sort_values("risk", ascending=False).head(top)
     rows = table.set_index(id_col)
@@ -53,7 +53,7 @@ def predictions_section(domain: str, table: pd.DataFrame, features: pd.DataFrame
     history = table[table[id_col].isin(train_ids)]
     if domain == "sales":
         history = history[history["is_model_row"] == 1]
-    meta = model_info(domain)
+    meta = model_info(domain, model)
     items = []
     for _, p in best.iterrows():
         row = rows.loc[p["id"]]
@@ -70,8 +70,10 @@ def predictions_section(domain: str, table: pd.DataFrame, features: pd.DataFrame
             "items": items}
 
 
-def model_section(domain: str) -> dict:
-    meta = model_info(domain)
+def model_section(domain: str, model: str = None) -> dict:
+    meta = model_info(domain, model)
     return {"algorithm": meta["algorithm"], **meta["metrics"], "n_features": len(meta["features"]),
             "validation": "time-based split: trained on older items, tested on the newest 20%",
-            "note": "the saved model was trained on the reference dataset; retrain on this company's data for its own scores"}
+            "trained_on": "this company's own history" if model else "the reference dataset",
+            "note": ("trained on this file's older items and tested on its newest 20%" if model else
+                     "the saved model was trained on the reference dataset; retrain on this company's data for its own scores")}

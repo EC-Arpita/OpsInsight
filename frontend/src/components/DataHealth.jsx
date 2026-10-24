@@ -21,6 +21,7 @@ export default function DataHealth({ quality, model }) {
           <div><dt>Problem rate, all items</dt><dd className="tnum">{pct(model.base_rate_test, 1)}</dd></div>
           <div><dt>Problem rate, top 10% flagged</dt><dd className="tnum">{pct(model.precision_top_10pct, 1)}</dd></div>
           <div><dt>Tested on</dt><dd className="tnum">{num(model.test_rows)} newest items</dd></div>
+          {model.trained_on && <div><dt>Trained on</dt><dd>{model.trained_on}</dd></div>}
         </dl>
         <p className="muted small">{model.validation}.</p>
       </div>

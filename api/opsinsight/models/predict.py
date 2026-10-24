@@ -9,16 +9,16 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from .config import DOMAINS, LABELS, MODELS_DIR
+from .config import DOMAINS, LABELS, MODELS_DIR, UPLOAD_MODELS_DIR
 
 
 @lru_cache(maxsize=None)
-def load(domain: str) -> dict:
-    """Load the model file once; later calls reuse it (lru_cache)."""
-    path = MODELS_DIR / f"{domain}.joblib"
-    if not path.exists():
-        raise FileNotFoundError(f"{path} not found - run `python -m opsinsight.models.train` first")
-    return joblib.load(path)
+def load(name: str) -> dict:
+    """name = a domain ("incidents", "sales": the reference models) or an upload id (that company's own model)."""
+    for folder in (MODELS_DIR, UPLOAD_MODELS_DIR):
+        if (folder / f"{name}.joblib").exists():
+            return joblib.load(folder / f"{name}.joblib")
+    raise FileNotFoundError(f"{name}.joblib not found - run `python -m opsinsight.models.train` first")
 
 
 def _align(rows: pd.DataFrame, meta: dict) -> pd.DataFrame:
@@ -43,9 +43,10 @@ def _fmt(v):
     return str(v)
 
 
-def predict(domain: str, rows: pd.DataFrame, top_k: int = 3) -> list:
-    """Score each row. `rows` must contain the feature columns (and ideally the id column)."""
-    bundle = load(domain)
+def predict(domain: str, rows: pd.DataFrame, top_k: int = 3, model: str = None) -> list:
+    """Score each row. `rows` must contain the feature columns (and ideally the id column).
+    model = an upload id to use that company's own model; None = the reference model."""
+    bundle = load(model or domain)
     model, meta, cfg = bundle["model"], bundle["meta"], DOMAINS[domain]
     labels = LABELS.get(domain, {})
     X = _align(rows, meta)
@@ -90,7 +91,6 @@ def predict(domain: str, rows: pd.DataFrame, top_k: int = 3) -> list:
     return out
 
 
-def model_info(domain: str) -> dict:
-    """Metrics, features and thresholds, for the API's /model endpoint."""
-    meta = load(domain)["meta"]
+def model_info(domain: str, model: str = None) -> dict:
+    meta = load(model or domain)["meta"]
     return {k: v for k, v in meta.items() if k not in ("test_risk_distribution", "typical_values", "categories")}

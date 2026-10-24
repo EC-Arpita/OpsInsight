@@ -33,11 +33,13 @@ def _similar(domain, row, history):
         return {"rule": "same category and team, training period", "count": int(len(same)),
                 "breach_rate": round(float(same["breached"].mean()), 3) if len(same) else None,
                 "median_resolution_hours": round(float(same["hours_to_resolve"].median()), 1) if len(same) else None}
-    same = history[(history["seller_state"] == row["seller_state"]) & (history["customer_state"] == row["customer_state"])]
+    if pd.isna(row["seller_state"]):                       # orders-only files have no seller: compare by customer state
+        same, rule = history[history["customer_state"] == row["customer_state"]], "same customer state, training period"
+    else:
+        same = history[(history["seller_state"] == row["seller_state"]) & (history["customer_state"] == row["customer_state"])]
+        rule = "same seller state → customer state route, training period"
     days = (same["delivered_at"] - same["purchased_at"]).dt.total_seconds() / 86400
-    return {"rule": "same seller state → customer state route, training period", "count": int(len(same)),
-            "late_rate": round(float(same["late"].mean()), 3) if len(same) else None,
-            "avg_delivery_days": round(float(days.mean()), 1) if len(same) else None}
+    return {"rule": rule, "count": int(len(same)),}
 
 
 def predictions_section(domain: str, table: pd.DataFrame, features: pd.DataFrame, top: int = 10, model: str = None) -> dict:

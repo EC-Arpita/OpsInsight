@@ -68,6 +68,6 @@ LABELS = {
         "total_weight_g": "Total weight (g)", "items_price": "Item price (BRL)", "freight_ratio": "Freight / price",
         "max_installments": "Payment instalments", "approve_weekday": "Day of week approved (0 = Mon)",
         "customer_region_cat": "Customer region", "seller_region_cat": "Seller region",
-        "main_payment_type_cat": "Payment type",
+        "main_payment_type_cat": "Payment type", "approve_hour": "Hour approved",
     },
 }

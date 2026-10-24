@@ -11,7 +11,7 @@ ORDER_COLS = ["Order Number", "Client ID", "Status", "Order Date", "Paid At", "S
 
 def frame(cols, rows=3, repeat_ids=1):
     """A tiny table with these column names; the first column is the ID."""
-    data = {c: [f"v{i}" for i in range(rows)] for c in cols}
+    data = {c: [f"2024-01-{i % 28 + 1:02d}" for i in range(rows)] for c in cols}   # dates, so date columns pass the value check
     data[cols[0]] = [f"id{i // repeat_ids}" for i in range(rows)]
     return pd.DataFrame(data)
 
@@ -32,7 +32,7 @@ def test_unrelated_file_is_refused():
 
 
 def test_event_log_is_recognised():
-    df = frame(TICKET_COLS, rows=12, repeat_ids=4)  # 3 tickets, 4 rows each
+    df = frame(TICKET_COLS, rows=12, repeat_ids=4)          # 3 tickets, 4 rows each
     assert detect_shape(df, "Ticket No.")["shape"] == "event_log"
 
 
@@ -40,5 +40,5 @@ def test_routing_answers():
     assert choose_model(frame(TICKET_COLS))["model"] == "incidents"
     assert choose_model(frame(ORDER_COLS))["model"] == "sales"
     assert choose_model(frame(["product_id", "product_weight_g", "product_length_cm"]))["status"] == "refused"
-    missing = choose_model(frame(TICKET_COLS[:6]))  # no priority, category, resolved, closed
+    missing = choose_model(frame(TICKET_COLS[:6]))                 # no priority, category, resolved, closed
     assert missing["status"] in ("cannot_run", "needs_confirmation") and missing["model"] is None

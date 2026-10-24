@@ -21,7 +21,10 @@ def apply_sla_rules(df: pd.DataFrame, mapping: dict, rules: dict) -> pd.DataFram
     per_ticket = pd.DataFrame({"id": out[col["number"]], "opened": opened, "resolved": resolved,
                                "priority": out[col["priority"]].astype(str)})
     t = per_ticket.groupby("id").agg(opened=("opened", "min"), resolved=("resolved", "max"), priority=("priority", "first"))
-    allowed = t["priority"].map(rules["hours"]).fillna(rules.get("default_hours", 24)).astype(float)
+    by_word = {k.split("-")[-1].strip().lower(): v for k, v in rules["hours"].items()}   # "4 - Low" also matches "Low"
+    by_word.update({"medium": by_word.get("moderate"), "urgent": by_word.get("critical")})
+    allowed = (t["priority"].map(rules["hours"]).fillna(t["priority"].str.strip().str.lower().map(by_word))
+               .fillna(rules.get("default_hours", 24)).astype(float))
     end_of_data = per_ticket["opened"].max()
     took = (t["resolved"].fillna(end_of_data) - t["opened"]).dt.total_seconds() / 3600   # still open: time so far
     t["made_sla"] = took <= allowed

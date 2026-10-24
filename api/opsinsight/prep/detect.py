@@ -13,14 +13,14 @@ MARGIN = 0.20         # ... and this far ahead of the runner-up -> decide automa
 POSSIBLE = 0.50       # between POSSIBLE and CONFIDENT -> ask the analyst
 
 
-def detect_domain(columns) -> dict:
+def detect_domain(columns, df: pd.DataFrame = None) -> dict:
     """Score every known data type by how many of its REQUIRED columns we can find, and how surely."""
     results = []
     for domain, schema in SCHEMAS.items():
-        s = suggest_mapping(list(columns), domain)
+        s = suggest_mapping(list(columns), domain, df)
         required = [name for name, (req, _, _) in schema.items() if req]
-        found = [name for name in required if name in s["mapping"]]
-        confidence = {x["standard"]: x["score"] for x in s["suggestions"] if x["standard"] in found}
+        found = [name for name in required if name not in s["missing_required"]]     # a days column counts too
+        confidence = {x["standard"]: x["score"] for x in s["suggestions"] if x["standard"] in found and x["score"]}
         coverage = len(found) / len(required)                        # share of required columns found
         avg_conf = sum(confidence.values()) / len(found) if found else 0   # how sure each match is
         results.append({"domain": domain, "score": round(coverage * avg_conf, 2),
@@ -49,13 +49,13 @@ def detect_shape(df: pd.DataFrame, id_col: str) -> dict:
 
 def inspect_upload(df: pd.DataFrame) -> dict:
     """Everything the upload screen needs to show the analyst before anything is processed."""
-    d = detect_domain(df.columns)
+    d = detect_domain(df.columns, df)
     report = {**d, "mapping": None, "shape": None, "message": ""}
     if d["decision"] == "unknown":
         report["message"] = ("Couldn't recognise this file. It doesn't look like support tickets or sales orders. "
                              "Check that it has an ID, a date and an outcome column.")
         return report
-    m = suggest_mapping(list(df.columns), d["domain"])
+    m = suggest_mapping(list(df.columns), d["domain"], df)
     report["mapping"] = m
     id_col = m["mapping"].get("number") or m["mapping"].get("order_id")
     if id_col:

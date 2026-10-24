@@ -38,3 +38,16 @@ def test_small_file_falls_back_to_reference_model():
     from opsinsight.engine.pipeline import own_model
     tiny = pd.DataFrame({"split": ["train"] * 10 + ["test"] * 5, "breached": [0, 1] * 7 + [0]})
     assert own_model("incidents", tiny, "tiny-upload") is None   # too small to learn from
+
+
+def test_days_instead_of_dates_and_text_never_a_date():
+    raw = pd.DataFrame({"Order Id": [7, 7, 8], "Customer Id": [1, 1, 2], "Order Status": ["COMPLETE"] * 3,
+                        "Order State": ["Lagos", "Lagos", "Delhi"],            # text that looks like "order date"
+                        "order date (DateOrders)": ["1/31/2018 22:56", "1/31/2018 22:56", "2/1/2018 10:00"],
+                        "Days for shipping (real)": [3, 3, 6], "Days for shipment (scheduled)": [4, 4, 2]})
+    s = suggest_mapping(raw.columns, "sales_orders", raw)
+    assert s["ready"] and s["mapping"]["order_purchase_timestamp"] == "order date (DateOrders)"
+    df = standardise_orders(apply_mapping(raw, s["mapping"], "sales_orders"))
+    assert len(df) == 2                                                   # order lines -> one row per order
+    late = df["order_delivered_customer_date"] > df["order_estimated_delivery_date"]
+    assert list(late) == [False, True]                                    # 3 days vs 4 promised; 6 vs 2

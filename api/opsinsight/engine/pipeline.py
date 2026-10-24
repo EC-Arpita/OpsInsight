@@ -13,7 +13,7 @@ from ..prep import incidents as inc
 from ..prep import sales as sal
 from ..prep.analytics import incident_analysis, sales_analysis
 from ..prep.common import QualityLog
-from ..prep.mapping import apply_mapping
+from ..prep.mapping import ALTERNATIVES, apply_mapping
 from . import store
 from .predictions import model_section, predictions_section
 from .sla import apply_sla_rules
@@ -26,6 +26,8 @@ def auto_window(dates: pd.Series, share=0.10) -> tuple:
     """Keep the months with real volume: at least `share` of the busiest month. Near-empty months at the
     edges of a file (a few stray tickets, an export that stopped early) would distort trends and forecasts."""
     d = to_dates(dates).dropna()
+    if d.empty:                                            # the analyst matched a text column as the date
+        raise UploadError(f"The column '{dates.name}' has no readable dates. On the matching screen, pick the real date column.")
     months = d.dt.to_period("M").value_counts().sort_index()
     busy = months[months >= share * months.max()].index
     return f"{busy.min().start_time:%Y-%m-%d}", f"{(busy.max() + 1).start_time:%Y-%m-%d}"
@@ -80,10 +82,14 @@ def standardise_orders(df: pd.DataFrame) -> pd.DataFrame:
             df[c] = to_dates(df[c])
     status = df["order_status"].astype(str).str.strip().str.lower()
     df["order_status"] = status.where(~status.isin(DELIVERED), "delivered")
-    return df
+    for date_col, days_col in ALTERNATIVES.items():           # "promised in 4 days" -> order date + 4 days
+        if df[date_col].isna().all() and df[days_col].notna().any():
+            days = pd.to_numeric(df[days_col], errors="coerce")
+            df[date_col] = df["order_purchase_timestamp"] + pd.to_timedelta(days, unit="D")
+    return df.drop(columns=list(ALTERNATIVES.values())).drop_duplicates("order_id")   # order lines -> one row per order
 
 
-MIN_TRAIN_ROWS, MIN_PROBLEMS = 100, 10     # below this a model would learn noise: use the reference model
+MIN_TRAIN_ROWS, MIN_PROBLEMS = 100, 10     # below this a model would learn noise; above it, own data beats a foreign model
 
 
 def own_model(domain: str, features: pd.DataFrame, name: str) -> str | None:

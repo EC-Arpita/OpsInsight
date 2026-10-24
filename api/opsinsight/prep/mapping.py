@@ -1,6 +1,11 @@
 """Column mapping: make another company's file fit the pipeline.
 
 Flow:  suggest_mapping(columns)  ->  analyst checks / overrides  ->  apply_mapping(df, mapping)
+
+    from opsinsight.prep.mapping import suggest_mapping, apply_mapping
+    s = suggest_mapping(df.columns, "incidents")
+    s["suggestions"]                     # what the app shows the analyst to confirm
+    clean = apply_mapping(df, s["mapping"], "incidents")
 """
 import re
 from difflib import SequenceMatcher
@@ -49,9 +54,36 @@ SCHEMAS = {
         "order_delivered_customer_date": (True, ["delivered_at", "delivery_date", "received_at"], None),
         "order_estimated_delivery_date": (True, ["promised_date", "estimated_delivery", "eta", "expected_delivery"], None),
         "customer_state": (False, ["region", "state", "customer_region", "order_region", "delivery_region", "zone"], None),
+        "promised_days": (False, ["days_for_shipment_scheduled", "scheduled_days", "days_promised", "sla_days",
+                                  "promised_delivery_days", "days_scheduled"], None),
+        "actual_days": (False, ["days_for_shipping_real", "delivery_days", "days_taken", "actual_delivery_days",
+                                "days_to_deliver", "shipping_days"], None),
     },
 }
 MIN_SCORE = 0.6     # below this, no automatic match: the analyst picks by hand
+
+# date fields may only match columns that really hold dates, day counts only columns that hold numbers
+DATE_FIELDS = {"opened_at", "sys_updated_at", "resolved_at", "closed_at", "sys_created_at", "order_purchase_timestamp",
+               "order_approved_at", "order_delivered_carrier_date", "order_delivered_customer_date",
+               "order_estimated_delivery_date"}
+DAY_FIELDS = {"promised_days", "actual_days"}
+# a required date can instead come from a number of days after the order date
+ALTERNATIVES = {"order_delivered_customer_date": "actual_days", "order_estimated_delivery_date": "promised_days"}
+
+
+def _holds_dates(values: pd.Series) -> bool:
+    v = values.dropna().head(200)
+    if v.empty or pd.api.types.is_numeric_dtype(v) or pd.api.types.is_bool_dtype(v):
+        return False
+    return pd.to_datetime(v.astype(str), errors="coerce", format="mixed").notna().mean() > 0.8
+
+
+def _fits(std: str, values: pd.Series) -> bool:
+    if std in DATE_FIELDS:
+        return _holds_dates(values)
+    if std in DAY_FIELDS:
+        return pd.api.types.is_numeric_dtype(values)
+    return True
 
 
 def normalise(name: str) -> str:
@@ -70,14 +102,15 @@ def _score(column: str, standard: str, synonyms: list) -> tuple:
     return round(SequenceMatcher(None, c, best).ratio(), 2), f"similar to '{best}'"
 
 
-def suggest_mapping(columns, domain="incidents") -> dict:
-    """For each standard column, the best-matching uploaded column (each uploaded column used once)."""
+def suggest_mapping(columns, domain="incidents", df: pd.DataFrame = None) -> dict:
+    """For each standard column, the best-matching uploaded column (each uploaded column used once).
+    With df, the values are checked too: a date field never matches a text column like 'Order State'."""
     schema = SCHEMAS[domain]
     candidates = []
     for col in columns:
         for std, (required, syn, _) in schema.items():
             score, why = _score(col, std, syn)
-            if score >= MIN_SCORE:
+            if score >= MIN_SCORE and (df is None or _fits(std, df[col])):
                 candidates.append((score, col, std, why))
     mapping, used, reasons = {}, set(), {}
     for score, col, std, why in sorted(candidates, key=lambda x: -x[0]):   # best matches first
@@ -91,7 +124,8 @@ def suggest_mapping(columns, domain="incidents") -> dict:
                             "score": score, "reason": why,
                             "needs_review": std not in mapping or score < 0.95,
                             "if_missing": "cannot run" if required else f"filled with {default!r}"})
-    missing_required = [s["standard"] for s in suggestions if s["required"] and s["uploaded_column"] is None]
+    missing_required = [s["standard"] for s in suggestions if s["required"] and s["uploaded_column"] is None
+                        and ALTERNATIVES.get(s["standard"]) not in mapping]
     return {"mapping": mapping, "suggestions": suggestions, "missing_required": missing_required,
             "unused_columns": [c for c in columns if c not in used], "ready": not missing_required}
 
@@ -99,7 +133,7 @@ def suggest_mapping(columns, domain="incidents") -> dict:
 def apply_mapping(df: pd.DataFrame, mapping: dict, domain="incidents") -> pd.DataFrame:
     """Rename uploaded columns to standard names and add missing optional columns with defaults."""
     schema = SCHEMAS[domain]
-    missing = [s for s, (req, _, _) in schema.items() if req and s not in mapping]
+    missing = [s for s, (req, _, _) in schema.items() if req and s not in mapping and ALTERNATIVES.get(s) not in mapping]
     if missing:
         raise ValueError(f"required columns not mapped: {missing}")
     out = df.rename(columns={src: std for std, src in mapping.items()})

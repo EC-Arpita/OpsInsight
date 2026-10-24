@@ -38,7 +38,7 @@
         "note": ""
       },
       {
-        "step": "2. keep purchases 1 Jan 2017 – 31 Aug 2018",
+        "step": "2. keep purchases 1 Jan 2017 \u2013 31 Aug 2018",
         "rows_before": 99441,
         "rows_after": 99092,
         "rows_removed": 349,
@@ -1154,12 +1154,12 @@
       "finding": "Orders the seller took 6.0+ days to ship are late 21% of the time vs 5% when shipped within 1.8 days.",
       "evidence": [
         {
-          "segment": "dispatch ≤ 1.8 days",
+          "segment": "dispatch \u2264 1.8 days",
           "late_rate": 0.055,
           "orders": 48009
         },
         {
-          "segment": "dispatch ≥ 6.0 days",
+          "segment": "dispatch \u2265 6.0 days",
           "late_rate": 0.213,
           "orders": 9602
         }
@@ -1175,7 +1175,7 @@
       "id": "RC2",
       "title": "Long-distance deliveries to the North-East",
       "category": "logistics",
-      "finding": "North-East customers get late orders 14% of the time vs 6% in São Paulo.",
+      "finding": "North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo.",
       "evidence": [
         {
           "segment": "North-East states",
@@ -1183,7 +1183,7 @@
           "orders": 9002
         },
         {
-          "segment": "São Paulo (SP)",
+          "segment": "S\u00e3o Paulo (SP)",
           "late_rate": 0.059,
           "orders": 40335
         }
@@ -1651,8 +1651,8 @@
     "count_shown": 10,
     "sorted_by": "risk",
     "risk_level_rules": {
-      "high": "risk ≥ 0.186 (top 10%)",
-      "medium": "risk ≥ 0.075 (top 40%)",
+      "high": "risk \u2265 0.186 (top 10%)",
+      "medium": "risk \u2265 0.075 (top 40%)",
       "low": "below medium"
     },
     "items": [
@@ -1709,7 +1709,7 @@
         ],
         "explanation_summary": "High risk (79%) of late delivery, mainly because: Days promised for delivery: 10.32 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk.",
         "similar_past_cases": {
-          "rule": "same seller state → customer state route, training period",
+          "rule": "same seller state \u2192 customer state route, training period",
           "count": 19,
           "late_rate": 0.053,
           "avg_delivery_days": 19.7
@@ -1777,7 +1777,7 @@
         ],
         "explanation_summary": "High risk (74%) of late delivery, mainly because: Days promised for delivery: 12.55 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk.",
         "similar_past_cases": {
-          "rule": "same seller state → customer state route, training period",
+          "rule": "same seller state \u2192 customer state route, training period",
           "count": 19,
           "late_rate": 0.053,
           "avg_delivery_days": 19.7
@@ -1845,7 +1845,7 @@
         ],
         "explanation_summary": "High risk (70%) of late delivery, mainly because: Days promised for delivery: 15.06 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller-to-customer distance (km): 2,252.44 (usual: 442.78), increases risk.",
         "similar_past_cases": {
-          "rule": "same seller state → customer state route, training period",
+          "rule": "same seller state \u2192 customer state route, training period",
           "count": 19,
           "late_rate": 0.053,
           "avg_delivery_days": 19.7
@@ -1913,7 +1913,7 @@
         ],
         "explanation_summary": "High risk (69%) of late delivery, mainly because: Days promised for delivery: 14.2 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk.",
         "similar_past_cases": {
-          "rule": "same seller state → customer state route, training period",
+          "rule": "same seller state \u2192 customer state route, training period",
           "count": 19,
           "late_rate": 0.053,
           "avg_delivery_days": 19.7
@@ -1981,7 +1981,7 @@
         ],
         "explanation_summary": "High risk (64%) of late delivery, mainly because: Days promised for delivery: 13.8 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk; Seller-to-customer distance (km): 2,288.25 (usual: 442.78), increases risk.",
         "similar_past_cases": {
-          "rule": "same seller state → customer state route, training period",
+          "rule": "same seller state \u2192 customer state route, training period",
           "count": 1,
           "late_rate": 0.0,
           "avg_delivery_days": 18.5
@@ -2049,7 +2049,7 @@
         ],
         "explanation_summary": "High risk (59%) of late delivery, mainly because: Customer state: SE (most common: SP), increases risk; Days promised for delivery: 19.38 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 3.85 (usual: 2.64), increases risk.",
         "similar_past_cases": {
-          "rule": "same seller state → customer state route, training period",
+          "rule": "same seller state \u2192 customer state route, training period",
           "count": 2,
           "late_rate": 1.0,
           "avg_delivery_days": 36.9
@@ -2117,7 +2117,7 @@
         ],
         "explanation_summary": "High risk (58%) of late delivery, mainly because: Customer state: PA (most common: SP), increases risk; Days promised for delivery: 16.57 (usual: 23.17), increases risk; Seller-to-customer distance (km): 2,479.69 (usual: 442.78), increases risk.",
         "similar_past_cases": {
-          "rule": "same seller state → customer state route, training period",
+          "rule": "same seller state \u2192 customer state route, training period",
           "count": 565,
           "late_rate": 0.154,
           "avg_delivery_days": 24.8
@@ -2185,7 +2185,7 @@
         ],
         "explanation_summary": "High risk (57%) of late delivery, mainly because: Customer state: PA (most common: SP), increases risk; Days promised for delivery: 16.45 (usual: 23.17), increases risk; Seller-to-customer distance (km): 2,479.97 (usual: 442.78), increases risk.",
         "similar_past_cases": {
-          "rule": "same seller state → customer state route, training period",
+          "rule": "same seller state \u2192 customer state route, training period",
           "count": 565,
           "late_rate": 0.154,
           "avg_delivery_days": 24.8
@@ -2253,7 +2253,7 @@
         ],
         "explanation_summary": "High risk (54%) of late delivery, mainly because: Days promised for delivery: 15.52 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk; Customer state: PE (most common: SP), increases risk.",
         "similar_past_cases": {
-          "rule": "same seller state → customer state route, training period",
+          "rule": "same seller state \u2192 customer state route, training period",
           "count": 8,
           "late_rate": 0.25,
           "avg_delivery_days": 18.3
@@ -2321,7 +2321,7 @@
         ],
         "explanation_summary": "High risk (50%) of late delivery, mainly because: Customer state: BA (most common: SP), increases risk; Days promised for delivery: 20.5 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 3.73 (usual: 2.64), increases risk.",
         "similar_past_cases": {
-          "rule": "same seller state → customer state route, training period",
+          "rule": "same seller state \u2192 customer state route, training period",
           "count": 7,
           "late_rate": 0.429,
           "avg_delivery_days": 20.3
@@ -2348,27 +2348,29 @@
         "sellers": "slowest 10% by dispatch time"
       },
       "evidence": [
-        "RC1"
+        "RC1: Orders the seller took 6.0+ days to ship are late 21% of the time vs 5% when shipped within 1.8 days."
       ],
       "expected_impact": {
         "metric": "late_delivery_rate",
         "baseline": 0.053,
         "expected": 0.045,
         "change_pct_points": -0.8,
-        "late_orders_avoided_per_period": 163.0,
+        "late_orders_avoided_per_period": 163,
         "range_late_orders_avoided": [
-          81.0,
-          163.0
-        ],
-        "review_score_gain_estimate": 0.015
+          81,
+          163
+        ]
       },
-      "estimate_method": "Slow-dispatch orders assumed to be late at the rate of medium-dispatch orders.",
+      "estimate_method": "Slow-dispatch orders assumed to be late at the rate of medium-dispatch orders. Replay check: replaying each order with a typical dispatch time avoids 258 late orders (optimistic upper end).",
       "assumptions": [
         "Sellers respond to alerts"
       ],
-      "confidence": "medium",
+      "confidence": "high",
       "effort": "medium",
       "suggested_owner": "Seller operations",
+      "linked_findings": [
+        "RC1"
+      ],
       "linked_root_causes": [
         "RC1"
       ],
@@ -2378,60 +2380,8 @@
         "decided_at": null,
         "decision": null,
         "comment": null
-      }
-    },
-    {
-      "id": "REC2",
-      "title": "Add buffer days to promises for North-East routes",
-      "type": "policy",
-      "description": "Add 2-3 days to the promised date for high-risk routes so promises match reality.",
-      "target": {
-        "customer_states": [
-          "AL",
-          "BA",
-          "CE",
-          "MA",
-          "PB",
-          "PE",
-          "PI",
-          "RN",
-          "SE"
-        ]
       },
-      "evidence": [
-        "RC2",
-        "RC3"
-      ],
-      "expected_impact": {
-        "metric": "late_delivery_rate",
-        "baseline": 0.053,
-        "expected": 0.051,
-        "change_pct_points": -0.2,
-        "late_orders_avoided_per_period": 36.0,
-        "range_late_orders_avoided": [
-          18.0,
-          36.0
-        ],
-        "review_score_gain_estimate": 0.003
-      },
-      "estimate_method": "Assumes 40% of North-East late orders arrive within the added buffer (validate with delivery-day distribution).",
-      "assumptions": [
-        "Slightly longer promises don't reduce conversion much"
-      ],
-      "confidence": "medium",
-      "effort": "low",
-      "suggested_owner": "Logistics manager",
-      "linked_root_causes": [
-        "RC2",
-        "RC3"
-      ],
-      "status": "pending",
-      "approval": {
-        "decided_by": null,
-        "decided_at": null,
-        "decision": null,
-        "comment": null
-      }
+      "quick_win": false
     },
     {
       "id": "REC3",
@@ -2439,11 +2389,10 @@
       "type": "prioritisation",
       "description": "For each order in the model's top 10%: nudge the seller, upgrade carrier, and send the customer a delivery update.",
       "target": {
-        "orders": "risk ≥ 0.19 (top 10%)",
-        "count_current_period": 1920
+        "orders": "the model's top 10% risk"
       },
       "evidence": [
-        "Top-10% orders are late 11% vs 5% overall"
+        "RISK: The 10% of orders the model flags hold 20% of all late orders (1.99x the normal rate)."
       ],
       "expected_impact": {
         "metric": "late_delivery_rate",
@@ -2454,8 +2403,7 @@
         "range_late_orders_avoided": [
           30,
           61
-        ],
-        "review_score_gain_estimate": 0.005
+        ]
       },
       "estimate_method": "Assumes proactive handling prevents 30% of late deliveries among flagged orders (to be validated).",
       "assumptions": [
@@ -2464,6 +2412,9 @@
       "confidence": "medium",
       "effort": "medium",
       "suggested_owner": "Customer experience team",
+      "linked_findings": [
+        "RISK"
+      ],
       "linked_root_causes": [],
       "status": "pending",
       "approval": {
@@ -2471,7 +2422,94 @@
         "decided_at": null,
         "decision": null,
         "comment": null
-      }
+      },
+      "quick_win": false
+    },
+    {
+      "id": "REC2",
+      "title": "Add buffer days to promises for North-East routes",
+      "type": "policy",
+      "description": "Add 2-3 days to the promised date for high-risk routes so promises match reality.",
+      "target": {
+        "customer_states": "North-East"
+      },
+      "evidence": [
+        "RC2: North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo."
+      ],
+      "expected_impact": {
+        "metric": "late_delivery_rate",
+        "baseline": 0.053,
+        "expected": 0.051,
+        "change_pct_points": -0.2,
+        "late_orders_avoided_per_period": 36,
+        "range_late_orders_avoided": [
+          18,
+          36
+        ]
+      },
+      "estimate_method": "Assumes 40% of North-East late orders arrive within the added buffer (validate with delivery-day distribution).",
+      "assumptions": [
+        "Slightly longer promises don't reduce conversion much"
+      ],
+      "confidence": "high",
+      "effort": "low",
+      "suggested_owner": "Logistics manager",
+      "linked_findings": [
+        "RC2"
+      ],
+      "linked_root_causes": [
+        "RC2"
+      ],
+      "status": "pending",
+      "approval": {
+        "decided_by": null,
+        "decided_at": null,
+        "decision": null,
+        "comment": null
+      },
+      "quick_win": false
+    },
+    {
+      "id": "REC4",
+      "title": "Warn sellers and couriers in Southeast before its busy days",
+      "type": "capacity",
+      "description": "Tell sellers and couriers in Southeast a few days ahead: about 287 more orders than usual are expected on 2018-08-13, 2018-08-14, 2018-08-15.",
+      "target": {
+        "region": "Southeast"
+      },
+      "evidence": [
+        "FC-Southeast: Southeast is expected to get about 287 orders more than usual on 2018-08-13, 2018-08-14, 2018-08-15."
+      ],
+      "expected_impact": {
+        "metric": "late_delivery_rate",
+        "baseline": 0.053,
+        "expected": 0.053,
+        "change_pct_points": 0.0,
+        "late_orders_avoided_per_period": 5,
+        "range_late_orders_avoided": [
+          2,
+          5
+        ]
+      },
+      "estimate_method": "About 287 extra orders expected; they are assumed late at this period's rate (5.3%), and an early warning is assumed to prevent 30% of those.",
+      "assumptions": [
+        "Early warning prevents 30% of the extra lateness (to be validated)"
+      ],
+      "confidence": "medium",
+      "effort": "low",
+      "suggested_owner": "Logistics manager",
+      "linked_findings": [
+        "FC-Southeast"
+      ],
+      "linked_root_causes": [],
+      "status": "pending",
+      "approval": {
+        "decided_by": null,
+        "decided_at": null,
+        "decision": null,
+        "comment": null
+      },
+      "quick_win": false
     }
   ],
   "impact_simulation": {
@@ -2479,26 +2517,41 @@
     "baseline": {
       "orders": 19204,
       "late_orders": 1018,
-      "late_rate": 0.053,
-      "avg_review_score": 4.31
+      "late_rate": 0.053
     },
     "scenarios": [
       {
         "recommendation_id": "REC1",
         "late_rate": 0.045,
-        "late_orders_avoided": 163.0
-      },
-      {
-        "recommendation_id": "REC2",
-        "late_rate": 0.051,
-        "late_orders_avoided": 36.0
+        "late_orders_avoided": 163
       },
       {
         "recommendation_id": "REC3",
         "late_rate": 0.05,
         "late_orders_avoided": 61
+      },
+      {
+        "recommendation_id": "REC2",
+        "late_rate": 0.051,
+        "late_orders_avoided": 36
+      },
+      {
+        "recommendation_id": "REC4",
+        "late_rate": 0.053,
+        "late_orders_avoided": 5
       }
     ],
+    "replays": {
+      "dispatch": {
+        "rule": "orders whose seller took 6.0+ days to ship are replayed as if shipped in 1.8 days",
+        "orders": 19204,
+        "late_before": 1018,
+        "late_after": 760,
+        "late_orders_avoided": 258,
+        "late_rate_before": 0.053,
+        "late_rate_after": 0.04
+      }
+    },
     "note": "Scenarios are estimated separately and are not additive (they overlap)."
   },
   "model_performance": {
@@ -2516,5 +2569,635 @@
       "start": "2018-05-26",
       "end": "2018-08-29"
     }
+  },
+  "ranked_findings": {
+    "rule": "score = size x confidence x urgency; confidence high 1.0, medium 0.7, low 0.5",
+    "items": [
+      {
+        "id": "RC1",
+        "type": "supplier",
+        "title": "Slow seller dispatch",
+        "finding": "Orders the seller took 6.0+ days to ship are late 21% of the time vs 5% when shipped within 1.8 days.",
+        "subject": null,
+        "size": 0.287,
+        "confidence": "high",
+        "urgency": 1.0,
+        "score": 0.287,
+        "evidence": [
+          {
+            "segment": "dispatch \u2264 1.8 days",
+            "late_rate": 0.055,
+            "orders": 48009
+          },
+          {
+            "segment": "dispatch \u2265 6.0 days",
+            "late_rate": 0.213,
+            "orders": 9602
+          }
+        ],
+        "source": "root_causes",
+        "rank": 1,
+        "why": "Ranked 1: 29% of this period's problems are linked to it; confidence high (score 0.287)."
+      },
+      {
+        "id": "RISK",
+        "type": "high_risk",
+        "title": "High-risk new orders",
+        "finding": "The 10% of orders the model flags hold 20% of all late orders (1.99x the normal rate).",
+        "subject": null,
+        "size": 0.199,
+        "confidence": "medium",
+        "urgency": 1.0,
+        "score": 0.139,
+        "evidence": [
+          {
+            "precision_top_10pct": 0.106,
+            "base_rate": 0.053
+          }
+        ],
+        "source": "predictions",
+        "rank": 2,
+        "why": "Ranked 2: 20% of all problems sit in the riskiest 10% of items; confidence medium (score 0.139)."
+      },
+      {
+        "id": "FC-Southeast",
+        "type": "busy",
+        "title": "Southeast unusually busy next week",
+        "finding": "Southeast is expected to get about 287 orders more than usual on 2018-08-13, 2018-08-14, 2018-08-15.",
+        "subject": "Southeast",
+        "size": 0.132,
+        "confidence": "medium",
+        "urgency": 1.0,
+        "score": 0.092,
+        "evidence": [
+          {
+            "date": "2018-08-13",
+            "expected_orders": 262.9,
+            "usual_orders": 170.8,
+            "busy": true
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 269.3,
+            "usual_orders": 170.8,
+            "busy": true
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 267.7,
+            "usual_orders": 170.8,
+            "busy": true
+          }
+        ],
+        "source": "forecast",
+        "rank": 3,
+        "why": "Ranked 3: 13% of next week's expected orders are extra above the usual level; confidence medium (score 0.092)."
+      },
+      {
+        "id": "RC2",
+        "type": "logistics",
+        "title": "Long-distance deliveries to the North-East",
+        "finding": "North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo.",
+        "subject": null,
+        "size": 0.087,
+        "confidence": "high",
+        "urgency": 1.0,
+        "score": 0.087,
+        "evidence": [
+          {
+            "segment": "North-East states",
+            "late_rate": 0.144,
+            "orders": 9002
+          },
+          {
+            "segment": "S\u00e3o Paulo (SP)",
+            "late_rate": 0.059,
+            "orders": 40335
+          }
+        ],
+        "source": "root_causes",
+        "rank": 4,
+        "why": "Ranked 4: 9% of this period's problems are linked to it; confidence high (score 0.087)."
+      },
+      {
+        "id": "RC3",
+        "type": "policy",
+        "title": "Tight delivery promises",
+        "finding": "Orders with the shortest 25% of promises are late 9% vs 6% for the longest 25%.",
+        "subject": null,
+        "size": null,
+        "confidence": "medium",
+        "urgency": 1.0,
+        "score": null,
+        "evidence": [
+          {
+            "segment": "shortest 25% promises",
+            "late_rate": 0.088
+          },
+          {
+            "segment": "longest 25% promises",
+            "late_rate": 0.059
+          }
+        ],
+        "source": "root_causes",
+        "rank": 5,
+        "why": "Not ranked by number: its size is not measured yet, so it follows the measured findings."
+      }
+    ],
+    "watch": [
+      {
+        "id": "FC-South",
+        "type": "busy",
+        "title": "South unusually busy next week",
+        "finding": "South is expected to get about 46 orders more than usual on 2018-08-13, 2018-08-14, 2018-08-15.",
+        "subject": "South",
+        "size": 0.021,
+        "confidence": "medium",
+        "urgency": 1.0,
+        "score": 0.015,
+        "evidence": [
+          {
+            "date": "2018-08-13",
+            "expected_orders": 56.6,
+            "usual_orders": 32.6,
+            "busy": true
+          },
+          {
+            "date": "2018-08-14",
+            "expected_orders": 43.7,
+            "usual_orders": 32.6,
+            "busy": true
+          },
+          {
+            "date": "2018-08-15",
+            "expected_orders": 43.7,
+            "usual_orders": 32.6,
+            "busy": true
+          }
+        ],
+        "source": "forecast",
+        "rank": null,
+        "why": "On the watch list: too small to act on now."
+      }
+    ],
+    "history": [
+      {
+        "id": "AN-2017-11-26",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2017-11-26",
+        "finding": "19.4% against a normal 5.0% (deviation score 5.3).",
+        "subject": null,
+        "size": 0.53,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2017-11-26",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.194,
+            "expected": 0.05,
+            "deviation_score": 5.3,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2017-12-03",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2017-12-03",
+        "finding": "16.7% against a normal 5.0% (deviation score 4.3).",
+        "subject": null,
+        "size": 0.43,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2017-12-03",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.167,
+            "expected": 0.05,
+            "deviation_score": 4.3,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2017-12-10",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2017-12-10",
+        "finding": "12.0% against a normal 5.0% (deviation score 2.6).",
+        "subject": null,
+        "size": 0.26,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2017-12-10",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.12,
+            "expected": 0.05,
+            "deviation_score": 2.6,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-02-18",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-02-18",
+        "finding": "14.7% against a normal 5.0% (deviation score 3.6).",
+        "subject": null,
+        "size": 0.36,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-02-18",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.147,
+            "expected": 0.05,
+            "deviation_score": 3.6,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-02-25",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-02-25",
+        "finding": "21.3% against a normal 5.0% (deviation score 6.0).",
+        "subject": null,
+        "size": 0.6,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-02-25",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.213,
+            "expected": 0.05,
+            "deviation_score": 6.0,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-03-04",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-03-04",
+        "finding": "29.0% against a normal 5.0% (deviation score 8.9).",
+        "subject": null,
+        "size": 0.89,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-03-04",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.29,
+            "expected": 0.05,
+            "deviation_score": 8.9,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-03-11",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-03-11",
+        "finding": "27.7% against a normal 5.0% (deviation score 8.4).",
+        "subject": null,
+        "size": 0.8400000000000001,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-03-11",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.277,
+            "expected": 0.05,
+            "deviation_score": 8.4,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-03-18",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-03-18",
+        "finding": "23.1% against a normal 5.0% (deviation score 6.7).",
+        "subject": null,
+        "size": 0.67,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-03-18",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.231,
+            "expected": 0.05,
+            "deviation_score": 6.7,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-03-25",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-03-25",
+        "finding": "14.1% against a normal 5.0% (deviation score 3.4).",
+        "subject": null,
+        "size": 0.33999999999999997,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-03-25",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.141,
+            "expected": 0.05,
+            "deviation_score": 3.4,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-04-01",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-04-01",
+        "finding": "13.5% against a normal 5.0% (deviation score 3.1).",
+        "subject": null,
+        "size": 0.31,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-04-01",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.135,
+            "expected": 0.05,
+            "deviation_score": 3.1,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-05-20",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-05-20",
+        "finding": "16.1% against a normal 5.0% (deviation score 4.1).",
+        "subject": null,
+        "size": 0.41,
+        "confidence": "high",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-05-20",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.161,
+            "expected": 0.05,
+            "deviation_score": 4.1,
+            "severity": "critical",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-08-05",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-08-05",
+        "finding": "13.8% against a normal 5.0% (deviation score 3.3).",
+        "subject": null,
+        "size": 0.32999999999999996,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-08-05",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.138,
+            "expected": 0.05,
+            "deviation_score": 3.3,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      },
+      {
+        "id": "AN-2018-08-12",
+        "type": "anomaly",
+        "title": "Weekly late delivery rate unusual in the week to 2018-08-12",
+        "finding": "12.6% against a normal 5.0% (deviation score 2.8).",
+        "subject": null,
+        "size": 0.27999999999999997,
+        "confidence": "medium",
+        "urgency": 0.0,
+        "score": 0.0,
+        "evidence": [
+          {
+            "week_ending": "2018-08-12",
+            "metric": "late_rate",
+            "label": "Weekly late delivery rate",
+            "actual": 0.126,
+            "expected": 0.05,
+            "deviation_score": 2.8,
+            "severity": "warning",
+            "direction": "above_normal"
+          }
+        ],
+        "source": "anomalies",
+        "rank": null,
+        "why": "Kept as history: this unusual week is over."
+      }
+    ],
+    "context": [
+      {
+        "id": "RC4",
+        "title": "Business impact: late orders damage reviews",
+        "category": "customer",
+        "finding": "Late orders average 2.6 stars vs 4.3 on time.",
+        "evidence": [
+          {
+            "segment": "on time",
+            "avg_review_score": 4.3
+          },
+          {
+            "segment": "late",
+            "avg_review_score": 2.56
+          }
+        ],
+        "affected_orders_current_period": 1018,
+        "share_of_late_current_period": 1.0,
+        "confidence": "high",
+        "linked_recommendations": []
+      }
+    ],
+    "note": "Findings are correlations in historical data; the simulation estimates the effect of acting on them."
+  },
+  "priority_queue": {
+    "rule": "orders sorted by money at risk (risk x order value); the team handles 50 a day",
+    "today": [
+      {
+        "id": "be72c04d946d396d2383f4fd49a4f19f",
+        "risk": 0.577,
+        "weight": 351.22,
+        "score": 202.65,
+        "region": "PA",
+        "why": "risk 58% x order value R$ 351.22 = R$ 202.65 at risk",
+        "rank": 1
+      },
+      {
+        "id": "f3a3becaf45a4f7799cd93b1fdeea2c7",
+        "risk": 0.572,
+        "weight": 351.22,
+        "score": 200.9,
+        "region": "PA",
+        "why": "risk 57% x order value R$ 351.22 = R$ 200.90 at risk",
+        "rank": 2
+      },
+      {
+        "id": "97415fb39aa90a8bfea4424d7bfbc5db",
+        "risk": 0.785,
+        "weight": 153.1,
+        "score": 120.18,
+        "region": "RJ",
+        "why": "risk 78% x order value R$ 153.10 = R$ 120.18 at risk",
+        "rank": 3
+      },
+      {
+        "id": "38fc09accaec15642b3f2ce5fc46ebb0",
+        "risk": 0.636,
+        "weight": 153.1,
+        "score": 97.37,
+        "region": "MS",
+        "why": "risk 64% x order value R$ 153.10 = R$ 97.37 at risk",
+        "rank": 4
+      },
+      {
+        "id": "458e6791b5c8c62d0a48aae7f660b637",
+        "risk": 0.538,
+        "weight": 162.12,
+        "score": 87.22,
+        "region": "PE",
+        "why": "risk 54% x order value R$ 162.12 = R$ 87.22 at risk",
+        "rank": 5
+      },
+      {
+        "id": "6c353b764e0d5e28cb2852e8e8603def",
+        "risk": 0.591,
+        "weight": 144.12,
+        "score": 85.17,
+        "region": "SE",
+        "why": "risk 59% x order value R$ 144.12 = R$ 85.17 at risk",
+        "rank": 6
+      },
+      {
+        "id": "3e734ad65fdbca928a1a4de48d096ce4",
+        "risk": 0.741,
+        "weight": 94.74,
+        "score": 70.2,
+        "region": "RJ",
+        "why": "risk 74% x order value R$ 94.74 = R$ 70.20 at risk",
+        "rank": 7
+      },
+      {
+        "id": "11cfb7ef8394269889a34ee7832fe16c",
+        "risk": 0.699,
+        "weight": 94.74,
+        "score": 66.22,
+        "region": "RJ",
+        "why": "risk 70% x order value R$ 94.74 = R$ 66.22 at risk",
+        "rank": 8
+      },
+      {
+        "id": "7484cb86db28da2d4d7c3f41dc265201",
+        "risk": 0.688,
+        "weight": 94.74,
+        "score": 65.18,
+        "region": "RJ",
+        "why": "risk 69% x order value R$ 94.74 = R$ 65.18 at risk",
+        "rank": 9
+      },
+      {
+        "id": "ab42eac47de85e36ba4622c26f9c9dcd",
+        "risk": 0.502,
+        "weight": 79.32,
+        "score": 39.82,
+        "region": "BA",
+        "why": "risk 50% x order value R$ 79.32 = R$ 39.82 at risk",
+        "rank": 10
+      }
+    ],
+    "later": []
   }
 }

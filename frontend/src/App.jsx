@@ -28,7 +28,7 @@ export default function App() {
   // key = which analysis: "incidents" or "sales" (the demo data) or an upload id like "upload-3bdaa119"
   const [key, setKey] = useState("incidents");
   const [company, setCompany] = useState(null);
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState("upload");
   const [state, setState] = useState({ loading: true, error: null, data: null, source: null });
 
   useEffect(() => {

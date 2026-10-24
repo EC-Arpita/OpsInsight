@@ -17,11 +17,11 @@ def _current(table, features, id_col):
     return table[table[id_col].isin(ids)]
 
 
-def _top10(domain, features):
+def _top10(domain, features, model=None):
     """Current-period items at or above the model's high-risk cut-off."""
     current = features[features["split"] == "test"]
-    risk = pd.Series([p["prediction"]["risk"] for p in predict(domain, current)], index=current.index)
-    return current[risk >= load(domain)["meta"]["risk_thresholds"]["high"]]
+    risk = pd.Series([p["prediction"]["risk"] for p in predict(domain, current, model=model)], index=current.index)
+    return current[risk >= load(model or domain)["meta"]["risk_thresholds"]["high"]]
 
 
 def _result(saved, n, bad, method, assumptions, low_share=0.5):
@@ -32,7 +32,7 @@ def _result(saved, n, bad, method, assumptions, low_share=0.5):
 
 
 # --------------------------------------------------------------------------- support tickets
-def ticket_estimates(tickets: pd.DataFrame, features: pd.DataFrame, worst_team: str | None) -> dict:
+def ticket_estimates(tickets: pd.DataFrame, features: pd.DataFrame, worst_team: str | None, model: str = None) -> dict:
     cur = _current(tickets, features, "number")
     n, bad = len(cur), int(cur["breached"].sum())
     out = {}
@@ -47,7 +47,7 @@ def ticket_estimates(tickets: pd.DataFrame, features: pd.DataFrame, worst_team: 
         out["rebalance_team"] = _result(max(0.0, w["breached"].sum() - len(w) * bad / n), n, bad,
             "Team assumed to reach the overall breach rate after rebalancing.",
             ["Receiving teams have the skills and spare capacity"])
-    top = _top10("incidents", features)
+    top = _top10("incidents", features, model)
     hit = cur[cur["number"].isin(top["number"])]
     out["fast_track_top10"] = _result(hit["breached"].sum() * ASSUMED_PREVENTION, n, bad,
         f"Assumes fast-tracking prevents {ASSUMED_PREVENTION:.0%} of breaches among flagged tickets (to be validated in a pilot).",
@@ -87,7 +87,7 @@ def _dispatch_days(orders):
     return ((orders["carrier_at"] - orders["approved_at"]).dt.total_seconds() / 86400).clip(lower=0)
 
 
-def sales_estimates(orders: pd.DataFrame, features: pd.DataFrame) -> dict:
+def sales_estimates(orders: pd.DataFrame, features: pd.DataFrame, model: str = None) -> dict:
     d = orders[orders["is_model_row"] == 1].copy()
     d["late"] = d["late"].astype(int)
     d["dispatch_days"] = _dispatch_days(d)
@@ -104,7 +104,7 @@ def sales_estimates(orders: pd.DataFrame, features: pd.DataFrame) -> dict:
     out["region_buffer_days"] = _result(ne["late"].sum() * 0.40, n, bad,
         "Assumes 40% of North-East late orders arrive within the added buffer (validate with delivery-day distribution).",
         ["Slightly longer promises don't reduce conversion much"])
-    top = _top10("sales", features)
+    top = _top10("sales", features, model)
     hit = cur[cur["order_id"].isin(top["order_id"])]
     out["proactive_top10"] = _result(hit["late"].sum() * ASSUMED_PREVENTION, n, bad,
         f"Assumes proactive handling prevents {ASSUMED_PREVENTION:.0%} of late deliveries among flagged orders (to be validated).",

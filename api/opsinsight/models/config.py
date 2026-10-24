@@ -13,6 +13,7 @@ def project_root() -> Path:
 
 ROOT = project_root()
 MODELS_DIR = ROOT / "models"
+UPLOAD_MODELS_DIR = ROOT / "data/app/models"      # one model per uploaded company; data/ is not in git
 
 # Cautious LightGBM settings chosen in notebook 07 (small trees, 200+ rows per leaf, penalty)
 LGBM_PARAMS = dict(n_estimators=300, learning_rate=0.03, num_leaves=15, min_child_samples=200, reg_lambda=5,

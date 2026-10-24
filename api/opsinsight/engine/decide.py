@@ -27,7 +27,7 @@ def add_decisions(analysis: dict, domain: str, tables: dict) -> dict:
     if domain == "incidents":
         tickets, features = tables["tickets"], tables["features"]
         worst = next((f["subject"] for f in findings["items"] if f["type"] == "capacity"), None)
-        est = ticket_estimates(tickets, features, worst)
+        est = ticket_estimates(tickets, features, worst, tables.get("model"))
         plan = workload_plan(analysis["forecast"], tickets)
         replay = replay_queues(analysis["forecast"], plan, cover=True)
         base = est["_baseline"]
@@ -52,7 +52,7 @@ def add_decisions(analysis: dict, domain: str, tables: dict) -> dict:
         rate_key = "breach_rate"
     else:
         orders, features = tables["orders"], tables["features"]
-        est = sales_estimates(orders, features)
+        est = sales_estimates(orders, features, tables.get("model"))
         replay = replay_dispatch(orders, features)
         if "seller_dispatch_deadline" in est:
             est["seller_dispatch_deadline"]["method"] += (f" Replay check: replaying each order with a typical dispatch time "

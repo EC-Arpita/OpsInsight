@@ -32,3 +32,9 @@ def test_orders_status_words_and_region():
     df = standardise_orders(apply_mapping(raw, s["mapping"], "sales_orders"))
     assert list(df["order_status"]) == ["delivered", "canceled"]
     assert df["order_purchase_timestamp"].iloc[0] == pd.Timestamp("2018-01-31 22:56")
+
+
+def test_small_file_falls_back_to_reference_model():
+    from opsinsight.engine.pipeline import own_model
+    tiny = pd.DataFrame({"split": ["train"] * 10 + ["test"] * 5, "breached": [0, 1] * 7 + [0]})
+    assert own_model("incidents", tiny, "tiny-upload") is None   # too small to learn from

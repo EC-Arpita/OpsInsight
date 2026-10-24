@@ -7,7 +7,8 @@ import pandas as pd
 
 from ..forecast.sales import forecast_orders
 from ..forecast.tickets import forecast_tickets
-from ..models.config import ROOT
+from ..models.config import DOMAINS, ROOT
+from ..models.train import train_domain
 from ..prep import incidents as inc
 from ..prep import sales as sal
 from ..prep.analytics import incident_analysis, sales_analysis
@@ -82,6 +83,20 @@ def standardise_orders(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+MIN_TRAIN_ROWS, MIN_PROBLEMS = 500, 30     # below this a model would learn noise: use the reference model
+
+
+def own_model(domain: str, features: pd.DataFrame, name: str) -> str | None:
+    """Train the risk model on this company's own history (older 80% -> tested on newest 20%).
+    Returns the model name, or None (= use the reference model) when the file is too small to learn from."""
+    target = DOMAINS[domain]["target"]
+    train, test = features[features["split"] == "train"], features[features["split"] == "test"]
+    if len(train) < MIN_TRAIN_ROWS or train[target].sum() < MIN_PROBLEMS or test[target].nunique() < 2:
+        return None
+    train_domain(domain, df=features, name=name)
+    return name
+
+
 def run_tickets(upload, mapping, sla_rules=None) -> tuple:
     raw = read_table(Path(upload["folder"]) / upload["main_file"])
     if "made_sla" not in mapping:
@@ -96,10 +111,11 @@ def run_tickets(upload, mapping, sla_rules=None) -> tuple:
     tickets = inc.collapse_to_tickets(events, log=log)
     features, _ = inc.build_features(tickets)
     analysis = incident_analysis(tickets, features, log.to_frame(), f"{upload['company']} support tickets")
-    analysis["predictions"] = predictions_section("incidents", tickets, features)
-    analysis["model_performance"] = model_section("incidents")
+    model = own_model("incidents", features, upload["id"])
+    analysis["predictions"] = predictions_section("incidents", tickets, features, model=model)
+    analysis["model_performance"] = model_section("incidents", model)
     analysis["forecast"] = forecast_tickets(tickets)
-    return analysis, {"tickets": tickets, "features": features}
+    return analysis, {"tickets": tickets, "features": features, "model": model}
 
 
 def run_sales(upload, mapping) -> tuple:
@@ -123,10 +139,11 @@ def run_sales(upload, mapping) -> tuple:
     out = sal.prepare_sales(work, window=auto_window(orders_raw[mapping["order_purchase_timestamp"]]))
     orders, features = out["orders"], out["features"]
     analysis = sales_analysis(orders, features, out["quality"], f"{upload['company']} sales orders")
-    analysis["predictions"] = predictions_section("sales", orders, features)
-    analysis["model_performance"] = model_section("sales")
+    model = own_model("sales", features, upload["id"])
+    analysis["predictions"] = predictions_section("sales", orders, features, model=model)
+    analysis["model_performance"] = model_section("sales", model)
     analysis["forecast"] = forecast_orders(orders)
-    return analysis, {"orders": orders, "features": features}
+    return analysis, {"orders": orders, "features": features, "model": model}
 
 
 def run_upload(upload_id: str, mapping_overrides: dict = None, sla_rules: dict = None, decide=True) -> dict:

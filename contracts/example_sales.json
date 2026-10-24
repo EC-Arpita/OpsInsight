@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "meta": {
-    "analysis_id": "sales-2026-10-22",
-    "generated_at": "2026-10-22T18:35:56Z",
+    "analysis_id": "sales-2026-10-24",
+    "generated_at": "2026-10-24T14:52:03Z",
     "domain": "sales_orders",
     "dataset_name": "Olist Brazilian E-Commerce",
     "item_type": "order",

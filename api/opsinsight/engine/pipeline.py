@@ -83,7 +83,7 @@ def standardise_orders(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-MIN_TRAIN_ROWS, MIN_PROBLEMS = 500, 30     # below this a model would learn noise: use the reference model
+MIN_TRAIN_ROWS, MIN_PROBLEMS = 100, 10     # below this a model would learn noise: use the reference model
 
 
 def own_model(domain: str, features: pd.DataFrame, name: str) -> str | None:

@@ -24,7 +24,7 @@ def _root_cause_cards(analysis, domain):
         if rc["category"] == "customer":       # explains why the problem matters (e.g. reviews); not a cause to fix
             continue
         share = rc.get(w["share"])
-        subject = rc["evidence"][0].get("segment") if rc["category"] == "capacity" else None
+        subject = rc["evidence"][0].get("segment") if rc["category"] in ("capacity", "logistics") else None
         cards.append(_card(rc["id"], rc["category"], rc["title"], rc["finding"], share, rc["confidence"], 1.0,
                            subject, rc["evidence"], "root_causes"))
     return cards
@@ -109,7 +109,7 @@ def rank_findings(analysis: dict, domain: str) -> dict:
     cards = _root_cause_cards(analysis, domain) + [_risk_card(analysis, domain)] + \
         _forecast_cards(analysis, domain) + _anomaly_cards(analysis)
     # one problem, two pieces of evidence: merge a forecast card into the root cause about the same team
-    by_subject = {c["subject"]: c for c in cards if c["source"] == "root_causes" and c["subject"]}
+    by_subject = {c["subject"]: c for c in cards if c["source"] == "root_causes" and c["type"] == "capacity"}
     merged = []
     for c in cards:
         if c["source"] == "forecast" and c["subject"] in by_subject:

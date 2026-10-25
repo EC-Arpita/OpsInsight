@@ -1,8 +1,10 @@
 """API tests: run with   python -m pytest tests/test_api.py -v
 Uses a fresh, empty database in a temporary folder, so your real decisions are never touched."""
+import io
 import sqlite3
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
@@ -87,9 +89,14 @@ def test_sales_upload_end_to_end():
     up = client.post("/api/uploads", files=files, data={"company": "ShopNest"}).json()
     assert up["domain"] == "sales_orders" and up["status"] == "ok"
     run = client.post(f"/api/uploads/{up['upload_id']}/run", json={}).json()
-    assert run["domain"] == "sales" and len(run["recommendations"]) >= 3
+    assert run["domain"] == "sales" and {"REC1", "REC3"} <= set(run["recommendations"])   # region gap is small in the sample
     assert client.get(f"/api/uploads/{up['upload_id']}").json()["status"] == "analysed"
     assert "folder" not in client.get(f"/api/uploads/{up['upload_id']}").json()
+    assert up["upload_id"] in [u["id"] for u in client.get("/api/uploads").json()]
+    again = client.post("/api/uploads", files=files, data={"company": "ShopNest"}).json()
+    assert again.get("mapping_remembered") is True                    # same company, same export
+    xl = client.get(f"/api/analysis/{up['upload_id']}/export.xlsx")
+    assert xl.status_code == 200 and set(pd.read_excel(io.BytesIO(xl.content), sheet_name=None)) == {"Actions", "High risk", "KPIs"}
     ans = client.post(f"/api/ask/{up['upload_id']}", json={"question": "Why are orders late?"}).json()
     assert ans["cited_ids"]
 

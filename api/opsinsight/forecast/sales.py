@@ -5,7 +5,7 @@ from ..prep.sales import REGION
 from .common import HORIZON, METHODS, ROOT, backtest, daily_counts
 
 ORDERS_FILE = ROOT / "data/interim/sales_orders_clean.parquet"
-LEAVE_OUT_LAST_DAYS = 21   # orders to far regions reach the export late, so the newest 3 weeks are incomplete
+MAX_TAIL_DAYS = 28         # never cut more than 4 weeks, even if volume really fell
 
 
 def region_counts(orders: pd.DataFrame) -> pd.DataFrame:
@@ -22,11 +22,22 @@ def tail_check(counts: pd.DataFrame) -> pd.DataFrame:
     return (week / usual).round(2)
 
 
+def incomplete_tail(counts: pd.DataFrame, threshold=0.9, min_week=70) -> int:
+    """Days at the end of the file where a sizeable region gets clearly fewer orders than in a normal week:
+    orders to far regions reach the export late. 0 when the end of the file looks complete."""
+    usual = counts.rolling(7).sum().shift(7).rolling(28).median()
+    big = [c for c in counts.columns if usual[c].iloc[-1] >= min_week] or list(counts.columns)
+    worst = tail_check(counts)[big].min(axis=1)
+    ok = worst[worst >= threshold]
+    return 0 if ok.empty else min(MAX_TAIL_DAYS, int((counts.index[-1] - ok.index[-1]).days))
+
+
 def forecast_orders(orders: pd.DataFrame = None, busy_margin=1.2, min_extra=10) -> dict:
     """The `forecast` section of the sales analysis JSON."""
     orders = pd.read_parquet(ORDERS_FILE) if orders is None else orders
     full = region_counts(orders)
-    placed = full.iloc[:-LEAVE_OUT_LAST_DAYS]
+    tail = incomplete_tail(full)
+    placed = full.iloc[:len(full) - tail]
     regions = list(placed.columns)
 
     scores = backtest(placed)
@@ -48,7 +59,8 @@ def forecast_orders(orders: pd.DataFrame = None, busy_margin=1.2, min_extra=10) 
                     "busy_days": sum(x["busy"] for x in daily), "daily": daily})
     return {"method": best, "horizon_days": HORIZON, "backtest_mean_abs_error": scores.to_dict(orient="records"),
             "history_end": f"{placed.index[-1]:%Y-%m-%d}",
-            "note": (f"The last {LEAVE_OUT_LAST_DAYS} days of the file were left out: orders to distant regions reach "
-                     "the export late, so those days look falsely quiet. The forecast starts after the last complete day."),
+            "note": (f"The last {tail} days of the file were left out: orders to distant regions reach "
+                     "the export late, so those days look falsely quiet. The forecast starts after the last complete day."
+                     if tail else None),
             "busy_rule": f"expected orders > the usual for that weekday (last 4 weeks) x {busy_margin}, and at least {min_extra} orders more",
             "regions": out}

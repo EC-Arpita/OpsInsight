@@ -52,7 +52,8 @@ def add_decisions(analysis: dict, domain: str, tables: dict) -> dict:
         rate_key = "breach_rate"
     else:
         orders, features = tables["orders"], tables["features"]
-        est = sales_estimates(orders, features, tables.get("model"))
+        worst = next((f["subject"] for f in findings["items"] if f["type"] == "logistics"), None)
+        est = sales_estimates(orders, features, tables.get("model"), worst)
         replay = replay_dispatch(orders, features)
         if "seller_dispatch_deadline" in est:
             est["seller_dispatch_deadline"]["method"] += (f" Replay check: replaying each order with a typical dispatch time "

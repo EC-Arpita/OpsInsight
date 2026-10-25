@@ -1,11 +1,20 @@
-"""Turn clean tables into the analysis JSON sections (the work of notebook 08)."""
+"""Turn clean tables into the analysis JSON sections (the work of notebook 08).
+
+    from opsinsight.prep import prepare_incidents
+    from opsinsight.prep.analytics import incident_analysis
+    out = prepare_incidents("data/raw/incidents/incident_event_log.csv")
+    analysis = incident_analysis(out["tickets"], out["features"], out["quality"])
+    analysis["kpis"], analysis["breakdowns"], analysis["root_causes"], ...
+"""
 from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
 
+from .sales import REGION
 
-# ------------------------------------------------------------- small helpers
+
+# --------------------------------------------------------------------------- small helpers
 def num(x, d=3):
     """Round, and turn numpy numbers into plain Python numbers (JSON can't store numpy types)."""
     if x is None or (isinstance(x, float) and np.isnan(x)):
@@ -56,7 +65,8 @@ def split_periods(df, time_col, cutoff, end):
 
 def breakdown(df, col, label, target, id_col, names, extras, top=8, min_n=50):
     """'Where is it worst?' table for one column, sorted by number of problems.
-    names  = output key names, e.g. {"count": "tickets", "rate": "breach_rate", ...}
+    names  = output key names, e.g. {"count": "tickets", "rate": "breach_rate", "problems": "breaches",
+             "share": "share_of_all_breaches", "vs": "vs_overall_breach_rate"}
     extras = {"output_name": (column, "mean" | "median" | "sum", decimals)}"""
     total = df[target].sum()
     overall = df[target].mean()
@@ -102,7 +112,7 @@ def _now():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-# ------------------------------------------------------------- incidents
+# --------------------------------------------------------------------------- incidents
 INC_NAMES = {"count": "tickets", "rate": "breach_rate", "problems": "breaches",
              "share": "share_of_all_breaches", "vs": "vs_overall_breach_rate"}
 INC_EXTRAS = {"median_resolution_hours": ("hours_to_resolve", "median", 1),
@@ -189,7 +199,7 @@ def incident_analysis(tickets, features, quality, dataset_name="Incident log"):
     gone |= {"RC3", "reopen_rate"} if pd.isna(ro1) else set()
     root_causes = [rc for rc in root_causes if rc["id"] not in gone]
     kpis = [k for k in kpis if k["id"] not in gone]
-    
+
     return {
         "schema_version": "1.0",
         "meta": {"analysis_id": "inc-" + _now()[:10], "generated_at": _now(), "domain": "support_tickets",
@@ -208,12 +218,11 @@ def incident_analysis(tickets, features, quality, dataset_name="Incident log"):
     }
 
 
-# ------------------------------------------------------------- sales
+# --------------------------------------------------------------------------- sales
 SALES_NAMES = {"count": "orders", "rate": "late_rate", "problems": "late_orders",
                "share": "share_of_all_late", "vs": "vs_overall_late_rate"}
 SALES_EXTRAS = {"avg_delivery_days": ("delivery_days", "mean", 1), "avg_review_score": ("review_score", "mean", 2),
                 "revenue": ("revenue", "sum", 0)}
-NORTHEAST = {"AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"}
 
 
 def sales_analysis(orders, features, quality, dataset_name="Sales orders"):
@@ -223,6 +232,7 @@ def sales_analysis(orders, features, quality, dataset_name="Sales orders"):
     d["delivery_days"] = (d["delivered_at"] - d["purchased_at"]).dt.total_seconds() / 86400
     d["dispatch_days"] = ((d["carrier_at"] - d["approved_at"]).dt.total_seconds() / 86400).clip(lower=0)
     d["revenue"] = d["items_price"] + d["items_freight"]
+    d["region"] = d["customer_state"].map(REGION).fillna(d["customer_state"])   # Brazil: 5 regions; elsewhere as given
     cutoff = features.loc[features["split"] == "test", "purchased_at"].min()
     end = features["purchased_at"].max()
     cur, prev, prev_start = split_periods(d, "purchased_at", cutoff, end)
@@ -256,10 +266,12 @@ def sales_analysis(orders, features, quality, dataset_name="Sales orders"):
     fast, slow = d[d["dispatch_days"] <= q[0.5]], d[d["dispatch_days"] >= q[0.9]]
     promised = (d["estimated_at"] - d["approved_at"]).dt.total_seconds() / 86400
     short, long_ = d[promised <= promised.quantile(0.25)], d[promised >= promised.quantile(0.75)]
-    ne, sp = d[d["customer_state"].isin(NORTHEAST)], d[d["customer_state"] == "SP"]
+    regions = d.groupby("region")["late"].agg(["mean", "size"]).query("size >= 100")
+    worst_r, best_r = (regions["mean"].idxmax(), regions["mean"].idxmin()) if len(regions) >= 2 else (None, None)
+    wr, br = d[d["region"] == worst_r], d[d["region"] == best_r]
     on_time_rev, late_rev = d.loc[d["late"] == 0, "review_score"].mean(), d.loc[d["late"] == 1, "review_score"].mean()
     cur_slow = cur[cur["dispatch_days"] >= q[0.9]]
-    cur_ne = cur["customer_state"].isin(NORTHEAST)
+    cur_w = cur["region"] == worst_r
     root_causes = [
         {"id": "RC1", "title": "Slow seller dispatch", "category": "supplier",
          "finding": f"Orders the seller took {q[0.9]:.1f}+ days to ship are late {slow['late'].mean():.0%} of the time vs {fast['late'].mean():.0%} when shipped within {q[0.5]:.1f} days.",
@@ -268,12 +280,12 @@ def sales_analysis(orders, features, quality, dataset_name="Sales orders"):
          "affected_orders_current_period": len(cur_slow),
          "share_of_late_current_period": num(cur_slow["late"].sum() / cur["late"].sum()),
          "confidence": "high", "linked_recommendations": ["REC1"]},
-        {"id": "RC2", "title": "Long-distance deliveries to the North-East", "category": "logistics",
-         "finding": f"North-East customers get late orders {ne['late'].mean():.0%} of the time vs {sp['late'].mean():.0%} in São Paulo.",
-         "evidence": [{"segment": "North-East states", "late_rate": num(ne["late"].mean()), "orders": len(ne)},
-                      {"segment": "São Paulo (SP)", "late_rate": num(sp["late"].mean()), "orders": len(sp)}],
-         "affected_orders_current_period": int(cur_ne.sum()),
-         "share_of_late_current_period": num(cur.loc[cur_ne, "late"].sum() / cur["late"].sum()),
+        {"id": "RC2", "title": f"Late deliveries concentrate in {worst_r}", "category": "logistics",
+         "finding": f"{worst_r} customers get late orders {wr['late'].mean():.0%} of the time vs {br['late'].mean():.0%} in {best_r}.",
+         "evidence": [{"segment": worst_r, "late_rate": num(wr["late"].mean()), "orders": len(wr)},
+                      {"segment": best_r, "late_rate": num(br["late"].mean()), "orders": len(br)}],
+         "affected_orders_current_period": int(cur_w.sum()),
+         "share_of_late_current_period": num(cur.loc[cur_w, "late"].sum() / cur["late"].sum()),
          "confidence": "high", "linked_recommendations": ["REC2"]},
         {"id": "RC3", "title": "Tight delivery promises", "category": "policy",
          "finding": f"Orders with the shortest 25% of promises are late {short['late'].mean():.0%} vs {long_['late'].mean():.0%} for the longest 25%.",
@@ -287,8 +299,7 @@ def sales_analysis(orders, features, quality, dataset_name="Sales orders"):
          "affected_orders_current_period": int(cur["late"].sum()), "share_of_late_current_period": 1.0,
          "confidence": "high", "linked_recommendations": []},
     ]
-    
-        # an orders file without items, ship dates, reviews or Brazilian states can't show those parts
+    # an orders file without items, ship dates, reviews or regions can't show those parts
     gone = set()
     if not d["revenue"].sum():
         gone.add("revenue")
@@ -296,11 +307,10 @@ def sales_analysis(orders, features, quality, dataset_name="Sales orders"):
         gone |= {"avg_dispatch_days", "RC1"}
     if d["review_score"].isna().all():
         gone |= {"avg_review_score", "RC4"}
-    if ne.empty or sp.empty:
+    if worst_r is None or wr["late"].mean() < 1.2 * br["late"].mean():   # needs 2 regions and a real gap
         gone.add("RC2")
     kpis = [k for k in kpis if k["id"] not in gone]
     root_causes = [rc for rc in root_causes if rc["id"] not in gone]
-
 
     return {
         "schema_version": "1.0",

@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS uploads (
 CREATE TABLE IF NOT EXISTS decisions (
     id INTEGER PRIMARY KEY AUTOINCREMENT, analysis_key TEXT, rec_id TEXT, decision TEXT,
     decided_by TEXT, comment TEXT, edited TEXT, decided_at TEXT);
+CREATE TABLE IF NOT EXISTS mappings (
+    company TEXT, domain TEXT, mapping TEXT, saved_at TEXT, PRIMARY KEY (company, domain));
 """
 
 
@@ -63,6 +65,29 @@ def get_upload(upload_id) -> dict | None:
     out = dict(row)
     out["report"] = json.loads(out["report"]) if out["report"] else None
     return out
+
+
+def list_uploads(limit=20) -> list:
+    """Newest uploads first, without server folders or the full report."""
+    with connect() as con:
+        rows = con.execute("SELECT id, company, created_at, source, main_file, status, domain FROM uploads "
+                           "ORDER BY created_at DESC LIMIT ?", (limit,)).fetchall()
+    return [dict(r) for r in rows]
+
+
+# --------------------------------------------------------------------------- remembered column mappings
+def save_mapping(company, domain, mapping):
+    """The mapping a company confirmed, so its next upload of the same export is mapped for it."""
+    if not company or company == "unknown":
+        return
+    with connect() as con:
+        con.execute("INSERT OR REPLACE INTO mappings VALUES (?, ?, ?, ?)", (company, domain, json.dumps(mapping), now()))
+
+
+def saved_mapping(company, domain) -> dict:
+    with connect() as con:
+        row = con.execute("SELECT mapping FROM mappings WHERE company = ? AND domain = ?", (company, domain)).fetchone()
+    return json.loads(row["mapping"]) if row else {}
 
 
 # --------------------------------------------------------------------------- decisions

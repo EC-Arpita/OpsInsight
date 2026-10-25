@@ -1,9 +1,17 @@
-import { useState } from "react";
-import { connectDatabase, runUpload, uploadFiles } from "../api.js";
+import { useEffect, useState } from "react";
+import { connectDatabase, listUploads, runUpload, uploadFiles } from "../api.js";
 import { num } from "../format.js";
 
 const PRIORITIES = ["1 - Critical", "2 - High", "3 - Moderate", "4 - Low"];
-const DEFAULT_HOURS = { "1 - Critical": 4, "2 - High": 8, "3 - Moderate": 24, "4 - Low": 72 };
+// A starting guess from the word in the label ("P1 - Urgent" -> 4 h); the analyst can change every value.
+const guessHours = (p) => {
+  const w = p.toLowerCase();
+  if (/critical|urgent|p1|sev ?1/.test(w)) return 4;
+  if (/high|p2|sev ?2/.test(w)) return 8;
+  if (/low|p4|sev ?4/.test(w)) return 72;
+  return 24;
+};
+const hoursFor = (list) => Object.fromEntries(list.map((p) => [p, guessHours(p)]));
 const KIND = { incidents: "Support tickets", sales_orders: "Sales orders" };
 
 // Step 1: send files or a database table. Step 2: check what we recognised and fix columns. Step 3: run.
@@ -13,10 +21,15 @@ export default function Upload({ onAnalysed }) {
   const [db, setDb] = useState({ url: "", table: "" });
   const [result, setResult] = useState(null);
   const [overrides, setOverrides] = useState({});
-  const [hours, setHours] = useState(DEFAULT_HOURS);
+  const [hours, setHours] = useState({});
   const [dateOrder, setDateOrder] = useState("day");
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
+  const [earlier, setEarlier] = useState([]);
+
+  useEffect(() => {
+    listUploads().then((all) => setEarlier(all.filter((u) => u.status === "analysed"))).catch(() => {});   // no API: no list
+  }, []);
 
   async function send(how) {
     setBusy(how);
@@ -24,7 +37,9 @@ export default function Upload({ onAnalysed }) {
     setResult(null);
     setOverrides({});
     try {
-      setResult(how === "files" ? await uploadFiles(files, company) : await connectDatabase(db.url, db.table, company));
+      const r = how === "files" ? await uploadFiles(files, company) : await connectDatabase(db.url, db.table, company);
+      setResult(r);
+      setHours(hoursFor(r.priority_values?.length ? r.priority_values : PRIORITIES));
     } catch (e) {
       setError(e.message);
     } finally {
@@ -82,12 +97,27 @@ export default function Upload({ onAnalysed }) {
         </details>
       </div>
 
+      {earlier.length > 0 && !result && (
+        <div className="panel">
+          <h2>Your earlier uploads</h2>
+          <ul className="earlier">
+            {earlier.map((u) => (
+              <li key={u.id}>
+                <button className="btn" onClick={() => onAnalysed(u.id, u.company)}>Open</button>{" "}
+                {u.company} · {u.main_file} · {KIND[u.domain] || u.domain} · <span className="muted small">{u.created_at.slice(0, 10)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {error && <p className="error" role="alert">{error}</p>}
 
       {result && (
         <div className="panel">
           <h2>2. Check what we found</h2>
           <p className={result.status === "refused" ? "error" : ""}>{result.message}</p>
+          {result.mapping_remembered && <p className="muted small">Columns filled in from your last upload for {company}. Check them below.</p>}
           <dl className="facts">
             <div><dt>Main file</dt><dd>{result.main_file}</dd></div>
             <div><dt>Rows</dt><dd className="tnum">{num(result.rows)}</dd></div>
@@ -132,9 +162,9 @@ export default function Upload({ onAnalysed }) {
           {canRun && needsSla && (
             <>
               <h3>Your SLA rules</h3>
-              <p className="muted small">Your file has no "SLA met" column, so we work it out: hours allowed to resolve a ticket, per priority.</p>
+              <p className="muted small">Your file has no "SLA met" column, so we work it out: hours allowed to resolve a ticket, for each priority in your file. Any other priority gets 24 hours.</p>
               <div className="sla-grid">
-                {PRIORITIES.map((p) => (
+                {Object.keys(hours).map((p) => (
                   <label key={p} className="small">{p}
                     <input type="number" min="1" className="input" value={hours[p]}
                            onChange={(e) => setHours({ ...hours, [p]: Number(e.target.value) })} />

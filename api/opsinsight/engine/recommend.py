@@ -30,9 +30,9 @@ PLAYBOOK = {
                                     "deprioritise repeat offenders in search.",
                      "target": {"sellers": "slowest 10% by dispatch time"}, "effort": "medium", "owner": "Seller operations"},
         "logistics": {"rec_id": "REC2", "estimate": "region_buffer_days", "type": "policy",
-                      "title": "Add buffer days to promises for North-East routes",
+                      "title": "Add buffer days to promises for {subject}",
                       "description": "Add 2-3 days to the promised date for high-risk routes so promises match reality.",
-                      "target": {"customer_states": "North-East"}, "effort": "low", "owner": "Logistics manager"},
+                      "target": {"region": "{subject}"}, "effort": "low", "owner": "Logistics manager"},
         "high_risk": {"rec_id": "REC3", "estimate": "proactive_top10", "type": "prioritisation",
                       "title": "Proactively handle the 10% highest-risk orders",
                       "description": "For each order in the model's top 10%: nudge the seller, upgrade carrier, and send "

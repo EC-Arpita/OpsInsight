@@ -182,4 +182,5 @@ def run_upload(upload_id: str, mapping_overrides: dict = None, sla_rules: dict =
     ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
     (ANALYSIS_DIR / f"{upload_id}.json").write_text(json.dumps(analysis, indent=2, default=str), encoding="utf-8")
     store.update_upload(upload_id, status="analysed")
+    store.save_mapping(upload["company"], domain, mapping)
     return analysis

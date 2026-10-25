@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "meta": {
-    "analysis_id": "sales-2026-10-24",
-    "generated_at": "2026-10-24T19:07:05Z",
+    "analysis_id": "sales-2026-10-20",
+    "generated_at": "2026-10-20T10:14:31Z",
     "domain": "sales_orders",
     "dataset_name": "Olist Brazilian E-Commerce",
     "item_type": "order",
@@ -1173,19 +1173,19 @@
     },
     {
       "id": "RC2",
-      "title": "Long-distance deliveries to the North-East",
+      "title": "Late deliveries concentrate in Northeast",
       "category": "logistics",
-      "finding": "North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo.",
+      "finding": "Northeast customers get late orders 14% of the time vs 7% in South.",
       "evidence": [
         {
-          "segment": "North-East states",
+          "segment": "Northeast",
           "late_rate": 0.144,
           "orders": 9002
         },
         {
-          "segment": "S\u00e3o Paulo (SP)",
-          "late_rate": 0.059,
-          "orders": 40335
+          "segment": "South",
+          "late_rate": 0.071,
+          "orders": 13727
         }
       ],
       "affected_orders_current_period": 1708,
@@ -1376,271 +1376,271 @@
     "backtest_mean_abs_error": [
       {
         "method": "weekday average x recent trend",
-        "mean_abs_error": 11.59
+        "mean_abs_error": 13.5
       },
       {
         "method": "same day last week",
-        "mean_abs_error": 12.84
+        "mean_abs_error": 14.53
       },
       {
         "method": "weekday average (4 weeks)",
-        "mean_abs_error": 17.05
+        "mean_abs_error": 15.15
       },
       {
         "method": "flat 4-week average",
-        "mean_abs_error": 17.85
+        "mean_abs_error": 16.84
       }
     ],
-    "history_end": "2018-08-08",
-    "note": "The last 21 days of the file were left out: orders to distant regions reach the export late, so those days look falsely quiet. The forecast starts after the last complete day.",
+    "history_end": "2018-08-14",
+    "note": "The last 15 days of the file were left out: orders to distant regions reach the export late, so those days look falsely quiet. The forecast starts after the last complete day.",
     "busy_rule": "expected orders > the usual for that weekday (last 4 weeks) x 1.2, and at least 10 orders more",
     "regions": [
       {
         "region": "Southeast",
-        "expected_orders_7d": 1541,
-        "usual_orders_7d": 1196,
-        "busy_days": 7,
+        "expected_orders_7d": 1277,
+        "usual_orders_7d": 1307,
+        "busy_days": 0,
         "daily": [
           {
-            "date": "2018-08-09",
-            "expected_orders": 197.5,
-            "usual_orders": 153.2,
-            "busy": true
-          },
-          {
-            "date": "2018-08-10",
-            "expected_orders": 189.1,
-            "usual_orders": 146.8,
-            "busy": true
-          },
-          {
-            "date": "2018-08-11",
-            "expected_orders": 166.6,
-            "usual_orders": 129.2,
-            "busy": true
-          },
-          {
-            "date": "2018-08-12",
-            "expected_orders": 187.8,
-            "usual_orders": 145.8,
-            "busy": true
-          },
-          {
-            "date": "2018-08-13",
-            "expected_orders": 262.9,
-            "usual_orders": 204.0,
-            "busy": true
-          },
-          {
-            "date": "2018-08-14",
-            "expected_orders": 269.3,
-            "usual_orders": 209.0,
-            "busy": true
-          },
-          {
             "date": "2018-08-15",
-            "expected_orders": 267.7,
+            "expected_orders": 203.0,
             "usual_orders": 207.8,
-            "busy": true
+            "busy": false
+          },
+          {
+            "date": "2018-08-16",
+            "expected_orders": 183.2,
+            "usual_orders": 187.5,
+            "busy": false
+          },
+          {
+            "date": "2018-08-17",
+            "expected_orders": 163.7,
+            "usual_orders": 167.5,
+            "busy": false
+          },
+          {
+            "date": "2018-08-18",
+            "expected_orders": 135.8,
+            "usual_orders": 139.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-19",
+            "expected_orders": 152.9,
+            "usual_orders": 156.5,
+            "busy": false
+          },
+          {
+            "date": "2018-08-20",
+            "expected_orders": 214.7,
+            "usual_orders": 219.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-21",
+            "expected_orders": 223.7,
+            "usual_orders": 229.0,
+            "busy": false
           }
         ]
       },
       {
         "region": "South",
-        "expected_orders_7d": 281,
-        "usual_orders_7d": 228,
-        "busy_days": 1,
+        "expected_orders_7d": 269,
+        "usual_orders_7d": 238,
+        "busy_days": 0,
         "daily": [
           {
-            "date": "2018-08-09",
-            "expected_orders": 36.6,
-            "usual_orders": 29.8,
+            "date": "2018-08-15",
+            "expected_orders": 40.1,
+            "usual_orders": 35.5,
             "busy": false
           },
           {
-            "date": "2018-08-10",
-            "expected_orders": 35.7,
-            "usual_orders": 29.0,
+            "date": "2018-08-16",
+            "expected_orders": 37.6,
+            "usual_orders": 33.2,
             "busy": false
           },
           {
-            "date": "2018-08-11",
-            "expected_orders": 26.7,
-            "usual_orders": 21.8,
+            "date": "2018-08-17",
+            "expected_orders": 36.5,
+            "usual_orders": 32.2,
             "busy": false
           },
           {
-            "date": "2018-08-12",
-            "expected_orders": 38.1,
+            "date": "2018-08-18",
+            "expected_orders": 28.5,
+            "usual_orders": 25.2,
+            "busy": false
+          },
+          {
+            "date": "2018-08-19",
+            "expected_orders": 35.0,
             "usual_orders": 31.0,
             "busy": false
           },
           {
-            "date": "2018-08-13",
-            "expected_orders": 56.6,
-            "usual_orders": 46.0,
-            "busy": true
-          },
-          {
-            "date": "2018-08-14",
-            "expected_orders": 43.7,
-            "usual_orders": 35.5,
+            "date": "2018-08-20",
+            "expected_orders": 49.7,
+            "usual_orders": 44.0,
             "busy": false
           },
           {
-            "date": "2018-08-15",
-            "expected_orders": 43.7,
-            "usual_orders": 35.5,
+            "date": "2018-08-21",
+            "expected_orders": 41.5,
+            "usual_orders": 36.8,
             "busy": false
           }
         ]
       },
       {
         "region": "Northeast",
-        "expected_orders_7d": 198,
-        "usual_orders_7d": 177,
+        "expected_orders_7d": 153,
+        "usual_orders_7d": 173,
         "busy_days": 0,
         "daily": [
           {
-            "date": "2018-08-09",
-            "expected_orders": 34.1,
-            "usual_orders": 30.5,
-            "busy": false
-          },
-          {
-            "date": "2018-08-10",
-            "expected_orders": 28.5,
-            "usual_orders": 25.5,
-            "busy": false
-          },
-          {
-            "date": "2018-08-11",
-            "expected_orders": 26.6,
-            "usual_orders": 23.8,
-            "busy": false
-          },
-          {
-            "date": "2018-08-12",
-            "expected_orders": 17.9,
-            "usual_orders": 16.0,
-            "busy": false
-          },
-          {
-            "date": "2018-08-13",
-            "expected_orders": 29.9,
-            "usual_orders": 26.8,
-            "busy": false
-          },
-          {
-            "date": "2018-08-14",
-            "expected_orders": 29.1,
-            "usual_orders": 26.0,
-            "busy": false
-          },
-          {
             "date": "2018-08-15",
-            "expected_orders": 31.9,
+            "expected_orders": 25.2,
             "usual_orders": 28.5,
+            "busy": false
+          },
+          {
+            "date": "2018-08-16",
+            "expected_orders": 27.2,
+            "usual_orders": 30.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-17",
+            "expected_orders": 20.3,
+            "usual_orders": 23.0,
+            "busy": false
+          },
+          {
+            "date": "2018-08-18",
+            "expected_orders": 18.3,
+            "usual_orders": 20.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-19",
+            "expected_orders": 13.9,
+            "usual_orders": 15.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-20",
+            "expected_orders": 24.5,
+            "usual_orders": 27.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-21",
+            "expected_orders": 23.6,
+            "usual_orders": 26.8,
             "busy": false
           }
         ]
       },
       {
         "region": "Central-West",
-        "expected_orders_7d": 122,
-        "usual_orders_7d": 106,
+        "expected_orders_7d": 104,
+        "usual_orders_7d": 107,
         "busy_days": 0,
         "daily": [
           {
-            "date": "2018-08-09",
-            "expected_orders": 12.9,
-            "usual_orders": 11.2,
-            "busy": false
-          },
-          {
-            "date": "2018-08-10",
-            "expected_orders": 22.7,
-            "usual_orders": 19.8,
-            "busy": false
-          },
-          {
-            "date": "2018-08-11",
-            "expected_orders": 12.1,
-            "usual_orders": 10.5,
-            "busy": false
-          },
-          {
-            "date": "2018-08-12",
-            "expected_orders": 13.8,
-            "usual_orders": 12.0,
-            "busy": false
-          },
-          {
-            "date": "2018-08-13",
-            "expected_orders": 19.9,
-            "usual_orders": 17.2,
-            "busy": false
-          },
-          {
-            "date": "2018-08-14",
-            "expected_orders": 19.0,
-            "usual_orders": 16.5,
-            "busy": false
-          },
-          {
             "date": "2018-08-15",
-            "expected_orders": 21.6,
+            "expected_orders": 18.2,
             "usual_orders": 18.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-16",
+            "expected_orders": 12.8,
+            "usual_orders": 13.2,
+            "busy": false
+          },
+          {
+            "date": "2018-08-17",
+            "expected_orders": 19.6,
+            "usual_orders": 20.2,
+            "busy": false
+          },
+          {
+            "date": "2018-08-18",
+            "expected_orders": 9.5,
+            "usual_orders": 9.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-19",
+            "expected_orders": 12.8,
+            "usual_orders": 13.2,
+            "busy": false
+          },
+          {
+            "date": "2018-08-20",
+            "expected_orders": 15.0,
+            "usual_orders": 15.5,
+            "busy": false
+          },
+          {
+            "date": "2018-08-21",
+            "expected_orders": 16.0,
+            "usual_orders": 16.5,
             "busy": false
           }
         ]
       },
       {
         "region": "North",
-        "expected_orders_7d": 34,
-        "usual_orders_7d": 35,
+        "expected_orders_7d": 24,
+        "usual_orders_7d": 33,
         "busy_days": 0,
         "daily": [
           {
-            "date": "2018-08-09",
-            "expected_orders": 4.1,
-            "usual_orders": 4.2,
-            "busy": false
-          },
-          {
-            "date": "2018-08-10",
-            "expected_orders": 6.3,
+            "date": "2018-08-15",
+            "expected_orders": 4.7,
             "usual_orders": 6.5,
             "busy": false
           },
           {
-            "date": "2018-08-11",
-            "expected_orders": 3.4,
-            "usual_orders": 3.5,
+            "date": "2018-08-16",
+            "expected_orders": 3.3,
+            "usual_orders": 4.5,
             "busy": false
           },
           {
-            "date": "2018-08-12",
-            "expected_orders": 2.9,
-            "usual_orders": 3.0,
-            "busy": false
-          },
-          {
-            "date": "2018-08-13",
-            "expected_orders": 5.8,
+            "date": "2018-08-17",
+            "expected_orders": 4.4,
             "usual_orders": 6.0,
             "busy": false
           },
           {
-            "date": "2018-08-14",
-            "expected_orders": 5.1,
-            "usual_orders": 5.2,
+            "date": "2018-08-18",
+            "expected_orders": 2.5,
+            "usual_orders": 3.5,
             "busy": false
           },
           {
-            "date": "2018-08-15",
-            "expected_orders": 6.3,
-            "usual_orders": 6.5,
+            "date": "2018-08-19",
+            "expected_orders": 1.8,
+            "usual_orders": 2.5,
+            "busy": false
+          },
+          {
+            "date": "2018-08-20",
+            "expected_orders": 2.7,
+            "usual_orders": 3.8,
+            "busy": false
+          },
+          {
+            "date": "2018-08-21",
+            "expected_orders": 4.5,
+            "usual_orders": 6.2,
             "busy": false
           }
         ]
@@ -2427,14 +2427,14 @@
     },
     {
       "id": "REC2",
-      "title": "Add buffer days to promises for North-East routes",
+      "title": "Add buffer days to promises for Northeast",
       "type": "policy",
       "description": "Add 2-3 days to the promised date for high-risk routes so promises match reality.",
       "target": {
-        "customer_states": "North-East"
+        "region": "Northeast"
       },
       "evidence": [
-        "RC2: North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo."
+        "RC2: Northeast customers get late orders 14% of the time vs 7% in South."
       ],
       "expected_impact": {
         "metric": "late_delivery_rate",
@@ -2447,7 +2447,7 @@
           36
         ]
       },
-      "estimate_method": "Assumes 40% of North-East late orders arrive within the added buffer (validate with delivery-day distribution).",
+      "estimate_method": "Assumes 40% of Northeast late orders arrive within the added buffer (validate with delivery-day distribution).",
       "assumptions": [
         "Slightly longer promises don't reduce conversion much"
       ],
@@ -2460,48 +2460,6 @@
       "linked_root_causes": [
         "RC2"
       ],
-      "status": "pending",
-      "approval": {
-        "decided_by": null,
-        "decided_at": null,
-        "decision": null,
-        "comment": null
-      },
-      "quick_win": false
-    },
-    {
-      "id": "REC4",
-      "title": "Warn sellers and couriers in Southeast before its busy days",
-      "type": "capacity",
-      "description": "Tell sellers and couriers in Southeast a few days ahead: about 345 more orders than usual are expected on 2018-08-09, 2018-08-10, 2018-08-11, 2018-08-12, 2018-08-13, 2018-08-14, 2018-08-15.",
-      "target": {
-        "region": "Southeast"
-      },
-      "evidence": [
-        "FC-Southeast: Southeast is expected to get about 345 orders more than usual on 2018-08-09, 2018-08-10, 2018-08-11, 2018-08-12, 2018-08-13, 2018-08-14, 2018-08-15."
-      ],
-      "expected_impact": {
-        "metric": "late_delivery_rate",
-        "baseline": 0.053,
-        "expected": 0.053,
-        "change_pct_points": 0.0,
-        "late_orders_avoided_per_period": 5,
-        "range_late_orders_avoided": [
-          3,
-          5
-        ]
-      },
-      "estimate_method": "About 345 extra orders expected; they are assumed late at this period's rate (5.3%), and an early warning is assumed to prevent 30% of those.",
-      "assumptions": [
-        "Early warning prevents 30% of the extra lateness (to be validated)"
-      ],
-      "confidence": "medium",
-      "effort": "low",
-      "suggested_owner": "Logistics manager",
-      "linked_findings": [
-        "FC-Southeast"
-      ],
-      "linked_root_causes": [],
       "status": "pending",
       "approval": {
         "decided_by": null,
@@ -2534,11 +2492,6 @@
         "recommendation_id": "REC2",
         "late_rate": 0.051,
         "late_orders_avoided": 36
-      },
-      {
-        "recommendation_id": "REC4",
-        "late_rate": 0.053,
-        "late_orders_avoided": 5
       }
     ],
     "replays": {
@@ -2620,88 +2573,30 @@
         "why": "Ranked 2: 20% of all problems sit in the riskiest 10% of items; confidence medium (score 0.139)."
       },
       {
-        "id": "FC-Southeast",
-        "type": "busy",
-        "title": "Southeast unusually busy next week",
-        "finding": "Southeast is expected to get about 345 orders more than usual on 2018-08-09, 2018-08-10, 2018-08-11, 2018-08-12, 2018-08-13, 2018-08-14, 2018-08-15.",
-        "subject": "Southeast",
-        "size": 0.159,
-        "confidence": "medium",
-        "urgency": 1.0,
-        "score": 0.111,
-        "evidence": [
-          {
-            "date": "2018-08-09",
-            "expected_orders": 197.5,
-            "usual_orders": 153.2,
-            "busy": true
-          },
-          {
-            "date": "2018-08-10",
-            "expected_orders": 189.1,
-            "usual_orders": 146.8,
-            "busy": true
-          },
-          {
-            "date": "2018-08-11",
-            "expected_orders": 166.6,
-            "usual_orders": 129.2,
-            "busy": true
-          },
-          {
-            "date": "2018-08-12",
-            "expected_orders": 187.8,
-            "usual_orders": 145.8,
-            "busy": true
-          },
-          {
-            "date": "2018-08-13",
-            "expected_orders": 262.9,
-            "usual_orders": 204.0,
-            "busy": true
-          },
-          {
-            "date": "2018-08-14",
-            "expected_orders": 269.3,
-            "usual_orders": 209.0,
-            "busy": true
-          },
-          {
-            "date": "2018-08-15",
-            "expected_orders": 267.7,
-            "usual_orders": 207.8,
-            "busy": true
-          }
-        ],
-        "source": "forecast",
-        "rank": 3,
-        "why": "Ranked 3: 16% of next week's expected orders are extra above the usual level; confidence medium (score 0.111)."
-      },
-      {
         "id": "RC2",
         "type": "logistics",
-        "title": "Long-distance deliveries to the North-East",
-        "finding": "North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo.",
-        "subject": null,
+        "title": "Late deliveries concentrate in Northeast",
+        "finding": "Northeast customers get late orders 14% of the time vs 7% in South.",
+        "subject": "Northeast",
         "size": 0.087,
         "confidence": "high",
         "urgency": 1.0,
         "score": 0.087,
         "evidence": [
           {
-            "segment": "North-East states",
+            "segment": "Northeast",
             "late_rate": 0.144,
             "orders": 9002
           },
           {
-            "segment": "S\u00e3o Paulo (SP)",
-            "late_rate": 0.059,
-            "orders": 40335
+            "segment": "South",
+            "late_rate": 0.071,
+            "orders": 13727
           }
         ],
         "source": "root_causes",
-        "rank": 4,
-        "why": "Ranked 4: 9% of this period's problems are linked to it; confidence high (score 0.087)."
+        "rank": 3,
+        "why": "Ranked 3: 9% of this period's problems are linked to it; confidence high (score 0.087)."
       },
       {
         "id": "RC3",
@@ -2724,34 +2619,11 @@
           }
         ],
         "source": "root_causes",
-        "rank": 5,
+        "rank": 4,
         "why": "Not ranked by number: its size is not measured yet, so it follows the measured findings."
       }
     ],
-    "watch": [
-      {
-        "id": "FC-South",
-        "type": "busy",
-        "title": "South unusually busy next week",
-        "finding": "South is expected to get about 11 orders more than usual on 2018-08-13.",
-        "subject": "South",
-        "size": 0.005,
-        "confidence": "medium",
-        "urgency": 1.0,
-        "score": 0.003,
-        "evidence": [
-          {
-            "date": "2018-08-13",
-            "expected_orders": 56.6,
-            "usual_orders": 46.0,
-            "busy": true
-          }
-        ],
-        "source": "forecast",
-        "rank": null,
-        "why": "On the watch list: too small to act on now."
-      }
-    ],
+    "watch": [],
     "history": [
       {
         "id": "AN-2017-11-26",

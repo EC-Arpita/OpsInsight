@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from "recharts";
+import { ResponsiveContainer, ComposedChart, Bar, Cell, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { fmtDate, num } from "../format.js";
 
 const BLUE = "#2a78d6";
@@ -45,23 +45,19 @@ export default function Forecast({ forecast }) {
             </div>
           </div>
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={rows} margin={{ top: 10, right: 16, bottom: 0, left: -4 }}>
+            <ComposedChart data={rows} margin={{ top: 10, right: 16, bottom: 0, left: -4 }}>
               <CartesianGrid stroke={GRID} vertical={false} />
               <XAxis dataKey="label" tick={AXIS} tickLine={false} axisLine={{ stroke: GRID }} />
               <YAxis tick={AXIS} tickLine={false} axisLine={false} />
-              <Tooltip
-                formatter={(v, k) => [num(v), k === "expected" ? `expected ${words.unit}` : k]}
-                labelFormatter={(l, p) => fmtDate(p?.[0]?.payload.date)}
-                cursor={{ fill: "#eef1f3" }}
-              />
-              <ReferenceLine y={rows[0].limit} stroke="#18212b" strokeDasharray="4 4" />
+              <Tooltip formatter={(v, k) => [num(v), k === "expected" ? `expected ${words.unit}` : words.limit.toLowerCase()]} labelFormatter={(l, p) => fmtDate(p?.[0]?.payload.date)} cursor={{ fill: "#eef1f3" }} />
               <Bar dataKey="expected" radius={[4, 4, 0, 0]}>
                 {rows.map((r) => <Cell key={r.date} fill={r.flag ? ORANGE : BLUE} />)}
               </Bar>
-            </BarChart>
+              <Line dataKey="limit" type="linear" stroke="#18212b" strokeDasharray="4 4" strokeWidth={2} dot={{ r: 3 }} isAnimationActive={false} />
+            </ComposedChart>
           </ResponsiveContainer>
           <p className="note">
-            Dashed line: {words.limit.toLowerCase()} level, {num(rows[0].limit)} {words.unit} a day.{" "}
+            Dashed line: {isTickets ? "capacity: what the team usually resolves on that weekday" : "the usual level for that weekday"}.{" "}
             {flagged.length === 0
               ? `No ${words.flag} days expected for ${name(g)}.`
               : `${words.flagged} (orange): ${flagged.map((r) => r.label).join(", ")}.`}{" "}
@@ -73,12 +69,7 @@ export default function Forecast({ forecast }) {
           <div className="panel-head"><strong>All {isTickets ? "teams" : "regions"}, next 7 days</strong></div>
           <table className="table">
             <thead>
-              <tr>
-                <th>{isTickets ? "Team" : "Region"}</th>
-                <th className="r">Expected</th>
-                <th className="r">{isTickets ? "Capacity" : "Usual week"}</th>
-                <th className="r">{words.flagged}</th>
-              </tr>
+              <tr><th>{isTickets ? "Team" : "Region"}</th><th className="r">Expected</th><th className="r">{isTickets ? "Capacity" : "Usual week"}</th><th className="r">{words.flagged}</th></tr>
             </thead>
             <tbody>
               {groups.map((x) => (
@@ -93,9 +84,7 @@ export default function Forecast({ forecast }) {
           </table>
           <p className="note">
             Method: <strong>{forecast.method}</strong>, chosen because it had the smallest error when tested on the last two weeks
-            {forecast.backtest_mean_abs_error
-              ? ` (${forecast.backtest_mean_abs_error[0].mean_abs_error} ${words.unit} per day, against ${forecast.backtest_mean_abs_error.at(-1).mean_abs_error} for the worst method)`
-              : ""}.
+            {forecast.backtest_mean_abs_error ? ` (${forecast.backtest_mean_abs_error[0].mean_abs_error} ${words.unit} per day, against ${forecast.backtest_mean_abs_error.at(-1).mean_abs_error} for the worst method)` : ""}.
           </p>
           {forecast.note && <p className="note">{forecast.note}</p>}
         </div>

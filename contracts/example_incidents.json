@@ -695,55 +695,55 @@
         "mean_abs_error": 17.48
       }
     ],
-    "capacity_rule": "average tickets the team resolved per day over the last 28 days",
-    "overload_rule": "expected tickets > capacity x 1.1",
+    "capacity_rule": "tickets the team resolved on the same weekday, averaged over the last 4 weeks",
+    "overload_rule": "expected tickets > capacity x 1.1 and at least 1 ticket more",
     "teams": [
       {
         "team": "Group 70",
         "expected_tickets_7d": 667,
-        "expected_capacity_7d": 854,
-        "overloaded_days": 2,
+        "expected_capacity_7d": 800,
+        "overloaded_days": 0,
         "daily": [
           {
             "date": "2016-06-01",
             "expected_tickets": 135.4,
-            "expected_capacity": 122.0,
-            "overload": true
+            "expected_capacity": 164.2,
+            "overload": false
           },
           {
             "date": "2016-06-02",
             "expected_tickets": 106.2,
-            "expected_capacity": 122.0,
+            "expected_capacity": 134.2,
             "overload": false
           },
           {
             "date": "2016-06-03",
             "expected_tickets": 112.4,
-            "expected_capacity": 122.0,
+            "expected_capacity": 133.0,
             "overload": false
           },
           {
             "date": "2016-06-04",
             "expected_tickets": 20.2,
-            "expected_capacity": 122.0,
+            "expected_capacity": 18.8,
             "overload": false
           },
           {
             "date": "2016-06-05",
             "expected_tickets": 16.7,
-            "expected_capacity": 122.0,
+            "expected_capacity": 15.8,
             "overload": false
           },
           {
             "date": "2016-06-06",
             "expected_tickets": 163.4,
-            "expected_capacity": 122.0,
-            "overload": true
+            "expected_capacity": 188.5,
+            "overload": false
           },
           {
             "date": "2016-06-07",
             "expected_tickets": 112.7,
-            "expected_capacity": 122.0,
+            "expected_capacity": 145.2,
             "overload": false
           }
         ]
@@ -751,49 +751,49 @@
       {
         "team": "Group 20",
         "expected_tickets_7d": 77,
-        "expected_capacity_7d": 103,
-        "overloaded_days": 2,
+        "expected_capacity_7d": 97,
+        "overloaded_days": 0,
         "daily": [
           {
             "date": "2016-06-01",
             "expected_tickets": 16.3,
-            "expected_capacity": 14.7,
-            "overload": true
+            "expected_capacity": 20.5,
+            "overload": false
           },
           {
             "date": "2016-06-02",
             "expected_tickets": 13.0,
-            "expected_capacity": 14.7,
+            "expected_capacity": 15.0,
             "overload": false
           },
           {
             "date": "2016-06-03",
             "expected_tickets": 12.6,
-            "expected_capacity": 14.7,
+            "expected_capacity": 16.8,
             "overload": false
           },
           {
             "date": "2016-06-04",
             "expected_tickets": 1.3,
-            "expected_capacity": 14.7,
+            "expected_capacity": 1.0,
             "overload": false
           },
           {
             "date": "2016-06-05",
             "expected_tickets": 1.3,
-            "expected_capacity": 14.7,
+            "expected_capacity": 0.8,
             "overload": false
           },
           {
             "date": "2016-06-06",
             "expected_tickets": 16.8,
-            "expected_capacity": 14.7,
-            "overload": true
+            "expected_capacity": 23.8,
+            "overload": false
           },
           {
             "date": "2016-06-07",
             "expected_tickets": 15.7,
-            "expected_capacity": 14.7,
+            "expected_capacity": 19.5,
             "overload": false
           }
         ]
@@ -801,49 +801,49 @@
       {
         "team": "Group 65",
         "expected_tickets_7d": 38,
-        "expected_capacity_7d": 54,
+        "expected_capacity_7d": 53,
         "overloaded_days": 1,
         "daily": [
           {
             "date": "2016-06-01",
             "expected_tickets": 10.0,
-            "expected_capacity": 7.7,
-            "overload": true
+            "expected_capacity": 12.8,
+            "overload": false
           },
           {
             "date": "2016-06-02",
             "expected_tickets": 5.4,
-            "expected_capacity": 7.7,
+            "expected_capacity": 9.5,
             "overload": false
           },
           {
             "date": "2016-06-03",
             "expected_tickets": 5.4,
-            "expected_capacity": 7.7,
+            "expected_capacity": 8.5,
             "overload": false
           },
           {
             "date": "2016-06-04",
             "expected_tickets": 2.3,
-            "expected_capacity": 7.7,
-            "overload": false
+            "expected_capacity": 0.5,
+            "overload": true
           },
           {
             "date": "2016-06-05",
             "expected_tickets": 0.9,
-            "expected_capacity": 7.7,
+            "expected_capacity": 0.5,
             "overload": false
           },
           {
             "date": "2016-06-06",
             "expected_tickets": 6.1,
-            "expected_capacity": 7.7,
+            "expected_capacity": 12.2,
             "overload": false
           },
           {
             "date": "2016-06-07",
             "expected_tickets": 8.0,
-            "expected_capacity": 7.7,
+            "expected_capacity": 9.2,
             "overload": false
           }
         ]
@@ -851,49 +851,49 @@
       {
         "team": "Group 25",
         "expected_tickets_7d": 26,
-        "expected_capacity_7d": 43,
+        "expected_capacity_7d": 41,
         "overloaded_days": 0,
         "daily": [
           {
             "date": "2016-06-01",
             "expected_tickets": 4.9,
-            "expected_capacity": 6.1,
+            "expected_capacity": 4.8,
             "overload": false
           },
           {
             "date": "2016-06-02",
             "expected_tickets": 6.6,
-            "expected_capacity": 6.1,
+            "expected_capacity": 11.0,
             "overload": false
           },
           {
             "date": "2016-06-03",
             "expected_tickets": 2.5,
-            "expected_capacity": 6.1,
+            "expected_capacity": 7.2,
             "overload": false
           },
           {
             "date": "2016-06-04",
             "expected_tickets": 0.3,
-            "expected_capacity": 6.1,
+            "expected_capacity": 0.0,
             "overload": false
           },
           {
             "date": "2016-06-05",
             "expected_tickets": 0.1,
-            "expected_capacity": 6.1,
+            "expected_capacity": 0.0,
             "overload": false
           },
           {
             "date": "2016-06-06",
             "expected_tickets": 5.4,
-            "expected_capacity": 6.1,
+            "expected_capacity": 11.0,
             "overload": false
           },
           {
             "date": "2016-06-07",
             "expected_tickets": 6.1,
-            "expected_capacity": 6.1,
+            "expected_capacity": 7.0,
             "overload": false
           }
         ]
@@ -901,49 +901,49 @@
       {
         "team": "Group 24",
         "expected_tickets_7d": 22,
-        "expected_capacity_7d": 46,
-        "overloaded_days": 0,
+        "expected_capacity_7d": 42,
+        "overloaded_days": 1,
         "daily": [
           {
             "date": "2016-06-01",
             "expected_tickets": 4.0,
-            "expected_capacity": 6.6,
+            "expected_capacity": 9.2,
             "overload": false
           },
           {
             "date": "2016-06-02",
             "expected_tickets": 2.1,
-            "expected_capacity": 6.6,
+            "expected_capacity": 5.8,
             "overload": false
           },
           {
             "date": "2016-06-03",
             "expected_tickets": 3.9,
-            "expected_capacity": 6.6,
+            "expected_capacity": 5.0,
             "overload": false
           },
           {
             "date": "2016-06-04",
             "expected_tickets": 1.2,
-            "expected_capacity": 6.6,
-            "overload": false
+            "expected_capacity": 0.0,
+            "overload": true
           },
           {
             "date": "2016-06-05",
             "expected_tickets": 1.2,
-            "expected_capacity": 6.6,
+            "expected_capacity": 0.2,
             "overload": false
           },
           {
             "date": "2016-06-06",
             "expected_tickets": 4.7,
-            "expected_capacity": 6.6,
+            "expected_capacity": 11.2,
             "overload": false
           },
           {
             "date": "2016-06-07",
             "expected_tickets": 4.9,
-            "expected_capacity": 6.6,
+            "expected_capacity": 11.0,
             "overload": false
           }
         ]
@@ -1729,8 +1729,7 @@
       "effort": "low",
       "suggested_owner": "Operations manager",
       "linked_findings": [
-        "RC2",
-        "FC-Group 20"
+        "RC2"
       ],
       "linked_root_causes": [
         "RC2"
@@ -1743,49 +1742,6 @@
         "comment": null
       },
       "quick_win": true
-    },
-    {
-      "id": "REC4",
-      "title": "Cover Group 70 on its overloaded days",
-      "type": "capacity",
-      "description": "For Group 70: move 13 low-risk tickets from 2016-06-01 to 2016-06-02; move 9 low-risk tickets from 2016-06-06 to 2016-06-07; add cover for about 32 tickets on 2016-06-06.",
-      "target": {
-        "team": "Group 70"
-      },
-      "evidence": [
-        "FC-Group 70: Group 70 is expected to get about 55 tickets more than it can handle on 2016-06-01, 2016-06-06."
-      ],
-      "expected_impact": {
-        "metric": "sla_breach_rate",
-        "baseline": 0.225,
-        "expected": 0.216,
-        "change_pct_points": -0.9,
-        "breaches_avoided_per_period": 43,
-        "range_breaches_avoided": [
-          22,
-          43
-        ]
-      },
-      "estimate_method": "Day-by-day replay of next week with the plan and extra cover: tickets left waiting overnight fall from 87 to 1; half of them are assumed to breach.",
-      "assumptions": [
-        "Half the tickets that wait overnight because of overload would breach (to be validated)",
-        "Next week's forecast is compared with this period's breach rate"
-      ],
-      "confidence": "medium",
-      "effort": "low",
-      "suggested_owner": "Team lead",
-      "linked_findings": [
-        "FC-Group 70"
-      ],
-      "linked_root_causes": [],
-      "status": "pending",
-      "approval": {
-        "decided_by": null,
-        "decided_at": null,
-        "decision": null,
-        "comment": null
-      },
-      "quick_win": false
     }
   ],
   "impact_simulation": {
@@ -1810,11 +1766,6 @@
         "recommendation_id": "REC2",
         "breach_rate": 0.214,
         "breaches_avoided": 53
-      },
-      {
-        "recommendation_id": "REC4",
-        "breach_rate": 0.216,
-        "breaches_avoided": 43
       }
     ],
     "replays": {
@@ -1825,56 +1776,56 @@
           {
             "team": "Group 70",
             "baseline": {
-              "ticket_nights_waiting": 86.9,
-              "peak_load_vs_capacity": 1.34
+              "ticket_nights_waiting": 3.7,
+              "peak_load_vs_capacity": 1.15
             },
             "with_plan": {
-              "ticket_nights_waiting": 0.9,
-              "peak_load_vs_capacity": 1.0
+              "ticket_nights_waiting": 1.7,
+              "peak_load_vs_capacity": 1.08
             }
           },
           {
             "team": "Group 20",
             "baseline": {
-              "ticket_nights_waiting": 6.8,
-              "peak_load_vs_capacity": 1.21
+              "ticket_nights_waiting": 1.1,
+              "peak_load_vs_capacity": 2.0
             },
             "with_plan": {
-              "ticket_nights_waiting": 0.8,
-              "peak_load_vs_capacity": 1.04
+              "ticket_nights_waiting": 1.1,
+              "peak_load_vs_capacity": 2.0
             }
           },
           {
             "team": "Group 65",
             "baseline": {
-              "ticket_nights_waiting": 2.6,
-              "peak_load_vs_capacity": 1.3
+              "ticket_nights_waiting": 4.0,
+              "peak_load_vs_capacity": 5.4
             },
             "with_plan": {
-              "ticket_nights_waiting": 0.6,
-              "peak_load_vs_capacity": 1.04
+              "ticket_nights_waiting": 0.4,
+              "peak_load_vs_capacity": 1.8
             }
           },
           {
             "team": "Group 25",
             "baseline": {
-              "ticket_nights_waiting": 0.5,
-              "peak_load_vs_capacity": 1.08
+              "ticket_nights_waiting": 0.8,
+              "peak_load_vs_capacity": 1.02
             },
             "with_plan": {
-              "ticket_nights_waiting": 0.5,
-              "peak_load_vs_capacity": 1.08
+              "ticket_nights_waiting": 0.8,
+              "peak_load_vs_capacity": 1.02
             }
           },
           {
             "team": "Group 24",
             "baseline": {
-              "ticket_nights_waiting": 0.0,
-              "peak_load_vs_capacity": 0.74
+              "ticket_nights_waiting": 3.4,
+              "peak_load_vs_capacity": 12.0
             },
             "with_plan": {
-              "ticket_nights_waiting": 0.0,
-              "peak_load_vs_capacity": 0.74
+              "ticket_nights_waiting": 0.4,
+              "peak_load_vs_capacity": 1.2
             }
           }
         ]
@@ -1974,43 +1925,11 @@
             "segment": "all teams",
             "breach_rate": 0.225,
             "tickets": 4929
-          },
-          {
-            "forecast": "Group 20 is expected to get about 4 tickets more than it can handle on 2016-06-01, 2016-06-06."
           }
         ],
         "source": "root_causes",
-        "related": "FC-Group 20",
         "rank": 3,
         "why": "Ranked 3: 11% of this period's problems are linked to it; confidence medium (score 0.076)."
-      },
-      {
-        "id": "FC-Group 70",
-        "type": "overload",
-        "title": "Group 70 overloaded next week",
-        "finding": "Group 70 is expected to get about 55 tickets more than it can handle on 2016-06-01, 2016-06-06.",
-        "subject": "Group 70",
-        "size": 0.066,
-        "confidence": "medium",
-        "urgency": 1.0,
-        "score": 0.046,
-        "evidence": [
-          {
-            "date": "2016-06-01",
-            "expected_tickets": 135.4,
-            "expected_capacity": 122.0,
-            "overload": true
-          },
-          {
-            "date": "2016-06-06",
-            "expected_tickets": 163.4,
-            "expected_capacity": 122.0,
-            "overload": true
-          }
-        ],
-        "source": "forecast",
-        "rank": 4,
-        "why": "Ranked 4: 7% of next week's expected tickets are extra work above capacity; confidence medium (score 0.046)."
       }
     ],
     "watch": [
@@ -2042,17 +1961,39 @@
         "id": "FC-Group 65",
         "type": "overload",
         "title": "Group 65 overloaded next week",
-        "finding": "Group 65 is expected to get about 2 tickets more than it can handle on 2016-06-01.",
+        "finding": "Group 65 is expected to get about 2 tickets more than it can handle on 2016-06-04.",
         "subject": "Group 65",
-        "size": 0.003,
+        "size": 0.002,
         "confidence": "medium",
         "urgency": 1.0,
-        "score": 0.002,
+        "score": 0.001,
         "evidence": [
           {
-            "date": "2016-06-01",
-            "expected_tickets": 10.0,
-            "expected_capacity": 7.7,
+            "date": "2016-06-04",
+            "expected_tickets": 2.3,
+            "expected_capacity": 0.5,
+            "overload": true
+          }
+        ],
+        "source": "forecast",
+        "rank": null,
+        "why": "On the watch list: too small to act on now."
+      },
+      {
+        "id": "FC-Group 24",
+        "type": "overload",
+        "title": "Group 24 overloaded next week",
+        "finding": "Group 24 is expected to get about 1 tickets more than it can handle on 2016-06-04.",
+        "subject": "Group 24",
+        "size": 0.001,
+        "confidence": "medium",
+        "urgency": 1.0,
+        "score": 0.001,
+        "evidence": [
+          {
+            "date": "2016-06-04",
+            "expected_tickets": 1.2,
+            "expected_capacity": 0.0,
             "overload": true
           }
         ],
@@ -2269,56 +2210,29 @@
       "category_known_after_tickets": 20,
       "moves_only_one_day_later": true
     },
-    "moves": [
-      {
-        "date": "2016-06-06",
-        "tickets": 9,
-        "from_team": "Group 70",
-        "to_team": "Group 70",
-        "to_date": "2016-06-07",
-        "why": "low-risk tickets with time left; Group 70 has 9 spare on 2016-06-07"
-      },
-      {
-        "date": "2016-06-01",
-        "tickets": 13,
-        "from_team": "Group 70",
-        "to_team": "Group 70",
-        "to_date": "2016-06-02",
-        "why": "low-risk tickets with time left; Group 70 has 16 spare on 2016-06-02"
-      },
-      {
-        "date": "2016-06-01",
-        "tickets": 2,
-        "from_team": "Group 65",
-        "to_team": "Group 65",
-        "to_date": "2016-06-02",
-        "why": "low-risk tickets with time left; Group 65 has 2 spare on 2016-06-02"
-      },
-      {
-        "date": "2016-06-01",
-        "tickets": 1,
-        "from_team": "Group 20",
-        "to_team": "Group 20",
-        "to_date": "2016-06-02",
-        "why": "low-risk tickets with time left; Group 20 has 2 spare on 2016-06-02"
-      }
-    ],
+    "moves": [],
     "staffing_gaps": [
       {
-        "date": "2016-06-06",
-        "team": "Group 70",
-        "tickets": 32,
-        "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
-      },
-      {
-        "date": "2016-06-06",
-        "team": "Group 20",
+        "date": "2016-06-04",
+        "team": "Group 65",
         "tickets": 2,
         "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
       },
       {
-        "date": "2016-06-07",
-        "team": "Group 20",
+        "date": "2016-06-04",
+        "team": "Group 70",
+        "tickets": 1,
+        "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
+      },
+      {
+        "date": "2016-06-04",
+        "team": "Group 24",
+        "tickets": 1,
+        "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
+      },
+      {
+        "date": "2016-06-05",
+        "team": "Group 24",
         "tickets": 1,
         "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
       }
@@ -2328,246 +2242,246 @@
         "team": "Group 70",
         "date": "2016-06-01",
         "expected_before": 135.4,
-        "expected_after": 122.4,
-        "capacity": 122.0
+        "expected_after": 135.4,
+        "capacity": 164.2
       },
       {
         "team": "Group 70",
         "date": "2016-06-02",
         "expected_before": 106.2,
-        "expected_after": 119.2,
-        "capacity": 122.0
+        "expected_after": 106.2,
+        "capacity": 134.2
       },
       {
         "team": "Group 70",
         "date": "2016-06-03",
         "expected_before": 112.4,
         "expected_after": 112.4,
-        "capacity": 122.0
+        "capacity": 133.0
       },
       {
         "team": "Group 70",
         "date": "2016-06-04",
         "expected_before": 20.2,
         "expected_after": 20.2,
-        "capacity": 122.0
+        "capacity": 18.8
       },
       {
         "team": "Group 70",
         "date": "2016-06-05",
         "expected_before": 16.7,
         "expected_after": 16.7,
-        "capacity": 122.0
+        "capacity": 15.8
       },
       {
         "team": "Group 70",
         "date": "2016-06-06",
         "expected_before": 163.4,
-        "expected_after": 154.4,
-        "capacity": 122.0
+        "expected_after": 163.4,
+        "capacity": 188.5
       },
       {
         "team": "Group 70",
         "date": "2016-06-07",
         "expected_before": 112.7,
-        "expected_after": 121.7,
-        "capacity": 122.0
+        "expected_after": 112.7,
+        "capacity": 145.2
       },
       {
         "team": "Group 20",
         "date": "2016-06-01",
         "expected_before": 16.3,
-        "expected_after": 15.3,
-        "capacity": 14.7
+        "expected_after": 16.3,
+        "capacity": 20.5
       },
       {
         "team": "Group 20",
         "date": "2016-06-02",
         "expected_before": 13.0,
-        "expected_after": 14.0,
-        "capacity": 14.7
+        "expected_after": 13.0,
+        "capacity": 15.0
       },
       {
         "team": "Group 20",
         "date": "2016-06-03",
         "expected_before": 12.6,
         "expected_after": 12.6,
-        "capacity": 14.7
+        "capacity": 16.8
       },
       {
         "team": "Group 20",
         "date": "2016-06-04",
         "expected_before": 1.3,
         "expected_after": 1.3,
-        "capacity": 14.7
+        "capacity": 1.0
       },
       {
         "team": "Group 20",
         "date": "2016-06-05",
         "expected_before": 1.3,
         "expected_after": 1.3,
-        "capacity": 14.7
+        "capacity": 0.8
       },
       {
         "team": "Group 20",
         "date": "2016-06-06",
         "expected_before": 16.8,
         "expected_after": 16.8,
-        "capacity": 14.7
+        "capacity": 23.8
       },
       {
         "team": "Group 20",
         "date": "2016-06-07",
         "expected_before": 15.7,
         "expected_after": 15.7,
-        "capacity": 14.7
+        "capacity": 19.5
       },
       {
         "team": "Group 65",
         "date": "2016-06-01",
         "expected_before": 10.0,
-        "expected_after": 8.0,
-        "capacity": 7.7
+        "expected_after": 10.0,
+        "capacity": 12.8
       },
       {
         "team": "Group 65",
         "date": "2016-06-02",
         "expected_before": 5.4,
-        "expected_after": 7.4,
-        "capacity": 7.7
+        "expected_after": 5.4,
+        "capacity": 9.5
       },
       {
         "team": "Group 65",
         "date": "2016-06-03",
         "expected_before": 5.4,
         "expected_after": 5.4,
-        "capacity": 7.7
+        "capacity": 8.5
       },
       {
         "team": "Group 65",
         "date": "2016-06-04",
         "expected_before": 2.3,
         "expected_after": 2.3,
-        "capacity": 7.7
+        "capacity": 0.5
       },
       {
         "team": "Group 65",
         "date": "2016-06-05",
         "expected_before": 0.9,
         "expected_after": 0.9,
-        "capacity": 7.7
+        "capacity": 0.5
       },
       {
         "team": "Group 65",
         "date": "2016-06-06",
         "expected_before": 6.1,
         "expected_after": 6.1,
-        "capacity": 7.7
+        "capacity": 12.2
       },
       {
         "team": "Group 65",
         "date": "2016-06-07",
         "expected_before": 8.0,
         "expected_after": 8.0,
-        "capacity": 7.7
+        "capacity": 9.2
       },
       {
         "team": "Group 25",
         "date": "2016-06-01",
         "expected_before": 4.9,
         "expected_after": 4.9,
-        "capacity": 6.1
+        "capacity": 4.8
       },
       {
         "team": "Group 25",
         "date": "2016-06-02",
         "expected_before": 6.6,
         "expected_after": 6.6,
-        "capacity": 6.1
+        "capacity": 11.0
       },
       {
         "team": "Group 25",
         "date": "2016-06-03",
         "expected_before": 2.5,
         "expected_after": 2.5,
-        "capacity": 6.1
+        "capacity": 7.2
       },
       {
         "team": "Group 25",
         "date": "2016-06-04",
         "expected_before": 0.3,
         "expected_after": 0.3,
-        "capacity": 6.1
+        "capacity": 0.0
       },
       {
         "team": "Group 25",
         "date": "2016-06-05",
         "expected_before": 0.1,
         "expected_after": 0.1,
-        "capacity": 6.1
+        "capacity": 0.0
       },
       {
         "team": "Group 25",
         "date": "2016-06-06",
         "expected_before": 5.4,
         "expected_after": 5.4,
-        "capacity": 6.1
+        "capacity": 11.0
       },
       {
         "team": "Group 25",
         "date": "2016-06-07",
         "expected_before": 6.1,
         "expected_after": 6.1,
-        "capacity": 6.1
+        "capacity": 7.0
       },
       {
         "team": "Group 24",
         "date": "2016-06-01",
         "expected_before": 4.0,
         "expected_after": 4.0,
-        "capacity": 6.6
+        "capacity": 9.2
       },
       {
         "team": "Group 24",
         "date": "2016-06-02",
         "expected_before": 2.1,
         "expected_after": 2.1,
-        "capacity": 6.6
+        "capacity": 5.8
       },
       {
         "team": "Group 24",
         "date": "2016-06-03",
         "expected_before": 3.9,
         "expected_after": 3.9,
-        "capacity": 6.6
+        "capacity": 5.0
       },
       {
         "team": "Group 24",
         "date": "2016-06-04",
         "expected_before": 1.2,
         "expected_after": 1.2,
-        "capacity": 6.6
+        "capacity": 0.0
       },
       {
         "team": "Group 24",
         "date": "2016-06-05",
         "expected_before": 1.2,
         "expected_after": 1.2,
-        "capacity": 6.6
+        "capacity": 0.2
       },
       {
         "team": "Group 24",
         "date": "2016-06-06",
         "expected_before": 4.7,
         "expected_after": 4.7,
-        "capacity": 6.6
+        "capacity": 11.2
       },
       {
         "team": "Group 24",
         "date": "2016-06-07",
         "expected_before": 4.9,
         "expected_after": 4.9,
-        "capacity": 6.6
+        "capacity": 11.0
       }
     ],
     "check": {

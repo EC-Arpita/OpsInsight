@@ -16,12 +16,13 @@ def apply_sla_rules(df: pd.DataFrame, mapping: dict, rules: dict, order: str = N
     mapping : the confirmed mapping {standard name: company's column}; needs number, opened_at,
               resolved_at and priority.
     """
-    col = {k: mapping[k] for k in ("number", "opened_at", "resolved_at", "priority")}
+    col = {k: mapping.get(k) for k in ("number", "opened_at", "resolved_at", "priority")}
     out = df.copy()
+    prio = out[col["priority"]] if col["priority"] else pd.Series("all", index=out.index)   # no priority: one rule for all
     opened = to_dates(out[col["opened_at"]], order)
     resolved = to_dates(out[col["resolved_at"]], order)
     per_ticket = pd.DataFrame({"id": out[col["number"]], "opened": opened, "resolved": resolved,
-                               "priority": out[col["priority"]].astype(str).str.strip()})
+                               "priority": prio.astype(str).str.strip()})
     t = per_ticket.groupby("id").agg(opened=("opened", "min"), resolved=("resolved", "max"), priority=("priority", "first"))
     by_word = {k.split("-")[-1].strip().lower(): v for k, v in rules["hours"].items()}   # "4 - Low" also matches "Low"
     by_word.update({"medium": by_word.get("moderate"), "urgent": by_word.get("critical")})

@@ -15,6 +15,7 @@ from .engine.uploads import ALLOWED, save_upload
 from .models.config import ROOT
 
 DEFAULT_SLA = {"hours": {"1 - Critical": 4, "2 - High": 8, "3 - Moderate": 24, "4 - Low": 72}, "default_hours": 24}
+DEFAULT_PROMISE = {"column": None, "days": {}, "default_days": 4}
 
 
 def uploads_in(folder: Path) -> list:
@@ -38,7 +39,10 @@ def check_one(name: str, files: dict) -> dict:
             row["problem"] = up["message"]
             return row
         needs_sla = up["domain"] == "incidents" and not (up["mapping"] or {}).get("made_sla")
-        a = run_upload(up["upload_id"], sla_rules=DEFAULT_SLA if needs_sla else None)
+        m = up["mapping"] or {}
+        needs_promise = up["domain"] == "sales_orders" and not ({"order_estimated_delivery_date", "promised_days"} & set(m))
+        promise = {**DEFAULT_PROMISE, "column": up["promise_by"]["column"]} if needs_promise else None
+        a = run_upload(up["upload_id"], sla_rules=DEFAULT_SLA if needs_sla else None, promise_rules=promise)
         mp = a.get("model_performance", {})
         fit = mp.get("on_your_data") or {}
         kpi = {k["id"]: k["value"] for k in a.get("kpis", [])}

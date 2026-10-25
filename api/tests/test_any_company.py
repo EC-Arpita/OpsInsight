@@ -127,3 +127,21 @@ def test_superstore_style_orders_need_only_order_and_ship_dates():
     assert s["cannot_run_without"] == []
     out, m = apply_promise_rules(raw, s["mapping"], {"column": "Ship Mode", "days": {"Same Day": 0}, "default_days": 5})
     assert list(out["promised_days"]) == [0, 5] and m["promised_days"] == "promised_days"
+
+
+def test_region_stays_with_each_order_when_a_customer_orders_to_several_regions():
+    from opsinsight.engine.pipeline import run_upload
+    from opsinsight.engine.uploads import save_upload
+    import numpy as np
+    rng = np.random.default_rng(0)
+    n = 4000                                                                # enough orders per region for the breakdown
+    od = pd.Timestamp("2023-01-01") + pd.to_timedelta(np.sort(rng.integers(0, 300 * 24 * 60, n)), unit="min")
+    region = rng.choice(["East", "West", "North"], n)
+    actual = np.where(region == "East", 7, 3)                               # East always late, others never
+    df = pd.DataFrame({"order_id": range(n), "customer_id": rng.integers(1, 100, n), "order_status": "delivered",
+                       "order_date": od.strftime("%Y-%m-%d %H:%M"), "delivered_at": (od + pd.to_timedelta(actual, unit="D")).strftime("%Y-%m-%d %H:%M"),
+                       "promised_date": (od + pd.to_timedelta(5, unit="D")).strftime("%Y-%m-%d %H:%M"), "region": region})
+    up = save_upload({"orders.csv": df.to_csv(index=False).encode()}, "region-test")
+    a = run_upload(up["upload_id"], decide=False)
+    rows = {r["value"]: r["late_rate"] for b in a["breakdowns"] if b["dimension"] == "customer_state" for r in b["rows"]}
+    assert rows["East"] == 1.0 and rows["West"] == 0.0

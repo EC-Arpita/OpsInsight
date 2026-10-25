@@ -16,7 +16,7 @@ def choose_model(df, analyst_confirmed=False) -> dict:
     base = {"model": None, "message": r["message"], "detection_score": r["best_score"]}
     if r["decision"] == "unknown":
         return {**base, "status": "refused"}
-    missing = r["mapping"]["missing_required"]
+    missing = r["mapping"]["cannot_run_without"]
     if missing:
         return {**base, "status": "cannot_run", "missing_required": missing,
                 "message": r["message"] + f" Missing required columns: {', '.join(missing)}."}

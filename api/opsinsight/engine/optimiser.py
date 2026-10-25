@@ -25,10 +25,12 @@ def priority_queue(analysis: dict, domain: str) -> list:
             rows.append({"id": it["id"], "risk": risk, "weight": weight, "score": round(risk * weight, 3),
                          "team": it["context"].get("team"), "why": f"risk {risk:.0%} x priority weight {weight}"})
         else:
-            value = it["context"].get("order_value") or 0
-            rows.append({"id": it["id"], "risk": risk, "weight": value, "score": round(risk * value, 2),
-                         "region": it["context"].get("customer_state"),
-                         "why": f"risk {risk:.0%} x order value R$ {value:,.2f} = R$ {risk * value:,.2f} at risk"})
+            value = it["context"].get("order_value")
+            cur = "R$ " if analysis["meta"].get("currency") == "BRL" else ""
+            why = (f"risk {risk:.0%} x order value {cur}{value:,.2f} = {cur}{risk * value:,.2f} at risk" if value
+                   else f"risk {risk:.0%} (no order value in the file, so sorted by risk)")
+            rows.append({"id": it["id"], "risk": risk, "weight": value or 1, "score": round(risk * (value or 1), 2),
+                         "region": it["context"].get("customer_state"), "why": why})
     rows.sort(key=lambda r: -r["score"])
     for i, r in enumerate(rows, start=1):
         r["rank"] = i

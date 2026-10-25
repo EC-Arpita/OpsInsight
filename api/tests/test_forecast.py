@@ -16,8 +16,16 @@ def test_overload_follows_the_rule():
     for team in forecast_tickets()["teams"]:
         for d in team["daily"]:
             limit = d["expected_capacity"] * 1.1
-            if abs(d["expected_tickets"] - limit) > 0.2:
-                assert d["overload"] == (d["expected_tickets"] > limit)
+            if abs(d["expected_tickets"] - limit) > 0.2 and abs(d["expected_tickets"] - d["expected_capacity"] - 1) > 0.2:
+                assert d["overload"] == (d["expected_tickets"] > limit and d["expected_tickets"] - d["expected_capacity"] >= 1)
+
+
+def test_capacity_follows_the_weekday():
+    """A team clears far fewer tickets on Sundays than on Mondays, so capacity must differ by weekday."""
+    big = forecast_tickets()["teams"][0]
+    caps = {pd.Timestamp(d["date"]).dayofweek: d["expected_capacity"] for d in big["daily"]}
+    assert caps[0] > 3 * caps[6]
+    assert big["expected_capacity_7d"] == round(sum(d["expected_capacity"] for d in big["daily"]))
 
 
 def test_sales_forecast_skips_the_incomplete_tail():

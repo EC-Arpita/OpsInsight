@@ -5,7 +5,7 @@ from ..prep.sales import REGION
 from .common import HORIZON, METHODS, ROOT, backtest, daily_counts
 
 ORDERS_FILE = ROOT / "data/interim/sales_orders_clean.parquet"
-LEAVE_OUT_LAST_DAYS = 21  # orders to far regions reach the export late, so the newest 3 weeks are incomplete
+LEAVE_OUT_LAST_DAYS = 21   # orders to far regions reach the export late, so the newest 3 weeks are incomplete
 
 
 def region_counts(orders: pd.DataFrame) -> pd.DataFrame:
@@ -22,7 +22,6 @@ def tail_check(counts: pd.DataFrame) -> pd.DataFrame:
     return (week / usual).round(2)
 
 
-
 def forecast_orders(orders: pd.DataFrame = None, busy_margin=1.2, min_extra=10) -> dict:
     """The `forecast` section of the sales analysis JSON."""
     orders = pd.read_parquet(ORDERS_FILE) if orders is None else orders
@@ -33,38 +32,23 @@ def forecast_orders(orders: pd.DataFrame = None, busy_margin=1.2, min_extra=10) 
     scores = backtest(placed)
     best = scores.iloc[0]["method"]
     future = METHODS[best](placed)
-    usual = placed.iloc[-28:].mean()  # average orders per day over the last 4 weeks
+    last4 = placed.iloc[-28:]
+    usual_by_day = last4.groupby(last4.index.dayofweek).mean()   # a normal Monday, a normal Sunday... over 4 weeks
 
     days = pd.date_range(placed.index[-1] + pd.Timedelta(days=1), periods=HORIZON, freq="D")
+    usual = usual_by_day.reindex(days.dayofweek).set_axis(days)
     out = []
     for j, region in enumerate(regions):
-        daily = [
-            {
-                "date": f"{d:%Y-%m-%d}",
-                "expected_orders": round(float(future[i, j]), 1),
-                "usual_orders": round(float(usual[region]), 1),
-                "busy": bool(future[i, j] > usual[region] * busy_margin and future[i, j] - usual[region] >= min_extra),
-            }
-            for i, d in enumerate(days)
-        ]
-        out.append(
-            {
-                "region": region,
-                "expected_orders_7d": round(float(future[:, j].sum())),
-                "usual_orders_7d": round(float(usual[region] * 7)),
-                "busy_days": sum(x["busy"] for x in daily),
-                "daily": daily,
-            }
-        )
-    return {
-        "method": best,
-        "horizon_days": HORIZON,
-        "backtest_mean_abs_error": scores.to_dict(orient="records"),
-        "history_end": f"{placed.index[-1]:%Y-%m-%d}",
-        "note": (
-            f"The last {LEAVE_OUT_LAST_DAYS} days of the file were left out: orders to distant regions reach "
-            "the export late, so those days look falsely quiet. The forecast starts after the last complete day."
-        ),
-        "busy_rule": f"expected orders > last 4-week daily average x {busy_margin}, and at least {min_extra} orders more",
-        "regions": out,
-    }
+        daily = [{"date": f"{d:%Y-%m-%d}", "expected_orders": round(float(future[i, j]), 1),
+                  "usual_orders": round(float(usual.at[d, region]), 1),
+                  "busy": bool(future[i, j] > usual.at[d, region] * busy_margin and future[i, j] - usual.at[d, region] >= min_extra)}
+                 for i, d in enumerate(days)]
+        out.append({"region": region, "expected_orders_7d": round(float(future[:, j].sum())),
+                    "usual_orders_7d": round(float(usual[region].sum())),
+                    "busy_days": sum(x["busy"] for x in daily), "daily": daily})
+    return {"method": best, "horizon_days": HORIZON, "backtest_mean_abs_error": scores.to_dict(orient="records"),
+            "history_end": f"{placed.index[-1]:%Y-%m-%d}",
+            "note": (f"The last {LEAVE_OUT_LAST_DAYS} days of the file were left out: orders to distant regions reach "
+                     "the export late, so those days look falsely quiet. The forecast starts after the last complete day."),
+            "busy_rule": f"expected orders > the usual for that weekday (last 4 weeks) x {busy_margin}, and at least {min_extra} orders more",
+            "regions": out}

@@ -58,18 +58,18 @@ def workload_plan(forecast: dict, tickets: pd.DataFrame) -> dict:
     teams = [t["team"] for t in forecast["teams"]]
     dates = [d["date"] for d in forecast["teams"][0]["daily"]]
     expected = {t["team"]: [d["expected_tickets"] for d in t["daily"]] for t in forecast["teams"]}
-    capacity = {t["team"]: t["daily"][0]["expected_capacity"] for t in forecast["teams"]}
+    capacity = {t["team"]: [d["expected_capacity"] for d in t["daily"]] for t in forecast["teams"]}   # per day
     plan = {k: list(v) for k, v in expected.items()}             # expected tickets after the moves
     skills = team_skills(tickets)
     moves, gaps = [], []
 
-    overloads = [(plan[t][i] - capacity[t], t, i) for t in teams for i in range(len(dates)) if plan[t][i] > capacity[t]]
+    overloads = [(plan[t][i] - capacity[t][i], t, i) for t in teams for i in range(len(dates)) if plan[t][i] > capacity[t][i]]
     for _, team, i in sorted(overloads, reverse=True):            # biggest overload first
-        extra = plan[team][i] - capacity[team]
+        extra = plan[team][i] - capacity[team][i]
         movable = expected[team][i] * LOW_RISK_SHARE                # never move high- or medium-risk tickets
         # a. the next day of the same team, if it has spare capacity
         if i + 1 < len(dates):
-            spare = capacity[team] - plan[team][i + 1]
+            spare = capacity[team][i + 1] - plan[team][i + 1]
             n = int(min(extra, spare, movable))
             if n > 0:
                 plan[team][i] -= n; plan[team][i + 1] += n; extra -= n; movable -= n
@@ -79,7 +79,7 @@ def workload_plan(forecast: dict, tickets: pd.DataFrame) -> dict:
         for helper in teams:
             if extra < 1 or movable < 1 or helper == team:
                 continue
-            spare = capacity[helper] - plan[helper][i]
+            spare = capacity[helper][i] - plan[helper][i]
             ov = overlap(helper, team, tickets, skills)
             n = int(min(extra, spare, movable))
             if n > 0 and ov >= MIN_OVERLAP:
@@ -92,7 +92,7 @@ def workload_plan(forecast: dict, tickets: pd.DataFrame) -> dict:
                          "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"})
 
     after = [{"team": t, "date": dates[i], "expected_before": round(expected[t][i], 1), "expected_after": round(plan[t][i], 1),
-              "capacity": capacity[t]} for t in teams for i in range(len(dates))]
+              "capacity": capacity[t][i]} for t in teams for i in range(len(dates))]
     gap_total = {(g["team"], g["date"]): g["tickets"] for g in gaps}
     check = {
         "every_ticket_assigned_once": abs(sum(map(sum, plan.values())) - sum(map(sum, expected.values()))) < 1e-6,

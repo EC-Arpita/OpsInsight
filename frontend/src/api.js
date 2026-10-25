@@ -45,8 +45,9 @@ export function uploadFiles(files, company) {
 }
 
 export const connectDatabase = (url, table, company) => call("/api/uploads/connect", json({ url, table, company: company || "unknown" }));
-export const runUpload = (id, mapping, slaRules, dateOrder) =>
-  call(`/api/uploads/${id}/run`, json({ mapping, sla_rules: slaRules || null, date_order: dateOrder || null }));
+export const runUpload = (id, mapping, slaRules, dateOrder, promiseRules) =>
+  call(`/api/uploads/${id}/run`, json({ mapping, sla_rules: slaRules || null, date_order: dateOrder || null,
+                                        promise_rules: promiseRules || null }));
 export const listUploads = () => call("/api/uploads");
 export const excelUrl = (key) => `${API}/api/analysis/${key}/export.xlsx`;
 export const getOutcomes = (key) => call(`/api/outcomes/${key}`);

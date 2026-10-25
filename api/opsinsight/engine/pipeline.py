@@ -1,6 +1,7 @@
 """Run the whole analysis on one upload: map -> (SLA rules) -> clean -> features -> analytics ->
 predictions -> forecast -> decisions. Saves data/app/analysis/<upload id>.json."""
 import json
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -13,7 +14,7 @@ from ..prep import incidents as inc
 from ..prep import sales as sal
 from ..prep.analytics import incident_analysis, sales_analysis
 from ..prep.common import QualityLog
-from ..prep.mapping import ALTERNATIVES, apply_mapping
+from ..prep.mapping import ALTERNATIVES, apply_mapping, check_needed, normalise
 from . import store
 from .predictions import model_section, predictions_section
 from .sla import apply_sla_rules
@@ -41,10 +42,11 @@ def _mapping(upload: dict, overrides: dict | None) -> dict:
 
 
 YES = {"true", "yes", "y", "1", "met", "achieved", "within", "ok", "on time"}
+BAD_FLAG = re.compile(r"breach|violat|miss|overdue|late|fail")     # a column saying the SLA was NOT met
 PRIORITY_WORDS = {"critical": 1, "urgent": 1, "high": 2, "medium": 3, "moderate": 3, "normal": 3, "low": 4}
 
 
-def standardise_tickets(df: pd.DataFrame, order: str = None) -> pd.DataFrame:
+def standardise_tickets(df: pd.DataFrame, order: str = None, flag_means_breach: bool = False) -> pd.DataFrame:
     """Another company's tickets -> the forms the cleaning code expects (dates, True/False SLA, numbered priority)."""
     df = df.copy()
     for c in inc.DATE_COLS:                                # any date style -> 13/02/2016 09:47
@@ -52,6 +54,8 @@ def standardise_tickets(df: pd.DataFrame, order: str = None) -> pd.DataFrame:
             df[c] = to_dates(df[c], order).dt.strftime(inc.DATE_FORMAT)
     if df["made_sla"].dtype != bool:                       # "Met"/"Missed", "Yes"/"No", 1/0 -> True/False
         df["made_sla"] = df["made_sla"].astype(str).str.strip().str.lower().isin(YES)
+    if flag_means_breach:                                  # "SLA Breached = Yes" means it was NOT met
+        df["made_sla"] = ~df["made_sla"]
     for c in ["priority", "impact", "urgency"]:            # "High" -> "2 - High", so a number can be read
         text = df[c].astype(str).str.strip()
         number = text.str.lower().map(PRIORITY_WORDS)
@@ -83,6 +87,7 @@ def standardise_orders(df: pd.DataFrame, order: str = None) -> pd.DataFrame:
     for c in SALES_DATES:
         if df[c].notna().any():
             df[c] = to_dates(df[c], order)
+    df["customer_id"] = df["customer_id"].fillna(df["order_id"])   # no customer column: each order its own customer
     status = df["order_status"].astype(str).str.strip().str.lower()
     df["order_status"] = status.where(~status.isin(DELIVERED), "delivered")
     for date_col, days_col in ALTERNATIVES.items():           # "promised in 4 days" -> order date + 4 days
@@ -114,7 +119,10 @@ def run_tickets(upload, mapping, sla_rules=None, date_order=None) -> tuple:
             raise UploadError("This file has no 'SLA met' column. Send SLA rules (hours allowed per priority).")
         raw = apply_sla_rules(raw, mapping, sla_rules, order)
         mapping = {**mapping, "made_sla": "made_sla"}
-    df = standardise_tickets(apply_mapping(raw, mapping, "incidents"), order)
+    inverted = mapping["made_sla"] != "made_sla" and bool(BAD_FLAG.search(normalise(mapping["made_sla"])))
+    if inverted:
+        warnings.append({"level": "info", "message": f"'{mapping['made_sla']}' was read as 'SLA missed' (Yes = breached)."})
+    df = standardise_tickets(apply_mapping(raw, mapping, "incidents"), order, inverted)
     log = QualityLog()
     first_rows = df.drop_duplicates("number")["opened_at"]      # one opening time per ticket
     events = inc.clean_events(df, window=auto_window(first_rows), log=log)
@@ -131,28 +139,60 @@ def run_tickets(upload, mapping, sla_rules=None, date_order=None) -> tuple:
     return analysis, {"tickets": tickets, "features": features, "model": model}
 
 
-def run_sales(upload, mapping, date_order=None) -> tuple:
+def apply_promise_rules(raw: pd.DataFrame, mapping: dict, rules: dict) -> tuple:
+    """No promised date in the file: days promised per value of one column (e.g. ship mode), typed by the analyst.
+    rules = {"column": "Ship Mode" or None, "days": {"Standard Class": 5, ...}, "default_days": 4}"""
+    raw = raw.copy()
+    col = rules.get("column")
+    days = raw[col].astype(str).str.strip().map(rules.get("days", {})) if col in raw else pd.Series(index=raw.index, dtype=float)
+    raw["promised_days"] = days.fillna(rules.get("default_days", 4)).astype(float)
+    return raw, {**mapping, "promised_days": "promised_days"}
+
+
+def run_sales(upload, mapping, date_order=None, promise_rules=None) -> tuple:
     folder = Path(upload["folder"])
     orders_raw = read_table(folder / upload["main_file"])
     order, warnings = date_check(orders_raw, mapping, date_order, times_matter=False)
+    if "order_estimated_delivery_date" not in mapping and "promised_days" not in mapping:
+        if not promise_rules:
+            raise UploadError("This file has no promised delivery date. Enter the days you promise on the upload screen.")
+        orders_raw, mapping = apply_promise_rules(orders_raw, mapping, promise_rules)
+        warnings.append({"level": "info", "message": "Promised dates come from the days you entered on the upload screen."})
+    delivered = mapping.get("order_delivered_customer_date", "")
+    if re.search(r"ship|dispatch", normalise(delivered)):
+        warnings.append({"level": "warning", "message": f"No delivery date: '{delivered}' is used, so 'late' means "
+                                                         "shipped after the promised date."})
     work = folder / "standard"                             # Olist file names, the format the sales pipeline reads
     work.mkdir(exist_ok=True)
     orders = standardise_orders(apply_mapping(orders_raw, mapping, "sales_orders"), order)
     region = orders.pop("customer_state")                  # the region lives in the customers file in Olist's format
+    value = orders.pop("order_value")                      # ... and the order value in the payments file
+    if not (folder / sal.FILES["customers"]).exists():
+        # Olist keeps one customer_id per ORDER and the person in customer_unique_id; so each order keeps its own
+        # region even when the same customer orders to different regions
+        person = orders["customer_id"]
+        orders["customer_id"] = "c-" + orders["order_id"].astype(str)
+        pd.DataFrame({"customer_id": orders["customer_id"], "customer_unique_id": person, "customer_state": region}
+                     ).reindex(columns=OLIST_COLUMNS["customers"]).to_csv(work / sal.FILES["customers"], index=False)
     orders.to_csv(work / sal.FILES["orders"], index=False)
     for key, name in sal.FILES.items():
-        if key == "orders":
+        if key == "orders" or (key == "customers" and (work / name).exists() and not (folder / name).exists()):
             continue
         if (folder / name).exists():
             (work / name).write_bytes((folder / name).read_bytes())
-        elif key == "customers" and region.notna().any():  # no customers file: take the region from the orders file
-            customers = pd.DataFrame({"customer_id": orders["customer_id"], "customer_state": region})
-            customers.drop_duplicates("customer_id").reindex(columns=OLIST_COLUMNS["customers"]).to_csv(work / name, index=False)
+        elif key == "payments" and pd.to_numeric(value, errors="coerce").notna().any():   # no payments file: one payment per order
+            pd.DataFrame({"order_id": orders["order_id"], "payment_sequential": 1, "payment_type": "unknown",
+                          "payment_installments": 1, "payment_value": pd.to_numeric(value, errors="coerce")}
+                         ).to_csv(work / name, index=False)
         else:                                              # only the orders file is required: the rest start empty
             pd.DataFrame(columns=OLIST_COLUMNS[key]).to_csv(work / name, index=False)
     out = sal.prepare_sales(work, window=auto_window(orders_raw[mapping["order_purchase_timestamp"]], order=order))
     orders, features = out["orders"], out["features"]
+    if orders.empty or features.empty:
+        raise UploadError("No finished orders with a delivery date were left after cleaning. Check that the status "
+                          "and date columns in step 2 are the right ones.")
     analysis = sales_analysis(orders, features, out["quality"], f"{upload['company']} sales orders")
+    analysis["meta"]["currency"] = None                     # a company's own file: its currency is not known
     analysis["data_quality"]["warnings"] += warnings
     model = own_model("sales", features, upload["id"])
     analysis["predictions"] = predictions_section("sales", orders, features, model=model)
@@ -163,7 +203,8 @@ def run_sales(upload, mapping, date_order=None) -> tuple:
     return analysis, {"orders": orders, "features": features, "model": model}
 
 
-def run_upload(upload_id: str, mapping_overrides: dict = None, sla_rules: dict = None, decide=True, date_order: str = None) -> dict:
+def run_upload(upload_id: str, mapping_overrides: dict = None, sla_rules: dict = None, decide=True, date_order: str = None,
+               promise_rules: dict = None) -> dict:
     upload = store.get_upload(upload_id)
     if upload is None:
         raise UploadError(f"No upload called {upload_id}.")
@@ -171,10 +212,14 @@ def run_upload(upload_id: str, mapping_overrides: dict = None, sla_rules: dict =
     if domain is None:
         raise UploadError("This upload was not recognised, so it cannot be analysed.")
     mapping = _mapping(upload, mapping_overrides)
+    try:
+        check_needed(mapping, domain)
+    except ValueError as e:
+        raise UploadError(str(e)) from None
     if domain == "incidents":
         analysis, tables = run_tickets(upload, mapping, sla_rules, date_order)
     else:
-        analysis, tables = run_sales(upload, mapping, date_order)
+        analysis, tables = run_sales(upload, mapping, date_order, promise_rules)
     analysis["meta"]["analysis_id"] = upload_id
     if decide:
         from .decide import add_decisions                   # Steps 6 to 10

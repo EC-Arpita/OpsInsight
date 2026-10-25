@@ -12,6 +12,16 @@ const guessHours = (p) => {
   return 24;
 };
 const hoursFor = (list) => Object.fromEntries(list.map((p) => [p, guessHours(p)]));
+const ALL_TICKETS = "All tickets";
+const ALL_ORDERS = "All orders";
+// Days promised, guessed from the ship-mode word ("Same Day" -> 0); the analyst can change every value.
+const guessDays = (m) => {
+  const w = m.toLowerCase();
+  if (/same/.test(w)) return 0;
+  if (/express|first|next|priority|fast/.test(w)) return 2;
+  if (/second/.test(w)) return 3;
+  return 5;
+};
 const KIND = { incidents: "Support tickets", sales_orders: "Sales orders" };
 
 // Step 1: send files or a database table. Step 2: check what we recognised and fix columns. Step 3: run.
@@ -22,6 +32,7 @@ export default function Upload({ onAnalysed }) {
   const [result, setResult] = useState(null);
   const [overrides, setOverrides] = useState({});
   const [hours, setHours] = useState({});
+  const [days, setDays] = useState({});
   const [dateOrder, setDateOrder] = useState("day");
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
@@ -39,7 +50,9 @@ export default function Upload({ onAnalysed }) {
     try {
       const r = how === "files" ? await uploadFiles(files, company) : await connectDatabase(db.url, db.table, company);
       setResult(r);
-      setHours(hoursFor(r.priority_values?.length ? r.priority_values : PRIORITIES));
+      setHours(r.priority_values?.length ? hoursFor(r.priority_values) : r.mapping?.priority ? hoursFor(PRIORITIES) : { [ALL_TICKETS]: 24 });
+      const modes = r.promise_by?.values || [];
+      setDays(modes.length ? Object.fromEntries(modes.map((m) => [m, guessDays(m)])) : { [ALL_ORDERS]: 4 });
     } catch (e) {
       setError(e.message);
     } finally {
@@ -49,13 +62,16 @@ export default function Upload({ onAnalysed }) {
 
   const mapped = (standard) => (standard in overrides ? overrides[standard] : result.mapping?.[standard]);
   const needsSla = result?.domain === "incidents" && !mapped("made_sla");
+  const needsPromise = result?.domain === "sales_orders" && !mapped("order_estimated_delivery_date") && !mapped("promised_days");
 
   async function run() {
     setBusy("run");
     setError(null);
     try {
-      const sla = needsSla ? { hours, default_hours: 24 } : null;
-      const out = await runUpload(result.upload_id, overrides, sla, result.date_order === "unclear" ? dateOrder : null);
+      const sla = needsSla ? { hours, default_hours: hours[ALL_TICKETS] ?? 24 } : null;
+      const promise = needsPromise
+        ? { column: result.promise_by?.column || null, days, default_days: days[ALL_ORDERS] ?? 4 } : null;
+      const out = await runUpload(result.upload_id, overrides, sla, result.date_order === "unclear" ? dateOrder : null, promise);
       onAnalysed(out.analysis_id, company || "Your company");
     } catch (e) {
       setError(e.message);
@@ -168,6 +184,23 @@ export default function Upload({ onAnalysed }) {
                   <label key={p} className="small">{p}
                     <input type="number" min="1" className="input" value={hours[p]}
                            onChange={(e) => setHours({ ...hours, [p]: Number(e.target.value) })} />
+                  </label>
+                ))}
+              </div>
+            </>
+          )}
+          {canRun && needsPromise && (
+            <>
+              <h3>Days you promise for delivery</h3>
+              <p className="muted small">
+                Your file has no promised delivery date, so we work it out: order date + the days below
+                {result.promise_by?.column ? `, for each "${result.promise_by.column}"` : ""}. An order counts as late when it arrives after that.
+              </p>
+              <div className="sla-grid">
+                {Object.keys(days).map((m) => (
+                  <label key={m} className="small">{m}
+                    <input type="number" min="0" className="input" value={days[m]}
+                           onChange={(e) => setDays({ ...days, [m]: Number(e.target.value) })} />
                   </label>
                 ))}
               </div>

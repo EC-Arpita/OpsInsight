@@ -1,7 +1,7 @@
 """Sales orders: expected orders per customer region for the next 7 days, and which days will be unusually busy."""
 import pandas as pd
 
-from ..prep.sales import REGION
+from ..prep.sales import to_region
 from .common import HORIZON, METHODS, ROOT, backtest, daily_counts
 
 ORDERS_FILE = ROOT / "data/interim/sales_orders_clean.parquet"
@@ -10,7 +10,7 @@ MAX_TAIL_DAYS = 28         # never cut more than 4 weeks, even if volume really 
 
 def region_counts(orders: pd.DataFrame) -> pd.DataFrame:
     """Orders placed per customer region per day (every order, delivered or not)."""
-    orders = orders.assign(customer_region=orders["customer_state"].map(REGION).fillna(orders["customer_state"]).fillna("Unknown"))
+    orders = orders.assign(customer_region=to_region(orders["customer_state"]).fillna("Unknown"))
     regions = list(orders["customer_region"].value_counts().index.drop("Unknown", errors="ignore"))
     return daily_counts(orders, "purchased_at", "customer_region", regions)
 

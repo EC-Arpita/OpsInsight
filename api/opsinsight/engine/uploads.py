@@ -93,6 +93,18 @@ def _priority_values(df: pd.DataFrame, mapping: dict) -> list:
     return [str(v) for v in df[col].dropna().astype(str).str.strip().value_counts().index[:8]]
 
 
+PROMISE_BY = re.compile(r"ship_?mode|shipping_?mode|ship_?method|shipping_?method|delivery_?type|service_?level|carrier|shipping_?type")
+
+
+def _promise_column(df: pd.DataFrame) -> dict:
+    """A column like 'Ship Mode' that promised days usually depend on, with its values."""
+    for col in df.columns:
+        from ..prep.mapping import normalise
+        if PROMISE_BY.search(normalise(col)) and df[col].nunique() <= 12:
+            return {"column": col, "values": [str(v) for v in df[col].dropna().astype(str).str.strip().value_counts().index]}
+    return {"column": None, "values": []}
+
+
 def _recognise(folder: Path, names: list) -> tuple:
     """Find the main file (tickets or orders) among the uploaded files and inspect it."""
     best = None
@@ -111,6 +123,7 @@ def _recognise(folder: Path, names: list) -> tuple:
                "scores": report["scores"], "shape": report["shape"], "message": choice["message"],
                "status": choice["status"], "model": choice["model"],
                "mapping": report["mapping"]["mapping"] if report["mapping"] else None,
+               "promise_by": _promise_column(df),
                "priority_values": _priority_values(df, report["mapping"]["mapping"] if report["mapping"] else {}),
                "date_order": _file_date_order(df, report["mapping"]["mapping"] if report["mapping"] else {}),
                "suggestions": report["mapping"]["suggestions"] if report["mapping"] else None}

@@ -100,8 +100,8 @@ def sales_estimates(orders: pd.DataFrame, features: pd.DataFrame, model: str = N
         out["seller_dispatch_deadline"] = _result(slow["late"].sum() - len(slow) * medium_rate, n, bad,
             "Slow-dispatch orders assumed to be late at the rate of medium-dispatch orders.", ["Sellers respond to alerts"])
     if worst_region:
-        from ..prep.sales import REGION
-        w = cur[cur["customer_state"].map(REGION).fillna(cur["customer_state"]) == worst_region]
+        from ..prep.sales import to_region
+        w = cur[to_region(cur["customer_state"]) == worst_region]
         out["region_buffer_days"] = _result(w["late"].sum() * 0.40, n, bad,
             f"Assumes 40% of {worst_region} late orders arrive within the added buffer (validate with delivery-day distribution).",
             ["Slightly longer promises don't reduce conversion much"])

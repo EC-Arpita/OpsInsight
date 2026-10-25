@@ -80,14 +80,13 @@ def replay_queues(forecast: dict, plan: dict, cover: bool) -> dict:
 
 
 # --------------------------------------------------------------------------- sales orders
-NORTHEAST = {"AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"}
 
 
 def _dispatch_days(orders):
     return ((orders["carrier_at"] - orders["approved_at"]).dt.total_seconds() / 86400).clip(lower=0)
 
 
-def sales_estimates(orders: pd.DataFrame, features: pd.DataFrame, model: str = None) -> dict:
+def sales_estimates(orders: pd.DataFrame, features: pd.DataFrame, model: str = None, worst_region: str = None) -> dict:
     d = orders[orders["is_model_row"] == 1].copy()
     d["late"] = d["late"].astype(int)
     d["dispatch_days"] = _dispatch_days(d)
@@ -100,10 +99,12 @@ def sales_estimates(orders: pd.DataFrame, features: pd.DataFrame, model: str = N
     if d["dispatch_days"].notna().any():                   # needs ship dates; an orders-only file may not have them
         out["seller_dispatch_deadline"] = _result(slow["late"].sum() - len(slow) * medium_rate, n, bad,
             "Slow-dispatch orders assumed to be late at the rate of medium-dispatch orders.", ["Sellers respond to alerts"])
-    ne = cur[cur["customer_state"].isin(NORTHEAST)]
-    out["region_buffer_days"] = _result(ne["late"].sum() * 0.40, n, bad,
-        "Assumes 40% of North-East late orders arrive within the added buffer (validate with delivery-day distribution).",
-        ["Slightly longer promises don't reduce conversion much"])
+    if worst_region:
+        from ..prep.sales import REGION
+        w = cur[cur["customer_state"].map(REGION).fillna(cur["customer_state"]) == worst_region]
+        out["region_buffer_days"] = _result(w["late"].sum() * 0.40, n, bad,
+            f"Assumes 40% of {worst_region} late orders arrive within the added buffer (validate with delivery-day distribution).",
+            ["Slightly longer promises don't reduce conversion much"])
     top = _top10("sales", features, model)
     hit = cur[cur["order_id"].isin(top["order_id"])]
     out["proactive_top10"] = _result(hit["late"].sum() * ASSUMED_PREVENTION, n, bad,

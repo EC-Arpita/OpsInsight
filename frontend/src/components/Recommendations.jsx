@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { sendDecision } from "../api.js";
+import { excelUrl, sendDecision } from "../api.js";
 import { num, pct } from "../format.js";
 
+const savedName = () => { try { return localStorage.getItem("opsinsight_name") || ""; } catch { return ""; } };
 const EDITABLE = [["title", "Title"], ["description", "What to do"], ["suggested_owner", "Owner"]];
 
 // Actions the manager approves, rejects or edits. Decisions go to the API (or stay on screen in sample mode).
@@ -10,8 +11,9 @@ export default function Recommendations({ analysisKey, recs, impact, words, live
   const [busy, setBusy] = useState(null);
   const [message, setMessage] = useState(null);
   const [comments, setComments] = useState({});
-  const [editing, setEditing] = useState(null); // { id, title, description, suggested_owner }
-
+  const [editing, setEditing] = useState(null);       // { id, title, description, suggested_owner }
+  const [name, setName] = useState(savedName);
+  const decidedBy = name.trim() || "Ops manager";
   const avoidedKey = Object.keys(recs[0]?.expected_impact || {}).find((k) => k.endsWith("_avoided_per_period"));
   const rangeKey = Object.keys(recs[0]?.expected_impact || {}).find((k) => k.startsWith("range_"));
   const problems = words.item === "ticket" ? "breaches" : "late orders";
@@ -22,8 +24,8 @@ export default function Recommendations({ analysisKey, recs, impact, words, live
     const comment = comments[rec.id] || "";
     try {
       const approval = live
-        ? (await sendDecision(analysisKey, rec.id, decision, "Ops manager", comment, edited)).approval
-        : { decision, decided_by: "Ops manager", comment, edited, decided_at: new Date().toISOString() };
+        ? (await sendDecision(analysisKey, rec.id, decision, decidedBy, comment, edited)).approval
+        : { decision, decided_by: decidedBy, comment, edited, decided_at: new Date().toISOString() };
       const updated = { ...rec, ...(edited || {}), status: decision, approval };
       setItems((all) => all.map((r) => (r.id === rec.id ? updated : r)));
       onDecided?.(updated);
@@ -44,6 +46,13 @@ export default function Recommendations({ analysisKey, recs, impact, words, live
 
   return (
     <section className="recs">
+      <div className="recs-bar no-print">
+        <label className="small" htmlFor="decider">Your name</label>
+        <input id="decider" className="input" value={name} placeholder="Ops manager"
+               onChange={(e) => { setName(e.target.value); try { localStorage.setItem("opsinsight_name", e.target.value); } catch {} }} />
+        {live && <a className="btn" href={excelUrl(analysisKey)} download>Download Excel</a>}
+        <button className="btn" onClick={() => window.print()}>Print / Save as PDF</button>
+      </div>
       <p className="muted">
         Baseline this period: {pct(impact.baseline[words.rateKey], 1)} {words.problem} rate. Each estimate is separate; they overlap, so don't add them up.
       </p>

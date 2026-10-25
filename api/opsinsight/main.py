@@ -8,6 +8,7 @@ An "analysis key" names one analysis:
     incidents / sales   -> the two example files in contracts/ (the demo data)
     upload-xxxxxxxx     -> an analysis made from a company's own upload
 """
+import io
 import json
 from datetime import datetime, timezone
 from typing import Literal, Optional
@@ -15,6 +16,7 @@ from typing import Literal, Optional
 import pandas as pd
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from .engine import rag, store
@@ -103,6 +105,12 @@ def upload_from_database(body: Connect):
         raise HTTPException(400, str(e))
 
 
+@app.get("/api/uploads")
+def list_uploads(limit: int = Query(20, ge=1, le=100)):
+    """The newest uploads, so the analyst can reopen an earlier analysis."""
+    return store.list_uploads(limit)
+
+
 @app.get("/api/uploads/{upload_id}")
 def get_upload(upload_id: str):
     row = store.get_upload(upload_id)
@@ -139,6 +147,27 @@ def get_analysis(key: str):
     """Everything: meta, data_quality, kpis, trends, breakdowns, root_causes, anomalies, forecast, predictions,
     ranked_findings, priority_queue, workload_plan, recommendations, impact_simulation, model_performance."""
     return load_analysis(key)
+
+
+@app.get("/api/analysis/{key}/export.xlsx")
+def export_excel(key: str):
+    """One Excel file for the manager: approved actions, high-risk items and KPIs."""
+    data = load_analysis(key)
+    actions = pd.DataFrame([{"id": r["id"], "action": r["title"], "status": r.get("status", "proposed"),
+                             "owner": r.get("suggested_owner"), "decided_by": (r.get("approval") or {}).get("decided_by"),
+                             "comment": (r.get("approval") or {}).get("comment"), "description": r.get("description")}
+                            for r in data.get("recommendations", [])])
+    risky = pd.DataFrame([{"id": it["id"], "risk": it["prediction"]["risk"], "level": it["prediction"]["risk_level"],
+                           "why": it.get("explanation_summary")}
+                          for it in data.get("predictions", {}).get("items", []) if it["prediction"]["risk_level"] == "high"])
+    kpi = pd.DataFrame([{k: c.get(k) for k in ("label", "value", "previous_value", "unit", "status")} for c in data["kpis"]])
+    buf = io.BytesIO()
+    with pd.ExcelWriter(buf, engine="openpyxl") as xl:
+        for name, df in (("Actions", actions), ("High risk", risky), ("KPIs", kpi)):
+            df.to_excel(xl, sheet_name=name, index=False)
+    buf.seek(0)
+    return StreamingResponse(buf, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                             headers={"Content-Disposition": f'attachment; filename="opsinsight_{key}.xlsx"'})
 
 
 @app.get("/api/analysis/{key}/{section}")

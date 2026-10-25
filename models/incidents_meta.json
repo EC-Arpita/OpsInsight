@@ -1,6 +1,6 @@
 {
   "domain": "incidents",
-  "trained_at": "2026-10-22T19:14:40Z",
+  "trained_at": "2026-10-25T18:21:40Z",
   "algorithm": "LightGBM + logistic regression (average of both risks)",
   "params": {
     "n_estimators": 300,
@@ -37,7 +37,6 @@
     "location_past_breach_rate",
     "caller_id_past_breach_rate",
     "recent_breach_rate_7d",
-    "recent_resolved_7d",
     "group_recent_breach_rate_7d",
     "category_past_log_hours",
     "caller_tickets_last_30d",
@@ -316,7 +315,6 @@
     "location_past_breach_rate": 0.4406415709088279,
     "caller_id_past_breach_rate": 0.4013695155972609,
     "recent_breach_rate_7d": 0.2788649658735888,
-    "recent_resolved_7d": 1932.0,
     "group_recent_breach_rate_7d": 0.3625999349794981,
     "category_past_log_hours": 2.9532709635239027,
     "caller_tickets_last_30d": 2.0,
@@ -329,16 +327,16 @@
     "opened_by_cat": "Opened by  17"
   },
   "risk_thresholds": {
-    "high": 0.5514369831345418,
-    "medium": 0.26565648501790534,
+    "high": 0.5416127341919168,
+    "medium": 0.24854573281771403,
     "rule": "high = top 10% of test-period risk, medium = top 40%"
   },
   "metrics": {
-    "test_auc": 0.791,
-    "train_auc": 0.902,
+    "test_auc": 0.806,
+    "train_auc": 0.899,
     "base_rate_test": 0.225,
-    "precision_top_10pct": 0.613,
-    "lift_top_10pct": 2.73,
+    "precision_top_10pct": 0.619,
+    "lift_top_10pct": 2.75,
     "train_rows": 19715,
     "test_rows": 4929
   }

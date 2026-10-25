@@ -85,6 +85,14 @@ def _file_date_order(df: pd.DataFrame, mapping: dict) -> str:
     return date_order(pd.concat([df[c] for c in cols])) if cols else "year"
 
 
+def _priority_values(df: pd.DataFrame, mapping: dict) -> list:
+    """The priority labels this company uses (most common first), so the SLA form asks about them."""
+    col = mapping.get("priority")
+    if col not in df:
+        return []
+    return [str(v) for v in df[col].dropna().astype(str).str.strip().value_counts().index[:8]]
+
+
 def _recognise(folder: Path, names: list) -> tuple:
     """Find the main file (tickets or orders) among the uploaded files and inspect it."""
     best = None
@@ -103,6 +111,7 @@ def _recognise(folder: Path, names: list) -> tuple:
                "scores": report["scores"], "shape": report["shape"], "message": choice["message"],
                "status": choice["status"], "model": choice["model"],
                "mapping": report["mapping"]["mapping"] if report["mapping"] else None,
+               "priority_values": _priority_values(df, report["mapping"]["mapping"] if report["mapping"] else {}),
                "date_order": _file_date_order(df, report["mapping"]["mapping"] if report["mapping"] else {}),
                "suggestions": report["mapping"]["suggestions"] if report["mapping"] else None}
     return name, summary
@@ -121,6 +130,10 @@ def save_upload(files: dict, company: str = "unknown", source: str = "file") -> 
         (folder / Path(name).name).write_bytes(data)           # Path(...).name drops any folder in the name
     names = [Path(n).name for n in files]
     main_file, summary = _recognise(folder, names)
+    remembered = {k: v for k, v in store.saved_mapping(company, summary["domain"]).items() if v in summary["columns"]}
+    if remembered and summary["mapping"] is not None:      # same company, same export: use what they confirmed last time
+        summary["mapping"] = {**summary["mapping"], **remembered}
+        summary["mapping_remembered"] = True
     status = "received" if summary["status"] in ("ok", "needs_confirmation") else summary["status"]
     store.add_upload(upload_id, company, source, folder, main_file, status, summary["domain"], summary)
     return {"upload_id": upload_id, **summary}

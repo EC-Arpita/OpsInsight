@@ -21,7 +21,7 @@ def apply_sla_rules(df: pd.DataFrame, mapping: dict, rules: dict, order: str = N
     opened = to_dates(out[col["opened_at"]], order)
     resolved = to_dates(out[col["resolved_at"]], order)
     per_ticket = pd.DataFrame({"id": out[col["number"]], "opened": opened, "resolved": resolved,
-                               "priority": out[col["priority"]].astype(str)})
+                               "priority": out[col["priority"]].astype(str).str.strip()})
     t = per_ticket.groupby("id").agg(opened=("opened", "min"), resolved=("resolved", "max"), priority=("priority", "first"))
     by_word = {k.split("-")[-1].strip().lower(): v for k, v in rules["hours"].items()}   # "4 - Low" also matches "Low"
     by_word.update({"medium": by_word.get("moderate"), "urgent": by_word.get("critical")})

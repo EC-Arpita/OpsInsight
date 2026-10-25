@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 
-from .sales import REGION
+from .sales import to_region
 
 
 # --------------------------------------------------------------------------- small helpers
@@ -232,7 +232,7 @@ def sales_analysis(orders, features, quality, dataset_name="Sales orders"):
     d["delivery_days"] = (d["delivered_at"] - d["purchased_at"]).dt.total_seconds() / 86400
     d["dispatch_days"] = ((d["carrier_at"] - d["approved_at"]).dt.total_seconds() / 86400).clip(lower=0)
     d["revenue"] = d["items_price"] + d["items_freight"]
-    d["region"] = d["customer_state"].map(REGION).fillna(d["customer_state"])   # Brazil: 5 regions; elsewhere as given
+    d["region"] = to_region(d["customer_state"])   # Brazil: 5 regions; elsewhere as given
     cutoff = features.loc[features["split"] == "test", "purchased_at"].min()
     end = features["purchased_at"].max()
     cur, prev, prev_start = split_periods(d, "purchased_at", cutoff, end)

@@ -1,6 +1,10 @@
 """Sales (Olist) pipeline: 9 raw CSVs -> one clean order table -> model features.
 
 Same logic as notebooks 05 and 06, packaged as functions the app can call.
+
+    from opsinsight.prep import prepare_sales
+    out = prepare_sales("data/raw/sales", save_to="data")
+    out["features"], out["orders"], out["quality"], out["feature_dictionary"]
 """
 from pathlib import Path
 
@@ -17,10 +21,29 @@ FILES = {
     "translation": "product_category_name_translation.csv",
 }
 DEFAULT_WINDOW = ("2017-01-01", "2018-09-01")
+REGION = {
+    **dict.fromkeys(["AC", "AP", "AM", "PA", "RO", "RR", "TO"], "North"),
+    **dict.fromkeys(["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"], "Northeast"),
+    **dict.fromkeys(["DF", "GO", "MT", "MS"], "Central-West"),
+    **dict.fromkeys(["ES", "MG", "RJ", "SP"], "Southeast"),
+    **dict.fromkeys(["PR", "RS", "SC"], "South"),
+}
+
+
+def to_region(states: pd.Series) -> pd.Series:
+    """Brazilian state codes -> 5 regions. Any other country keeps its own values: codes like PR, MA, PA
+    also exist in the US (Puerto Rico, Massachusetts...), so only map when nearly all values are Brazilian."""
+    known = states.dropna()
+    if len(known) and known.isin(REGION.keys()).mean() >= 0.9:
+        return states.map(REGION).fillna(states)
+    return states
+
+
+CATEGORY_PLAN = {"customer_state": 27, "seller_state": 27, "customer_region": 6, "seller_region": 6,
+                 "main_category": 40, "main_payment_type": 5}
 
 
 def load_tables(raw_dir) -> dict:
-    """Read the 9 CSVs into a dict: tables['orders'], tables['items'], ..."""
     raw_dir = Path(raw_dir)
     missing = [f for f in FILES.values() if not (raw_dir / f).exists()]
     if missing:
@@ -28,11 +51,12 @@ def load_tables(raw_dir) -> dict:
     return {name: pd.read_csv(raw_dir / f) for name, f in FILES.items()}
 
 
+# --------------------------------------------------------------------------- cleaning
 def clean_and_join(tables: dict, window=DEFAULT_WINDOW, log: QualityLog = None) -> pd.DataFrame:
     """Clean every table, reduce to one row per order, join. Notebook 05."""
     log = log or QualityLog()
 
-    # orders: short names, dates, window, impossible timelines
+    # orders
     orders = tables["orders"].copy()
     log.add("load orders", len(orders), len(orders))
     orders = orders.rename(columns={
@@ -52,7 +76,7 @@ def clean_and_join(tables: dict, window=DEFAULT_WINDOW, log: QualityLog = None) 
     orders["approved_was_missing"] = orders["approved_at"].isna().astype(int)
     orders["approved_at"] = orders["approved_at"].fillna(orders["purchased_at"])
 
-    # products: fix names, translate, fill gaps
+    # products
     products = tables["products"].rename(columns={"product_name_lenght": "product_name_length",
                                                   "product_description_lenght": "product_description_length"})
     trans = pd.concat([tables["translation"], pd.DataFrame({
@@ -115,7 +139,7 @@ def clean_and_join(tables: dict, window=DEFAULT_WINDOW, log: QualityLog = None) 
         "zip": "seller_zip_code_prefix", "lat": "seller_lat", "lng": "seller_lng"}),
         "seller_zip_code_prefix", "geo(sellers)").rename(columns={"seller_id": "main_seller_id"})
 
-    # the big join: every table now has one row per key
+    # the big join
     df = safe_merge(orders, cust, "customer_id", "customers")
     df = safe_merge(df, items_agg, "order_id", "items")
     df = safe_merge(df, pay_agg, "order_id", "payments")
@@ -126,7 +150,6 @@ def clean_and_join(tables: dict, window=DEFAULT_WINDOW, log: QualityLog = None) 
         df = df[df["n_items"].notna()].copy()
     log.add("drop orders with no items", before, len(df))
 
-    # target
     df["is_model_row"] = ((df["order_status"] == "delivered") & df["delivered_at"].notna()).astype(int)
     df["late"] = np.where(df["is_model_row"] == 1, (df["delivered_at"] > df["estimated_at"]).astype(int), np.nan)
     df["days_late"] = (df["delivered_at"] - df["estimated_at"]).dt.total_seconds() / 86400
@@ -135,17 +158,8 @@ def clean_and_join(tables: dict, window=DEFAULT_WINDOW, log: QualityLog = None) 
         raise ValueError("duplicate orders after join")
     return df.reset_index(drop=True)
 
-REGION = {
-    **dict.fromkeys(["AC", "AP", "AM", "PA", "RO", "RR", "TO"], "North"),
-    **dict.fromkeys(["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"], "Northeast"),
-    **dict.fromkeys(["DF", "GO", "MT", "MS"], "Central-West"),
-    **dict.fromkeys(["ES", "MG", "RJ", "SP"], "Southeast"),
-    **dict.fromkeys(["PR", "RS", "SC"], "South"),
-}
-CATEGORY_PLAN = {"customer_state": 27, "seller_state": 27, "customer_region": 6, "seller_region": 6,
-                 "main_category": 40, "main_payment_type": 5}
 
-
+# --------------------------------------------------------------------------- features
 def _haversine_km(lat1, lng1, lat2, lng2):
     lat1, lng1, lat2, lng2 = (np.radians(pd.to_numeric(x, errors="coerce")) for x in (lat1, lng1, lat2, lng2))   # empty file: text dtype
     a = np.sin((lat2 - lat1) / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin((lng2 - lng1) / 2) ** 2
@@ -153,7 +167,8 @@ def _haversine_km(lat1, lng1, lat2, lng2):
 
 
 def build_features(orders: pd.DataFrame, test_share=0.2, m=20):
-    """Model-ready features, all known when the order is approved. Notebook 06."""
+    """Model-ready features, all known when the order is approved. Notebook 06.
+    Returns (features_df, FeatureDictionary)."""
     df = orders[orders["is_model_row"] == 1].copy()
     df["late"] = df["late"].astype(int)
     df = df.sort_values("approved_at").reset_index(drop=True)
@@ -183,12 +198,12 @@ def build_features(orders: pd.DataFrame, test_share=0.2, m=20):
     # geography
     df["distance_km"] = _haversine_km(df["customer_lat"], df["customer_lng"], df["seller_lat"], df["seller_lng"])
     df["same_state"] = (df["customer_state"] == df["seller_state"]).astype(int)
-    df["customer_region"] = df["customer_state"].map(REGION).fillna(df["customer_state"]).fillna("Unknown")   # non-Brazil: keep own region
-    df["seller_region"] = df["seller_state"].map(REGION).fillna("Unknown")
+    df["customer_region"] = to_region(df["customer_state"]).fillna("Unknown")   # non-Brazil: keep own region
+    df["seller_region"] = to_region(df["seller_state"]).fillna("Unknown")
     fd.add("distance_km", "haversine distance between seller and customer zip (km); missing if a zip has no coordinates", "geography")
     fd.add("same_state", "1 if seller and customer are in the same state", "geography")
 
-    # order content + payment
+    # contents + payment
     df["freight_ratio"] = df["items_freight"] / df["items_price"].replace(0, np.nan)
     df["is_multi_seller"] = (df["n_sellers"] > 1).astype(int)
     for c, how in {"n_items": "number of items in the order", "n_products": "distinct products",
@@ -205,12 +220,12 @@ def build_features(orders: pd.DataFrame, test_share=0.2, m=20):
                    "approved_was_missing": "1 if approval time was missing in the raw data"}.items():
         fd.add(c, how, "payment")
 
-    # repeat customer
+    # customer
     df = df.sort_values("purchased_at").reset_index(drop=True)
     df["is_repeat_customer"] = (df.groupby("customer_unique_id").cumcount() > 0).astype(int)
     fd.add("is_repeat_customer", "1 if the same customer_unique_id ordered before", "customer")
 
-    # history: only outcomes known at approval
+    # history (only outcomes already known at approval)
     prior = df.loc[df["split"] == "train", "late"].mean()
     df["route"] = df["seller_state"].fillna("?").astype(str) + "→" + df["customer_state"].fillna("?").astype(str)
     for key, label in [("main_seller_id", "seller"), ("main_category", "category"), ("route", "route"),
@@ -224,7 +239,7 @@ def build_features(orders: pd.DataFrame, test_share=0.2, m=20):
                                                    "approved_at", prior_dispatch, m)
     fd.add("seller_past_dispatch_days", "smoothed average days the seller took to hand earlier orders to the carrier", "history")
 
-    # seller workload
+    # workload
     df["seller_orders_last_7d"] = 0
     df["seller_orders_last_30d"] = 0
     for _, idx in df.groupby("main_seller_id").groups.items():
@@ -248,8 +263,16 @@ def build_features(orders: pd.DataFrame, test_share=0.2, m=20):
         raise ValueError(f"leaky columns in features: {leaky}")
     return features, fd
 
+
+# --------------------------------------------------------------------------- one call
 def prepare_sales(raw_dir, window=DEFAULT_WINDOW, test_share=0.2, save_to=None):
-    """Run the whole sales pipeline on the folder with the 9 Olist CSV files."""
+    """Run the whole sales pipeline on the folder with the 9 Olist CSV files.
+
+    raw_dir : folder containing the CSVs (e.g. data/raw/sales)
+    window  : (start, end) purchase dates to keep, or None to keep everything
+    save_to : project 'data' folder; if given, saves interim/ and processed/ parquet files
+    Returns a dict with orders, features, quality (DataFrame), feature_dictionary (DataFrame).
+    """
     log = QualityLog()
     orders = clean_and_join(load_tables(raw_dir), window=window, log=log)
     features, fd = build_features(orders, test_share=test_share)

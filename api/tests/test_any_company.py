@@ -97,3 +97,33 @@ def test_small_company_gets_an_honest_warning_about_the_borrowed_model():
     assert "too little history" in mp["warning"] and mp["on_your_data"]["rows"] == 80
     assert mp["on_your_data"]["known_values_share"] < 1
     assert _risk_card({"model_performance": mp}, "incidents")["confidence"] == "low"
+
+
+def test_us_state_codes_are_not_turned_into_brazil_regions():
+    from opsinsight.prep.sales import to_region
+    us = pd.Series(["CA", "PR", "MA", "PA", "NY", "TX"])           # Puerto Rico, Massachusetts... not Brazil
+    assert list(to_region(us)) == list(us)
+    br = pd.Series(["SP", "RJ", "BA", "PR", "AM"])
+    assert list(to_region(br)) == ["Southeast", "Southeast", "Northeast", "South", "North"]
+
+
+def test_breached_flag_is_read_the_right_way_round():
+    from opsinsight.engine.pipeline import standardise_tickets
+    raw = pd.DataFrame({"id": ["A", "B"], "opened": ["2024-05-01 09:00"] * 2, "resolved": ["2024-05-01 10:00"] * 2,
+                        "SLA Breached": ["Yes", "No"]})
+    m = {"number": "id", "opened_at": "opened", "resolved_at": "resolved", "made_sla": "SLA Breached"}
+    df = standardise_tickets(apply_mapping(raw, m, "incidents"), "year", flag_means_breach=True)
+    assert list(df["made_sla"]) == [False, True]
+    assert list(df["priority"]) == ["3 - Moderate"] * 2 and list(df["assignment_group"]) == ["All teams"] * 2
+
+
+def test_superstore_style_orders_need_only_order_and_ship_dates():
+    from opsinsight.engine.pipeline import apply_promise_rules
+    raw = pd.DataFrame({"Order ID": [1, 2], "Order Date": ["2024-01-01", "2024-01-02"], "Ship Date": ["2024-01-03", "2024-01-09"],
+                        "Ship Mode": ["Same Day", "Standard Class"], "Sales": [10.5, 20.0]})
+    s = suggest_mapping(raw.columns, "sales_orders", raw)
+    assert s["mapping"]["order_delivered_customer_date"] == "Ship Date"     # shipped stands in for delivered
+    assert "order_status" not in s["mapping"]                               # a money column is never a status
+    assert s["cannot_run_without"] == []
+    out, m = apply_promise_rules(raw, s["mapping"], {"column": "Ship Mode", "days": {"Same Day": 0}, "default_days": 5})
+    assert list(out["promised_days"]) == [0, 5] and m["promised_days"] == "promised_days"

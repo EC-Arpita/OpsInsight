@@ -124,7 +124,9 @@ def run_tickets(upload, mapping, sla_rules=None, date_order=None) -> tuple:
     analysis["data_quality"]["warnings"] += warnings
     model = own_model("incidents", features, upload["id"])
     analysis["predictions"] = predictions_section("incidents", tickets, features, model=model)
-    analysis["model_performance"] = model_section("incidents", model)
+    analysis["model_performance"] = model_section("incidents", model, features)
+    if "warning" in analysis["model_performance"]:
+        analysis["data_quality"]["warnings"].append({"level": "warning", "message": analysis["model_performance"]["warning"]})
     analysis["forecast"] = forecast_tickets(tickets)
     return analysis, {"tickets": tickets, "features": features, "model": model}
 
@@ -154,7 +156,9 @@ def run_sales(upload, mapping, date_order=None) -> tuple:
     analysis["data_quality"]["warnings"] += warnings
     model = own_model("sales", features, upload["id"])
     analysis["predictions"] = predictions_section("sales", orders, features, model=model)
-    analysis["model_performance"] = model_section("sales", model)
+    analysis["model_performance"] = model_section("sales", model, features)
+    if "warning" in analysis["model_performance"]:
+        analysis["data_quality"]["warnings"].append({"level": "warning", "message": analysis["model_performance"]["warning"]})
     analysis["forecast"] = forecast_orders(orders)
     return analysis, {"orders": orders, "features": features, "model": model}
 

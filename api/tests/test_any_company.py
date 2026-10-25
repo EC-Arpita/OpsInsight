@@ -85,3 +85,15 @@ def test_dates_without_times_use_whole_days_for_sla():
     out = apply_sla_rules(raw, m, {"hours": {"1 - Critical": 4, "4 - Low": 72}, "default_hours": 24})
     assert list(out["made_sla"]) == [True, True, True]    # same day, next day (4 h -> 1 day), 3 days (72 h -> 3 days)
     assert date_check(raw, m)[1][0]["message"] == NO_TIME
+
+
+def test_small_company_gets_an_honest_warning_about_the_borrowed_model():
+    from opsinsight.engine.findings import _risk_card
+    from opsinsight.engine.predictions import model_section
+    from opsinsight.models.config import DOMAINS
+    f = pd.read_parquet(DOMAINS["incidents"]["features_file"]).sample(80, random_state=0)
+    f["assignment_group_cat"] = "Team Z"                          # teams the reference model has never seen
+    mp = model_section("incidents", None, f)
+    assert "too little history" in mp["warning"] and mp["on_your_data"]["rows"] == 80
+    assert mp["on_your_data"]["known_values_share"] < 1
+    assert _risk_card({"model_performance": mp}, "incidents")["confidence"] == "low"

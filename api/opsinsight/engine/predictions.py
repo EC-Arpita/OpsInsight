@@ -10,6 +10,7 @@ ACTIONS = {"incidents": "Fast-track: senior agent picks it up within 1 hour",
 def _ts(v):
     return None if pd.isna(v) else f"{pd.Timestamp(v):%Y-%m-%dT%H:%M}"
 
+
 def _v(v):
     return None if pd.isna(v) else v                       # empty value -> null (JSON has no NaN)
 
@@ -39,7 +40,9 @@ def _similar(domain, row, history):
         same = history[(history["seller_state"] == row["seller_state"]) & (history["customer_state"] == row["customer_state"])]
         rule = "same seller state → customer state route, training period"
     days = (same["delivered_at"] - same["purchased_at"]).dt.total_seconds() / 86400
-    return {"rule": rule, "count": int(len(same)),}
+    return {"rule": rule, "count": int(len(same)),
+            "late_rate": round(float(same["late"].mean()), 3) if len(same) else None,
+            "avg_delivery_days": round(float(days.mean()), 1) if len(same) else None}
 
 
 def predictions_section(domain: str, table: pd.DataFrame, features: pd.DataFrame, top: int = 10, model: str = None) -> dict:
@@ -72,9 +75,38 @@ def predictions_section(domain: str, table: pd.DataFrame, features: pd.DataFrame
             "items": items}
 
 
-def model_section(domain: str, model: str = None) -> dict:
+def reference_fit(domain: str, features: pd.DataFrame) -> dict:
+    """How well the reference model (trained on another company) fits this company's own labelled rows."""
+    import numpy as np
+    from sklearn.metrics import roc_auc_score
+    from ..models.config import DOMAINS
+    from ..models.predict import _align, load
+    bundle = load(domain)
+    X, y = _align(features, bundle["meta"]), features[DOMAINS[domain]["target"]].astype(int).to_numpy()
+    p = bundle["model"].predict_proba(X)[:, 1]
+    if bundle.get("lr") is not None:
+        p = (p + bundle["lr"].predict_proba(X)[:, 1]) / 2
+    cats = bundle["meta"]["categories"]
+    known = float(np.mean([features[c].astype(str).isin(set(v) - {"Other"}).mean() for c, v in cats.items()]))
+    out = {"rows": len(y), "problems": int(y.sum()), "known_values_share": round(known, 2), "auc": None, "lift_top_10pct": None}
+    if 0 < y.sum() < len(y):
+        top = p >= np.quantile(p, 0.9)
+        out.update(auc=round(float(roc_auc_score(y, p)), 3), lift_top_10pct=round(float(y[top].mean() / y.mean()), 2))
+    return out
+
+
+def model_section(domain: str, model: str = None, features: pd.DataFrame = None) -> dict:
     meta = model_info(domain, model)
-    return {"algorithm": meta["algorithm"], **meta["metrics"], "n_features": len(meta["features"]),
+    extra = {}
+    if model is None and features is not None:       # a company too small for its own model: measure the borrowed one
+        fit = reference_fit(domain, features)
+        auc = "not measurable" if fit["auc"] is None else f"AUC {fit['auc']}"
+        extra = {"on_your_data": fit, "warning": (
+            f"Your file has too little history for its own model ({fit['rows']} items, {fit['problems']} problems; "
+            f"it needs at least 100 older items to learn from and 10 problems). Risk scores come from a reference model trained on another company's data; "
+            f"on your data it ranks with {auc}. Only {fit['known_values_share']:.0%} of your team and category values "
+            "are known to it. Treat risk levels as rough.")}
+    return {**extra, "algorithm": meta["algorithm"], **meta["metrics"], "n_features": len(meta["features"]),
             "validation": "time-based split: trained on older items, tested on the newest 20%",
             "trained_on": "this company's own history" if model else "the reference dataset",
             "note": ("trained on this file's older items and tested on its newest 20%" if model else

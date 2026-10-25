@@ -33,11 +33,16 @@ def _root_cause_cards(analysis, domain):
 def _risk_card(analysis, domain):
     mp = analysis["model_performance"]
     w = WORDS[domain]
-    size = round(mp["lift_top_10pct"] * 0.10, 3)     # share of all problems found in the riskiest 10%
-    conf = "high" if mp["lift_top_10pct"] >= 2 else "medium"
+    fit = mp.get("on_your_data")                     # reference model: judge it on this company's data, not its own
+    lift = fit["lift_top_10pct"] if fit else mp["lift_top_10pct"]
+    if lift is None:
+        return _card("RISK", "high_risk", f"High-risk new {w['items']}", "The risk model could not be checked on your data.",
+                     None, "low", 1.0, None, [], "predictions")
+    size = round(lift * 0.10, 3)                     # share of all problems found in the riskiest 10%
+    conf = "low" if fit else "high" if lift >= 2 else "medium"
     return _card("RISK", "high_risk", f"High-risk new {w['items']}",
                  f"The 10% of {w['items']} the model flags hold {size:.0%} of all {w['problems']} "
-                 f"({mp['lift_top_10pct']}x the normal rate).", size, conf, 1.0, None,
+                 f"({lift}x the normal rate)." + (" Measured on your data with a borrowed model." if fit else ""), size, conf, 1.0, None,
                  [{"precision_top_10pct": mp["precision_top_10pct"], "base_rate": mp["base_rate_test"]}], "predictions")
 
 

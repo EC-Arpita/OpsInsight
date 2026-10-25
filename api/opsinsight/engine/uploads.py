@@ -18,11 +18,33 @@ MAX_MB = 500
 MISSING = ["?", "NA", "N/A", "null", "NULL", "-", ""]
 
 
-def to_dates(values: pd.Series) -> pd.Series:
-    """Read dates written either 2018-05-01 (year first) or 05/03/2016 (day first, as in India and Europe)."""
-    text = values.astype(str)
-    year_first = text.str.match(r"^\d{4}-").mean() > 0.5
-    return pd.to_datetime(text, dayfirst=not year_first, errors="coerce", format="mixed")
+def date_order(values: pd.Series) -> str:
+    """How the dates are written: 'year' (2018-05-31), 'day' (31/05/2018), 'month' (05/31/2018),
+    or 'unclear' (05/03/2018 could be either; nothing above 12 in the first two numbers)."""
+    text = values.dropna().astype(str).str.strip()
+    if text.empty or text.str.match(r"^\d{4}-").mean() > 0.5:
+        return "year"
+    parts = text.str.extract(r"^(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}").dropna().astype(int)
+    if parts.empty:
+        return "year"                                   # words like "May 31, 2018": pandas reads them either way
+    if (parts[0] > 12).any():
+        return "day"
+    if (parts[1] > 12).any():
+        return "month"
+    return "unclear"
+
+
+def to_dates(values: pd.Series, order: str = None) -> pd.Series:
+    """Read dates in any common style. order: 'day' or 'month' first (from date_order or the analyst);
+    by default it is worked out from the values, and 'unclear' is read day first (India, Europe)."""
+    order = order or date_order(values)
+    return pd.to_datetime(values.astype(str), dayfirst=order not in ("year", "month"), errors="coerce", format="mixed")
+
+
+def has_times(dates: pd.Series) -> bool:
+    """False when every date is at midnight, i.e. the file has dates without a time of day."""
+    d = dates.dropna()
+    return bool(len(d)) and bool((d != d.dt.normalize()).any())
 
 
 class UploadError(ValueError):
@@ -56,6 +78,13 @@ def _check(name: str, data: bytes):
         raise UploadError(f"{name} is larger than {MAX_MB} MB.")
 
 
+def _file_date_order(df: pd.DataFrame, mapping: dict) -> str:
+    """One date order for the whole file, read from every mapped date column together."""
+    from ..prep.mapping import DATE_FIELDS
+    cols = [col for std, col in mapping.items() if std in DATE_FIELDS and col in df]
+    return date_order(pd.concat([df[c] for c in cols])) if cols else "year"
+
+
 def _recognise(folder: Path, names: list) -> tuple:
     """Find the main file (tickets or orders) among the uploaded files and inspect it."""
     best = None
@@ -74,6 +103,7 @@ def _recognise(folder: Path, names: list) -> tuple:
                "scores": report["scores"], "shape": report["shape"], "message": choice["message"],
                "status": choice["status"], "model": choice["model"],
                "mapping": report["mapping"]["mapping"] if report["mapping"] else None,
+               "date_order": _file_date_order(df, report["mapping"]["mapping"] if report["mapping"] else {}),
                "suggestions": report["mapping"]["suggestions"] if report["mapping"] else None}
     return name, summary
 

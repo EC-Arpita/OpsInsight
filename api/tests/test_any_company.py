@@ -51,3 +51,37 @@ def test_days_instead_of_dates_and_text_never_a_date():
     assert len(df) == 2                                                   # order lines -> one row per order
     late = df["order_delivered_customer_date"] > df["order_estimated_delivery_date"]
     assert list(late) == [False, True]                                    # 3 days vs 4 promised; 6 vs 2
+
+
+def test_date_order_us_india_and_unclear():
+    from opsinsight.engine.uploads import date_order, to_dates
+    us = pd.Series(["05/31/2024 09:00", "06/01/2024 10:30"])
+    assert date_order(us) == "month" and to_dates(us).iloc[0] == pd.Timestamp("2024-05-31 09:00")
+    india = pd.Series(["31/05/2024", "01/06/2024"])
+    assert date_order(india) == "day" and to_dates(india).iloc[1] == pd.Timestamp("2024-06-01")
+    unclear = pd.Series(["05/03/2024", "06/04/2024"])
+    assert date_order(unclear) == "unclear" and to_dates(unclear, "month").iloc[0] == pd.Timestamp("2024-05-03")
+    assert date_order(pd.Series(["2024-05-31"])) == "year"
+
+
+def test_us_dates_read_month_first_through_the_pipeline():
+    from opsinsight.engine.prep_dates import date_check
+    raw = pd.DataFrame({"Ticket_ID": ["T1", "T2"], "Created_Date": ["05/31/2024 09:00", "06/02/2024 08:00"],
+                        "Resolved_Date": ["06/01/2024 10:00", "06/02/2024 12:00"], "Assigned_Team": ["A", "B"],
+                        "Priority": ["High", "Low"], "Issue_Type": ["x", "y"], "SLA_Status": ["Met", "Missed"]})
+    s = suggest_mapping(raw.columns, "incidents", raw)
+    order, warnings = date_check(raw, s["mapping"])
+    assert order == "month" and warnings == []                     # has times, not ambiguous: no warnings
+    df = standardise_tickets(apply_mapping(raw, s["mapping"], "incidents"), order)
+    assert list(df["opened_at"]) == ["31/05/2024 09:00", "02/06/2024 08:00"]
+
+
+def test_dates_without_times_use_whole_days_for_sla():
+    from opsinsight.engine.prep_dates import NO_TIME, date_check
+    from opsinsight.engine.sla import apply_sla_rules
+    raw = pd.DataFrame({"id": ["A", "B", "C"], "opened": ["2024-05-01", "2024-05-01", "2024-05-01"],
+                        "resolved": ["2024-05-01", "2024-05-02", "2024-05-04"], "prio": ["Critical", "Critical", "Low"]})
+    m = {"number": "id", "opened_at": "opened", "resolved_at": "resolved", "priority": "prio"}
+    out = apply_sla_rules(raw, m, {"hours": {"1 - Critical": 4, "4 - Low": 72}, "default_hours": 24})
+    assert list(out["made_sla"]) == [True, True, True]    # same day, next day (4 h -> 1 day), 3 days (72 h -> 3 days)
+    assert date_check(raw, m)[1][0]["message"] == NO_TIME

@@ -45,6 +45,7 @@ export function uploadFiles(files, company) {
 }
 
 export const connectDatabase = (url, table, company) => call("/api/uploads/connect", json({ url, table, company: company || "unknown" }));
-export const runUpload = (id, mapping, slaRules) => call(`/api/uploads/${id}/run`, json({ mapping, sla_rules: slaRules || null }));
+export const runUpload = (id, mapping, slaRules, dateOrder) =>
+  call(`/api/uploads/${id}/run`, json({ mapping, sla_rules: slaRules || null, date_order: dateOrder || null }));
 export const getOutcomes = (key) => call(`/api/outcomes/${key}`);
 export const ask = (key, question) => call(`/api/ask/${key}`, json({ question }));

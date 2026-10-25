@@ -1,13 +1,18 @@
 """RAG for 'Ask your data' and written explanations: find the right facts first, then answer only from them.
 
 1. fact_cards(): every result in the analysis becomes one short sentence with an ID (the knowledge base).
-2. search():     find the cards closest to the question (TF-IDF word matching; works offline).
+2. search():     find the cards closest to the question by MEANING: ChromaDB vector database with its built-in
+                 embedding model (all-MiniLM-L6-v2, downloaded once, about 80 MB, then offline).
+                 If ChromaDB or the model is not available, it falls back to TF-IDF word matching.
 3. answer():     an LLM (Ollama, on this laptop) writes the answer from those cards and cites their IDs;
                  check_numbers() confirms every number appears in a cited card; otherwise a template answer.
 """
+import hashlib
 import json
+import logging
 import os
 import re
+from functools import lru_cache
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
@@ -45,7 +50,8 @@ def fact_cards(analysis: dict) -> list:
         days = [d["date"] for d in g["daily"] if d["overload"]]
         add(f"FC:{g['team']}", f"Forecast for {g['team']}: {g['expected_tickets_7d']} tickets expected next 7 days, "
                                f"capacity {g['expected_capacity_7d']}; "
-                               + (f"overloaded on {', '.join(days)}." if days else "within capacity every day."))
+                               + (f"overloaded on all {len(days)} days ({days[0]} to {days[-1]})." if days and len(days) == len(g["daily"])
+                                  else f"overloaded on {', '.join(days)}." if days else "within capacity every day."))
     for g in fc.get("regions", []):
         days = [d["date"] for d in g["daily"] if d["busy"]]
         add(f"FC:{g['region']}", f"Forecast for {g['region']}: {g['expected_orders_7d']} orders expected next 7 days, "
@@ -90,13 +96,55 @@ def _words(text: str) -> str:
     return " ".join(_stem(w) for w in out)
 
 
-def search(question: str, cards: list, k: int = 5) -> list:
+def word_search(question: str, cards: list, k: int = 5) -> list:
+    """Backup search: TF-IDF word matching (no model needed)."""
     texts = [_words(c["id"].replace(":", " ").replace("_", " ") + " " + c["text"]) for c in cards]
     vec = TfidfVectorizer(ngram_range=(1, 2), sublinear_tf=True, stop_words="english")
     m = vec.fit_transform(texts + [_words(question)])
     scores = linear_kernel(m[-1], m[:-1]).ravel()
     best = scores.argsort()[::-1][:k]
-    return [{**cards[i], "match": round(float(scores[i]), 3)} for i in best if scores[i] >= MIN_MATCH]
+    return [{**cards[i], "match": round(float(scores[i]), 3), "search": "words"} for i in best if scores[i] >= MIN_MATCH]
+
+
+VECTOR_MIN = 0.30   # cosine similarity; shortcut: set by eye for all-MiniLM-L6-v2, re-check if the model changes
+
+
+@lru_cache(maxsize=1)
+def _client():
+    import chromadb
+    from ..models.config import ROOT
+    return chromadb.PersistentClient(path=str(ROOT / "data/app/chroma"))
+
+
+def _collection(cards: list, embed=None):
+    """One collection per set of cards, so each company's facts stay separate; built once, then reused."""
+    key = hashlib.md5(json.dumps([[c["id"], c["text"]] for c in cards]).encode()).hexdigest()[:20]
+    extra = {"embedding_function": embed} if embed else {}
+    col = _client().get_or_create_collection("cards_" + key, metadata={"hnsw:space": "cosine"}, **extra)
+    if col.count() == 0:
+        col.add(ids=[str(i) for i in range(len(cards))], documents=[c["text"] for c in cards])
+    return col
+
+
+def vector_search(question: str, cards: list, k: int = 5, embed=None) -> list:
+    col = _collection(cards, embed)
+    hits = col.query(query_texts=[question], n_results=min(k, len(cards)))
+    out = []
+    for i, dist in zip(hits["ids"][0], hits["distances"][0]):
+        score = 1 - dist                                  # cosine distance -> similarity
+        if score >= VECTOR_MIN:
+            out.append({**cards[int(i)], "match": round(score, 3), "search": "vector"})
+    return out
+
+
+def search(question: str, cards: list, k: int = 5) -> list:
+    if not cards:
+        return []
+    try:
+        return vector_search(question, cards, k)
+    except Exception as e:      # ChromaDB not installed or the model cannot download (offline): words still work
+        logging.warning("Vector search unavailable (%s); using word search.", e)
+        return word_search(question, cards, k)
 
 
 # --------------------------------------------------------------------------- 3. answer and check

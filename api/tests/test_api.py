@@ -92,3 +92,21 @@ def test_sales_upload_end_to_end():
     assert "folder" not in client.get(f"/api/uploads/{up['upload_id']}").json()
     ans = client.post(f"/api/ask/{up['upload_id']}", json={"question": "Why are orders late?"}).json()
     assert ans["cited_ids"]
+
+
+def test_vector_search_finds_by_meaning():
+    from chromadb.utils.embedding_functions import EmbeddingFunction
+    from opsinsight.engine import rag
+
+    class Topics(EmbeddingFunction):
+        """Tiny stand-in for the real model: one dimension per topic, so it runs without a download."""
+        def __init__(self): pass
+        def __call__(self, input):
+            topics = [("overload", "too much work", "busy"), ("late", "delay"), ("revenue", "sales")]
+            return [[1.0 if any(w in t.lower() for w in group) else 0.0 for group in topics] + [0.01] for t in input]
+        @staticmethod
+        def name(): return "topics-test"
+
+    cards = [{"id": "RC2", "text": "Group 20 is overloaded"}, {"id": "RC1", "text": "Orders to the North-East are late"}]
+    found = rag.vector_search("Which team has too much work?", cards, embed=Topics())
+    assert [c["id"] for c in found] == ["RC2"] and found[0]["search"] == "vector"

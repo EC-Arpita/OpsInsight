@@ -115,13 +115,14 @@ def get_upload(upload_id: str):
 class RunRequest(BaseModel):
     mapping: dict[str, str] = Field(default_factory=dict, description="Corrections: standard name -> their column")
     sla_rules: Optional[dict] = Field(None, examples=[{"hours": {"1 - Critical": 4, "2 - High": 8}, "default_hours": 24}])
+    date_order: Optional[Literal["day", "month"]] = Field(None, description="Only when dates like 05/03/2016 are unclear")
 
 
 @app.post("/api/uploads/{upload_id}/run")
 def run(upload_id: str, body: RunRequest):
     """Clean, model, analyse, forecast and decide. Takes from seconds to about a minute."""
     try:
-        analysis = run_upload(upload_id, body.mapping, body.sla_rules)
+        analysis = run_upload(upload_id, body.mapping, body.sla_rules, date_order=body.date_order)
     except UploadError as e:
         raise HTTPException(400, str(e))
     except (KeyError, ValueError) as e:

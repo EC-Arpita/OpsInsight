@@ -14,6 +14,7 @@ export default function Upload({ onAnalysed }) {
   const [result, setResult] = useState(null);
   const [overrides, setOverrides] = useState({});
   const [hours, setHours] = useState(DEFAULT_HOURS);
+  const [dateOrder, setDateOrder] = useState("day");
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
 
@@ -39,7 +40,7 @@ export default function Upload({ onAnalysed }) {
     setError(null);
     try {
       const sla = needsSla ? { hours, default_hours: 24 } : null;
-      const out = await runUpload(result.upload_id, overrides, sla);
+      const out = await runUpload(result.upload_id, overrides, sla, result.date_order === "unclear" ? dateOrder : null);
       onAnalysed(out.analysis_id, company || "Your company");
     } catch (e) {
       setError(e.message);
@@ -48,14 +49,14 @@ export default function Upload({ onAnalysed }) {
     }
   }
 
-  const rows = (result?.suggestions || []).filter((s) => s.required || s.needs_review);
+  const rows = (result?.suggestions || []).filter((s) => s.required || s.needs_review || s.uploaded_column);
   const canRun = result && result.domain && result.status !== "refused";
 
   return (
     <section className="upload">
       <div className="panel">
         <h2>1. Send your data</h2>
-        <p className="muted small">Support tickets or sales orders, as CSV or Excel. For sales, send all 9 files together.</p>
+        <p className="muted small">Support tickets or sales orders, as CSV or Excel. For sales, the orders file is enough.</p>
         <div className="form-grid">
           <label htmlFor="company">Company name</label>
           <input id="company" className="input" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="QuickHelp" />
@@ -114,6 +115,18 @@ export default function Upload({ onAnalysed }) {
                   ))}
                 </tbody>
               </table>
+            </>
+          )}
+          {canRun && result.date_order === "unclear" && (
+            <>
+              <h3>How are your dates written?</h3>
+              <p className="muted small">Dates like 05/03/2024 could mean 5 March or 3 May. Choose how your system writes them.</p>
+              <div className="mini-tabs" role="group" aria-label="Date order">
+                <button type="button" className={dateOrder === "day" ? "chip on" : "chip"} aria-pressed={dateOrder === "day"}
+                        onClick={() => setDateOrder("day")}>Day first (31/05/2024)</button>
+                <button type="button" className={dateOrder === "month" ? "chip on" : "chip"} aria-pressed={dateOrder === "month"}
+                        onClick={() => setDateOrder("month")}>Month first (05/31/2024)</button>
+              </div>
             </>
           )}
           {canRun && needsSla && (

@@ -42,3 +42,8 @@ def test_routing_answers():
     assert choose_model(frame(["product_id", "product_weight_g", "product_length_cm"]))["status"] == "refused"
     missing = choose_model(frame(TICKET_COLS[:6]))                 # no priority, category, resolved, closed
     assert missing["status"] in ("cannot_run", "needs_confirmation") and missing["model"] is None
+
+def test_days_columns_count_fully_in_the_match_score():
+    cols = ["Order No", "Client ID", "Order Status", "Order Datetime", "Delivery Days", "SLA Days", "Delivery Region"]
+    d = detect_domain(cols)
+    assert d["domain"] == "sales_orders" and d["decision"] == "confident" and d["best_score"] >= 0.95

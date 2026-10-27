@@ -35,3 +35,13 @@ def test_sales_forecast_skips_the_incomplete_tail():
     assert 7 <= tail <= 28                                     # Olist's export thins out in its last weeks
     assert pd.Timestamp(fc["history_end"]) == orders["purchased_at"].max().normalize() - pd.Timedelta(days=tail)
     assert len(fc["regions"]) == 5 and all(len(r["daily"]) == 7 for r in fc["regions"])
+
+
+def test_backtest_includes_industry_models_and_survives_a_short_file():
+    import numpy as np
+    from opsinsight.forecast.common import METHODS, backtest
+    assert "AutoETS (Holt-Winters, auto-tuned)" in METHODS             # statsforecast is in requirements.txt
+    days = pd.date_range("2024-01-01", periods=20, freq="D")             # under 4 weeks: one origin, nothing crashes
+    short = pd.DataFrame({"A": np.arange(20) % 7 + 5, "B": 3}, index=days)
+    scores = backtest(short)
+    assert len(scores) >= 4 and scores["mean_abs_error"].notna().all()

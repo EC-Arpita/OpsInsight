@@ -1,6 +1,6 @@
 {
   "domain": "sales",
-  "trained_at": "2026-10-22T19:14:45Z",
+  "trained_at": "2026-10-27T10:24:22Z",
   "algorithm": "LightGBM + logistic regression (average of both risks)",
   "params": {
     "n_estimators": 300,
@@ -219,8 +219,8 @@
     "main_payment_type_cat": "credit_card"
   },
   "risk_thresholds": {
-    "high": 0.18647498258176357,
-    "medium": 0.07468527952935998,
+    "high": 0.18647498413923003,
+    "medium": 0.07468527961456166,
     "rule": "high = top 10% of test-period risk, medium = top 40%"
   },
   "metrics": {

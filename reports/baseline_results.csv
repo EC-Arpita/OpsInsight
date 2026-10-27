@@ -1,5 +1,5 @@
 model,train_AUC,test_AUC,base_rate_test,precision_top10%
-Incidents: honest features,0.92,0.771,0.225,0.517
-Incidents: WITH LEAKY columns (wrong!),0.978,0.928,0.225,0.909
+Incidents: honest features,0.918,0.809,0.225,0.631
+Incidents: WITH LEAKY columns (wrong!),0.976,0.947,0.225,0.929
 Sales: honest features,0.836,0.715,0.053,0.103
 Sales: WITH LEAKY column (wrong!),0.868,0.83,0.053,0.232

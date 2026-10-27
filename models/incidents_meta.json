@@ -1,6 +1,6 @@
 {
   "domain": "incidents",
-  "trained_at": "2026-10-25T18:21:40Z",
+  "trained_at": "2026-10-27T10:24:18Z",
   "algorithm": "LightGBM + logistic regression (average of both risks)",
   "params": {
     "n_estimators": 300,
@@ -327,8 +327,8 @@
     "opened_by_cat": "Opened by  17"
   },
   "risk_thresholds": {
-    "high": 0.5416127341919168,
-    "medium": 0.24854573281771403,
+    "high": 0.5416127335261182,
+    "medium": 0.24854573318516046,
     "rule": "high = top 10% of test-period risk, medium = top 40%"
   },
   "metrics": {

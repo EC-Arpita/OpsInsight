@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "meta": {
-    "analysis_id": "inc-2026-10-20",
-    "generated_at": "2026-10-20T10:14:31Z",
+    "analysis_id": "inc-2026-10-27",
+    "generated_at": "2026-10-27T10:19:34Z",
     "domain": "support_tickets",
     "dataset_name": "UCI Incident Management Process Enriched Event Log",
     "item_type": "ticket",

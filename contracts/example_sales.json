@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "meta": {
-    "analysis_id": "sales-2026-10-20",
-    "generated_at": "2026-10-20T10:14:31Z",
+    "analysis_id": "sales-2026-10-27",
+    "generated_at": "2026-10-27T10:19:34Z",
     "domain": "sales_orders",
     "dataset_name": "Olist Brazilian E-Commerce",
     "item_type": "order",
@@ -1173,19 +1173,19 @@
     },
     {
       "id": "RC2",
-      "title": "Late deliveries concentrate in Northeast",
+      "title": "Long-distance deliveries to the North-East",
       "category": "logistics",
-      "finding": "Northeast customers get late orders 14% of the time vs 7% in South.",
+      "finding": "North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo.",
       "evidence": [
         {
-          "segment": "Northeast",
+          "segment": "North-East states",
           "late_rate": 0.144,
           "orders": 9002
         },
         {
-          "segment": "South",
-          "late_rate": 0.071,
-          "orders": 13727
+          "segment": "S\u00e3o Paulo (SP)",
+          "late_rate": 0.059,
+          "orders": 40335
         }
       ],
       "affected_orders_current_period": 1708,
@@ -2424,50 +2424,6 @@
         "comment": null
       },
       "quick_win": false
-    },
-    {
-      "id": "REC2",
-      "title": "Add buffer days to promises for Northeast",
-      "type": "policy",
-      "description": "Add 2-3 days to the promised date for high-risk routes so promises match reality.",
-      "target": {
-        "region": "Northeast"
-      },
-      "evidence": [
-        "RC2: Northeast customers get late orders 14% of the time vs 7% in South."
-      ],
-      "expected_impact": {
-        "metric": "late_delivery_rate",
-        "baseline": 0.053,
-        "expected": 0.051,
-        "change_pct_points": -0.2,
-        "late_orders_avoided_per_period": 36,
-        "range_late_orders_avoided": [
-          18,
-          36
-        ]
-      },
-      "estimate_method": "Assumes 40% of Northeast late orders arrive within the added buffer (validate with delivery-day distribution).",
-      "assumptions": [
-        "Slightly longer promises don't reduce conversion much"
-      ],
-      "confidence": "high",
-      "effort": "low",
-      "suggested_owner": "Logistics manager",
-      "linked_findings": [
-        "RC2"
-      ],
-      "linked_root_causes": [
-        "RC2"
-      ],
-      "status": "pending",
-      "approval": {
-        "decided_by": null,
-        "decided_at": null,
-        "decision": null,
-        "comment": null
-      },
-      "quick_win": false
     }
   ],
   "impact_simulation": {
@@ -2487,11 +2443,6 @@
         "recommendation_id": "REC3",
         "late_rate": 0.05,
         "late_orders_avoided": 61
-      },
-      {
-        "recommendation_id": "REC2",
-        "late_rate": 0.051,
-        "late_orders_avoided": 36
       }
     ],
     "replays": {
@@ -2575,23 +2526,23 @@
       {
         "id": "RC2",
         "type": "logistics",
-        "title": "Late deliveries concentrate in Northeast",
-        "finding": "Northeast customers get late orders 14% of the time vs 7% in South.",
-        "subject": "Northeast",
+        "title": "Long-distance deliveries to the North-East",
+        "finding": "North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo.",
+        "subject": "North-East states",
         "size": 0.087,
         "confidence": "high",
         "urgency": 1.0,
         "score": 0.087,
         "evidence": [
           {
-            "segment": "Northeast",
+            "segment": "North-East states",
             "late_rate": 0.144,
             "orders": 9002
           },
           {
-            "segment": "South",
-            "late_rate": 0.071,
-            "orders": 13727
+            "segment": "S\u00e3o Paulo (SP)",
+            "late_rate": 0.059,
+            "orders": 40335
           }
         ],
         "source": "root_causes",

@@ -91,6 +91,8 @@ def test_sales_upload_end_to_end():
     run = client.post(f"/api/uploads/{up['upload_id']}/run", json={}).json()
     assert run["domain"] == "sales" and {"REC1", "REC3"} <= set(run["recommendations"])   # region gap is small in the sample
     assert client.get(f"/api/uploads/{up['upload_id']}").json()["status"] == "analysed"
+    stage2 = client.get(f"/api/analysis/{up['upload_id']}").json()["predictions_at_pickup"]   # scored again at pickup
+    assert stage2["items"] and stage2["model_performance"]["test_auc"]
     assert "folder" not in client.get(f"/api/uploads/{up['upload_id']}").json()
     assert up["upload_id"] in [u["id"] for u in client.get("/api/uploads").json()]
     again = client.post("/api/uploads", files=files, data={"company": "ShopNest"}).json()

@@ -16,7 +16,7 @@ from ..prep.analytics import incident_analysis, sales_analysis
 from ..prep.common import QualityLog
 from ..prep.mapping import ALTERNATIVES, apply_mapping, check_needed, normalise
 from . import store
-from .predictions import model_section, predictions_section
+from .predictions import model_section, pickup_section, predictions_section
 from .sla import apply_sla_rules
 from .prep_dates import date_check
 from .uploads import UploadError, read_table, to_dates
@@ -199,6 +199,11 @@ def run_sales(upload, mapping, date_order=None, promise_rules=None) -> tuple:
     analysis["model_performance"] = model_section("sales", model, features)
     if "warning" in analysis["model_performance"]:
         analysis["data_quality"]["warnings"].append({"level": "warning", "message": analysis["model_performance"]["warning"]})
+    pickup = out["pickup_features"]
+    pickup_model = own_model("sales_pickup", pickup, upload["id"] + "-pickup") if len(pickup) else None
+    stage2 = pickup_section(orders, pickup, model=pickup_model)
+    if stage2:
+        analysis["predictions_at_pickup"] = stage2
     analysis["forecast"] = forecast_orders(orders)
     return analysis, {"orders": orders, "features": features, "model": model}
 

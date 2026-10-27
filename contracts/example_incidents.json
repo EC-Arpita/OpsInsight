@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "meta": {
-    "analysis_id": "inc-2026-10-27",
-    "generated_at": "2026-10-27T10:19:34Z",
+    "analysis_id": "inc-2026-10-20",
+    "generated_at": "2026-10-20T10:14:31Z",
     "domain": "support_tickets",
     "dataset_name": "UCI Incident Management Process Enriched Event Log",
     "item_type": "ticket",
@@ -954,8 +954,8 @@
     "count_shown": 10,
     "sorted_by": "risk",
     "risk_level_rules": {
-      "high": "risk \u2265 0.542 (top 10%)",
-      "medium": "risk \u2265 0.249 (top 40%)",
+      "high": "risk \u2265 0.548 (top 10%)",
+      "medium": "risk \u2265 0.233 (top 40%)",
       "low": "below medium"
     },
     "items": [
@@ -975,7 +975,7 @@
           "target": "sla_breach",
           "risk": 0.935,
           "risk_level": "high",
-          "risk_percentile": 99.9,
+          "risk_percentile": 99.8,
           "prediction_moment": "ticket opened"
         },
         "top_reasons": [
@@ -984,30 +984,30 @@
             "label": "Priority (1 = Critical)",
             "value": 2.0,
             "typical_value": 3.0,
-            "effect": 1.555,
+            "effect": 1.66,
             "direction": "increases risk",
             "sentence": "Priority (1 = Critical): 2 (usual: 3), increases risk"
-          },
-          {
-            "feature": "assignment_group_cat",
-            "label": "Assigned team",
-            "value": "Group 22",
-            "typical_value": "Group 70",
-            "effect": 0.472,
-            "direction": "increases risk",
-            "sentence": "Assigned team: Group 22 (most common: Group 70), increases risk"
           },
           {
             "feature": "u_symptom_cat",
             "label": "Reported symptom",
             "value": "Other",
             "typical_value": "Symptom 491",
-            "effect": 0.432,
+            "effect": 0.412,
             "direction": "increases risk",
             "sentence": "Reported symptom: Other (most common: Symptom 491), increases risk"
+          },
+          {
+            "feature": "group_recent_breach_rate_7d",
+            "label": "Team's breach rate in last 7 days",
+            "value": 0.41,
+            "typical_value": 0.36,
+            "effect": 0.404,
+            "direction": "increases risk",
+            "sentence": "Team's breach rate in last 7 days: 0.41 (usual: 0.36), increases risk"
           }
         ],
-        "explanation_summary": "High risk (93%) of missing SLA, mainly because: Priority (1 = Critical): 2 (usual: 3), increases risk; Assigned team: Group 22 (most common: Group 70), increases risk; Reported symptom: Other (most common: Symptom 491), increases risk.",
+        "explanation_summary": "High risk (94%) of missing SLA, mainly because: Priority (1 = Critical): 2 (usual: 3), increases risk; Reported symptom: Other (most common: Symptom 491), increases risk; Team's breach rate in last 7 days: 0.41 (usual: 0.36), increases risk.",
         "similar_past_cases": {
           "rule": "same category and team, training period",
           "count": 107,
@@ -1038,9 +1038,9 @@
         },
         "prediction": {
           "target": "sla_breach",
-          "risk": 0.926,
+          "risk": 0.922,
           "risk_level": "high",
-          "risk_percentile": 99.9,
+          "risk_percentile": 99.6,
           "prediction_moment": "ticket opened"
         },
         "top_reasons": [
@@ -1049,7 +1049,7 @@
             "label": "Priority (1 = Critical)",
             "value": 2.0,
             "typical_value": 3.0,
-            "effect": 1.599,
+            "effect": 1.656,
             "direction": "increases risk",
             "sentence": "Priority (1 = Critical): 2 (usual: 3), increases risk"
           },
@@ -1058,7 +1058,7 @@
             "label": "Assigned team",
             "value": "Group 22",
             "typical_value": "Group 70",
-            "effect": 0.502,
+            "effect": 0.43,
             "direction": "increases risk",
             "sentence": "Assigned team: Group 22 (most common: Group 70), increases risk"
           },
@@ -1067,12 +1067,12 @@
             "label": "Reported symptom",
             "value": "Other",
             "typical_value": "Symptom 491",
-            "effect": 0.429,
+            "effect": 0.404,
             "direction": "increases risk",
             "sentence": "Reported symptom: Other (most common: Symptom 491), increases risk"
           }
         ],
-        "explanation_summary": "High risk (93%) of missing SLA, mainly because: Priority (1 = Critical): 2 (usual: 3), increases risk; Assigned team: Group 22 (most common: Group 70), increases risk; Reported symptom: Other (most common: Symptom 491), increases risk.",
+        "explanation_summary": "High risk (92%) of missing SLA, mainly because: Priority (1 = Critical): 2 (usual: 3), increases risk; Assigned team: Group 22 (most common: Group 70), increases risk; Reported symptom: Other (most common: Symptom 491), increases risk.",
         "similar_past_cases": {
           "rule": "same category and team, training period",
           "count": 107,
@@ -1103,9 +1103,9 @@
         },
         "prediction": {
           "target": "sla_breach",
-          "risk": 0.903,
+          "risk": 0.915,
           "risk_level": "high",
-          "risk_percentile": 99.7,
+          "risk_percentile": 99.6,
           "prediction_moment": "ticket opened"
         },
         "top_reasons": [
@@ -1114,30 +1114,30 @@
             "label": "Assigned team",
             "value": "Group 9",
             "typical_value": "Group 70",
-            "effect": 1.573,
+            "effect": 1.436,
             "direction": "increases risk",
             "sentence": "Assigned team: Group 9 (most common: Group 70), increases risk"
-          },
-          {
-            "feature": "subcategory_cat",
-            "label": "Subcategory",
-            "value": "Subcategory 154",
-            "typical_value": "Subcategory 174",
-            "effect": 0.566,
-            "direction": "increases risk",
-            "sentence": "Subcategory: Subcategory 154 (most common: Subcategory 174), increases risk"
           },
           {
             "feature": "group_recent_breach_rate_7d",
             "label": "Team's breach rate in last 7 days",
             "value": 0.54,
             "typical_value": 0.36,
-            "effect": 0.431,
+            "effect": 0.507,
             "direction": "increases risk",
             "sentence": "Team's breach rate in last 7 days: 0.54 (usual: 0.36), increases risk"
+          },
+          {
+            "feature": "subcategory_cat",
+            "label": "Subcategory",
+            "value": "Subcategory 154",
+            "typical_value": "Subcategory 174",
+            "effect": 0.492,
+            "direction": "increases risk",
+            "sentence": "Subcategory: Subcategory 154 (most common: Subcategory 174), increases risk"
           }
         ],
-        "explanation_summary": "High risk (90%) of missing SLA, mainly because: Assigned team: Group 9 (most common: Group 70), increases risk; Subcategory: Subcategory 154 (most common: Subcategory 174), increases risk; Team's breach rate in last 7 days: 0.54 (usual: 0.36), increases risk.",
+        "explanation_summary": "High risk (92%) of missing SLA, mainly because: Assigned team: Group 9 (most common: Group 70), increases risk; Team's breach rate in last 7 days: 0.54 (usual: 0.36), increases risk; Subcategory: Subcategory 154 (most common: Subcategory 174), increases risk.",
         "similar_past_cases": {
           "rule": "same category and team, training period",
           "count": 192,
@@ -1168,9 +1168,9 @@
         },
         "prediction": {
           "target": "sla_breach",
-          "risk": 0.898,
+          "risk": 0.915,
           "risk_level": "high",
-          "risk_percentile": 99.6,
+          "risk_percentile": 99.5,
           "prediction_moment": "ticket opened"
         },
         "top_reasons": [
@@ -1179,7 +1179,7 @@
             "label": "Priority (1 = Critical)",
             "value": 2.0,
             "typical_value": 3.0,
-            "effect": 1.639,
+            "effect": 1.733,
             "direction": "increases risk",
             "sentence": "Priority (1 = Critical): 2 (usual: 3), increases risk"
           },
@@ -1188,26 +1188,91 @@
             "label": "Assigned team",
             "value": "Group 57",
             "typical_value": "Group 70",
-            "effect": 0.694,
+            "effect": 0.573,
             "direction": "increases risk",
             "sentence": "Assigned team: Group 57 (most common: Group 70), increases risk"
           },
           {
-            "feature": "u_symptom_cat",
-            "label": "Reported symptom",
-            "value": "Other",
-            "typical_value": "Symptom 491",
-            "effect": 0.318,
+            "feature": "group_recent_breach_rate_7d",
+            "label": "Team's breach rate in last 7 days",
+            "value": 0.43,
+            "typical_value": 0.36,
+            "effect": 0.417,
             "direction": "increases risk",
-            "sentence": "Reported symptom: Other (most common: Symptom 491), increases risk"
+            "sentence": "Team's breach rate in last 7 days: 0.43 (usual: 0.36), increases risk"
           }
         ],
-        "explanation_summary": "High risk (90%) of missing SLA, mainly because: Priority (1 = Critical): 2 (usual: 3), increases risk; Assigned team: Group 57 (most common: Group 70), increases risk; Reported symptom: Other (most common: Symptom 491), increases risk.",
+        "explanation_summary": "High risk (91%) of missing SLA, mainly because: Priority (1 = Critical): 2 (usual: 3), increases risk; Assigned team: Group 57 (most common: Group 70), increases risk; Team's breach rate in last 7 days: 0.43 (usual: 0.36), increases risk.",
         "similar_past_cases": {
           "rule": "same category and team, training period",
           "count": 219,
           "breach_rate": 0.571,
           "median_resolution_hours": 112.5
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Fast-track: senior agent picks it up within 1 hour",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "breached": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "INC0034380",
+        "item_type": "ticket",
+        "context": {
+          "opened_at": "2016-05-31T16:11",
+          "team": "Group 55",
+          "category": "Category 42",
+          "subcategory": "Subcategory 29",
+          "priority": 1,
+          "location": "Location 15",
+          "contact_type": "Phone"
+        },
+        "prediction": {
+          "target": "sla_breach",
+          "risk": 0.909,
+          "risk_level": "high",
+          "risk_percentile": 99.4,
+          "prediction_moment": "ticket opened"
+        },
+        "top_reasons": [
+          {
+            "feature": "priority_n",
+            "label": "Priority (1 = Critical)",
+            "value": 1.0,
+            "typical_value": 3.0,
+            "effect": 1.841,
+            "direction": "increases risk",
+            "sentence": "Priority (1 = Critical): 1 (usual: 3), increases risk"
+          },
+          {
+            "feature": "location_cat",
+            "label": "Location",
+            "value": "Location 15",
+            "typical_value": "Location 204",
+            "effect": 0.462,
+            "direction": "increases risk",
+            "sentence": "Location: Location 15 (most common: Location 204), increases risk"
+          },
+          {
+            "feature": "impact_x_urgency",
+            "label": "Impact \u00d7 urgency score",
+            "value": 1.0,
+            "typical_value": 4.0,
+            "effect": 0.393,
+            "direction": "increases risk",
+            "sentence": "Impact \u00d7 urgency score: 1 (usual: 4), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (91%) of missing SLA, mainly because: Priority (1 = Critical): 1 (usual: 3), increases risk; Location: Location 15 (most common: Location 204), increases risk; Impact \u00d7 urgency score: 1 (usual: 4), increases risk.",
+        "similar_past_cases": {
+          "rule": "same category and team, training period",
+          "count": 117,
+          "breach_rate": 0.436,
+          "median_resolution_hours": 18.4
         },
         "recommended_action": {
           "recommendation_id": "REC3",
@@ -1233,9 +1298,9 @@
         },
         "prediction": {
           "target": "sla_breach",
-          "risk": 0.897,
+          "risk": 0.904,
           "risk_level": "high",
-          "risk_percentile": 99.5,
+          "risk_percentile": 99.4,
           "prediction_moment": "ticket opened"
         },
         "top_reasons": [
@@ -1244,7 +1309,7 @@
             "label": "Assigned team",
             "value": "Group 9",
             "typical_value": "Group 70",
-            "effect": 1.619,
+            "effect": 1.461,
             "direction": "increases risk",
             "sentence": "Assigned team: Group 9 (most common: Group 70), increases risk"
           },
@@ -1253,7 +1318,7 @@
             "label": "Subcategory",
             "value": "Subcategory 154",
             "typical_value": "Subcategory 174",
-            "effect": 0.575,
+            "effect": 0.531,
             "direction": "increases risk",
             "sentence": "Subcategory: Subcategory 154 (most common: Subcategory 174), increases risk"
           },
@@ -1262,7 +1327,7 @@
             "label": "Team's breach rate in last 7 days",
             "value": 0.54,
             "typical_value": 0.36,
-            "effect": 0.432,
+            "effect": 0.509,
             "direction": "increases risk",
             "sentence": "Team's breach rate in last 7 days: 0.54 (usual: 0.36), increases risk"
           }
@@ -1298,9 +1363,9 @@
         },
         "prediction": {
           "target": "sla_breach",
-          "risk": 0.883,
+          "risk": 0.893,
           "risk_level": "high",
-          "risk_percentile": 99.4,
+          "risk_percentile": 99.1,
           "prediction_moment": "ticket opened"
         },
         "top_reasons": [
@@ -1309,7 +1374,7 @@
             "label": "Assigned team",
             "value": "Group 9",
             "typical_value": "Group 70",
-            "effect": 1.617,
+            "effect": 1.418,
             "direction": "increases risk",
             "sentence": "Assigned team: Group 9 (most common: Group 70), increases risk"
           },
@@ -1318,7 +1383,7 @@
             "label": "Subcategory",
             "value": "Subcategory 154",
             "typical_value": "Subcategory 174",
-            "effect": 0.598,
+            "effect": 0.558,
             "direction": "increases risk",
             "sentence": "Subcategory: Subcategory 154 (most common: Subcategory 174), increases risk"
           },
@@ -1327,82 +1392,17 @@
             "label": "Team's breach rate in last 7 days",
             "value": 0.54,
             "typical_value": 0.36,
-            "effect": 0.424,
+            "effect": 0.509,
             "direction": "increases risk",
             "sentence": "Team's breach rate in last 7 days: 0.54 (usual: 0.36), increases risk"
           }
         ],
-        "explanation_summary": "High risk (88%) of missing SLA, mainly because: Assigned team: Group 9 (most common: Group 70), increases risk; Subcategory: Subcategory 154 (most common: Subcategory 174), increases risk; Team's breach rate in last 7 days: 0.54 (usual: 0.36), increases risk.",
+        "explanation_summary": "High risk (89%) of missing SLA, mainly because: Assigned team: Group 9 (most common: Group 70), increases risk; Subcategory: Subcategory 154 (most common: Subcategory 174), increases risk; Team's breach rate in last 7 days: 0.54 (usual: 0.36), increases risk.",
         "similar_past_cases": {
           "rule": "same category and team, training period",
           "count": 192,
           "breach_rate": 0.938,
           "median_resolution_hours": 2018.8
-        },
-        "recommended_action": {
-          "recommendation_id": "REC3",
-          "action": "Fast-track: senior agent picks it up within 1 hour",
-          "urgency": "now"
-        },
-        "actual_outcome": {
-          "breached": true,
-          "note": "known only because this is historical data; hidden in a live system"
-        }
-      },
-      {
-        "id": "INC0034048",
-        "item_type": "ticket",
-        "context": {
-          "opened_at": "2016-05-31T08:33",
-          "team": "Group 9",
-          "category": "Category 61",
-          "subcategory": "Subcategory 16",
-          "priority": 3,
-          "location": "Location 161",
-          "contact_type": "Phone"
-        },
-        "prediction": {
-          "target": "sla_breach",
-          "risk": 0.869,
-          "risk_level": "high",
-          "risk_percentile": 99.2,
-          "prediction_moment": "ticket opened"
-        },
-        "top_reasons": [
-          {
-            "feature": "assignment_group_cat",
-            "label": "Assigned team",
-            "value": "Group 9",
-            "typical_value": "Group 70",
-            "effect": 1.392,
-            "direction": "increases risk",
-            "sentence": "Assigned team: Group 9 (most common: Group 70), increases risk"
-          },
-          {
-            "feature": "category_cat",
-            "label": "Category",
-            "value": "Category 61",
-            "typical_value": "Category 42",
-            "effect": 0.407,
-            "direction": "increases risk",
-            "sentence": "Category: Category 61 (most common: Category 42), increases risk"
-          },
-          {
-            "feature": "u_symptom_cat",
-            "label": "Reported symptom",
-            "value": "Other",
-            "typical_value": "Symptom 491",
-            "effect": 0.393,
-            "direction": "increases risk",
-            "sentence": "Reported symptom: Other (most common: Symptom 491), increases risk"
-          }
-        ],
-        "explanation_summary": "High risk (87%) of missing SLA, mainly because: Assigned team: Group 9 (most common: Group 70), increases risk; Category: Category 61 (most common: Category 42), increases risk; Reported symptom: Other (most common: Symptom 491), increases risk.",
-        "similar_past_cases": {
-          "rule": "same category and team, training period",
-          "count": 1,
-          "breach_rate": 1.0,
-          "median_resolution_hours": 248.8
         },
         "recommended_action": {
           "recommendation_id": "REC3",
@@ -1428,9 +1428,9 @@
         },
         "prediction": {
           "target": "sla_breach",
-          "risk": 0.867,
+          "risk": 0.868,
           "risk_level": "high",
-          "risk_percentile": 99.2,
+          "risk_percentile": 98.7,
           "prediction_moment": "ticket opened"
         },
         "top_reasons": [
@@ -1439,7 +1439,7 @@
             "label": "Priority (1 = Critical)",
             "value": 2.0,
             "typical_value": 3.0,
-            "effect": 1.693,
+            "effect": 1.803,
             "direction": "increases risk",
             "sentence": "Priority (1 = Critical): 2 (usual: 3), increases risk"
           },
@@ -1448,91 +1448,26 @@
             "label": "Assigned team",
             "value": "Other",
             "typical_value": "Group 70",
-            "effect": 0.57,
+            "effect": 0.568,
             "direction": "increases risk",
             "sentence": "Assigned team: Other (most common: Group 70), increases risk"
           },
           {
-            "feature": "u_symptom_cat",
-            "label": "Reported symptom",
-            "value": "Other",
-            "typical_value": "Symptom 491",
-            "effect": 0.352,
+            "feature": "group_recent_breach_rate_7d",
+            "label": "Team's breach rate in last 7 days",
+            "value": 0.43,
+            "typical_value": 0.36,
+            "effect": 0.36,
             "direction": "increases risk",
-            "sentence": "Reported symptom: Other (most common: Symptom 491), increases risk"
+            "sentence": "Team's breach rate in last 7 days: 0.43 (usual: 0.36), increases risk"
           }
         ],
-        "explanation_summary": "High risk (87%) of missing SLA, mainly because: Priority (1 = Critical): 2 (usual: 3), increases risk; Assigned team: Other (most common: Group 70), increases risk; Reported symptom: Other (most common: Symptom 491), increases risk.",
+        "explanation_summary": "High risk (87%) of missing SLA, mainly because: Priority (1 = Critical): 2 (usual: 3), increases risk; Assigned team: Other (most common: Group 70), increases risk; Team's breach rate in last 7 days: 0.43 (usual: 0.36), increases risk.",
         "similar_past_cases": {
           "rule": "same category and team, training period",
           "count": 35,
           "breach_rate": 0.429,
           "median_resolution_hours": 18.9
-        },
-        "recommended_action": {
-          "recommendation_id": "REC3",
-          "action": "Fast-track: senior agent picks it up within 1 hour",
-          "urgency": "now"
-        },
-        "actual_outcome": {
-          "breached": true,
-          "note": "known only because this is historical data; hidden in a live system"
-        }
-      },
-      {
-        "id": "INC0034380",
-        "item_type": "ticket",
-        "context": {
-          "opened_at": "2016-05-31T16:11",
-          "team": "Group 55",
-          "category": "Category 42",
-          "subcategory": "Subcategory 29",
-          "priority": 1,
-          "location": "Location 15",
-          "contact_type": "Phone"
-        },
-        "prediction": {
-          "target": "sla_breach",
-          "risk": 0.847,
-          "risk_level": "high",
-          "risk_percentile": 98.8,
-          "prediction_moment": "ticket opened"
-        },
-        "top_reasons": [
-          {
-            "feature": "priority_n",
-            "label": "Priority (1 = Critical)",
-            "value": 1.0,
-            "typical_value": 3.0,
-            "effect": 1.735,
-            "direction": "increases risk",
-            "sentence": "Priority (1 = Critical): 1 (usual: 3), increases risk"
-          },
-          {
-            "feature": "location_cat",
-            "label": "Location",
-            "value": "Location 15",
-            "typical_value": "Location 204",
-            "effect": 0.438,
-            "direction": "increases risk",
-            "sentence": "Location: Location 15 (most common: Location 204), increases risk"
-          },
-          {
-            "feature": "assignment_group_cat",
-            "label": "Assigned team",
-            "value": "Group 55",
-            "typical_value": "Group 70",
-            "effect": 0.426,
-            "direction": "increases risk",
-            "sentence": "Assigned team: Group 55 (most common: Group 70), increases risk"
-          }
-        ],
-        "explanation_summary": "High risk (85%) of missing SLA, mainly because: Priority (1 = Critical): 1 (usual: 3), increases risk; Location: Location 15 (most common: Location 204), increases risk; Assigned team: Group 55 (most common: Group 70), increases risk.",
-        "similar_past_cases": {
-          "rule": "same category and team, training period",
-          "count": 117,
-          "breach_rate": 0.436,
-          "median_resolution_hours": 18.4
         },
         "recommended_action": {
           "recommendation_id": "REC3",
@@ -1558,9 +1493,9 @@
         },
         "prediction": {
           "target": "sla_breach",
-          "risk": 0.843,
+          "risk": 0.829,
           "risk_level": "high",
-          "risk_percentile": 98.7,
+          "risk_percentile": 98.1,
           "prediction_moment": "ticket opened"
         },
         "top_reasons": [
@@ -1569,7 +1504,7 @@
             "label": "Assigned team",
             "value": "Group 66",
             "typical_value": "Group 70",
-            "effect": 0.948,
+            "effect": 1.019,
             "direction": "increases risk",
             "sentence": "Assigned team: Group 66 (most common: Group 70), increases risk"
           },
@@ -1578,7 +1513,7 @@
             "label": "Subcategory",
             "value": "Subcategory 220",
             "typical_value": "Subcategory 174",
-            "effect": 0.722,
+            "effect": 0.673,
             "direction": "increases risk",
             "sentence": "Subcategory: Subcategory 220 (most common: Subcategory 174), increases risk"
           },
@@ -1587,17 +1522,82 @@
             "label": "Team's breach rate in last 7 days",
             "value": 0.61,
             "typical_value": 0.36,
-            "effect": 0.378,
+            "effect": 0.46,
             "direction": "increases risk",
             "sentence": "Team's breach rate in last 7 days: 0.61 (usual: 0.36), increases risk"
           }
         ],
-        "explanation_summary": "High risk (84%) of missing SLA, mainly because: Assigned team: Group 66 (most common: Group 70), increases risk; Subcategory: Subcategory 220 (most common: Subcategory 174), increases risk; Team's breach rate in last 7 days: 0.61 (usual: 0.36), increases risk.",
+        "explanation_summary": "High risk (83%) of missing SLA, mainly because: Assigned team: Group 66 (most common: Group 70), increases risk; Subcategory: Subcategory 220 (most common: Subcategory 174), increases risk; Team's breach rate in last 7 days: 0.61 (usual: 0.36), increases risk.",
         "similar_past_cases": {
           "rule": "same category and team, training period",
           "count": 82,
           "breach_rate": 0.829,
           "median_resolution_hours": 395.0
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Fast-track: senior agent picks it up within 1 hour",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "breached": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "INC0034048",
+        "item_type": "ticket",
+        "context": {
+          "opened_at": "2016-05-31T08:33",
+          "team": "Group 9",
+          "category": "Category 61",
+          "subcategory": "Subcategory 16",
+          "priority": 3,
+          "location": "Location 161",
+          "contact_type": "Phone"
+        },
+        "prediction": {
+          "target": "sla_breach",
+          "risk": 0.827,
+          "risk_level": "high",
+          "risk_percentile": 98.0,
+          "prediction_moment": "ticket opened"
+        },
+        "top_reasons": [
+          {
+            "feature": "assignment_group_cat",
+            "label": "Assigned team",
+            "value": "Group 9",
+            "typical_value": "Group 70",
+            "effect": 1.291,
+            "direction": "increases risk",
+            "sentence": "Assigned team: Group 9 (most common: Group 70), increases risk"
+          },
+          {
+            "feature": "group_recent_breach_rate_7d",
+            "label": "Team's breach rate in last 7 days",
+            "value": 0.5,
+            "typical_value": 0.36,
+            "effect": 0.431,
+            "direction": "increases risk",
+            "sentence": "Team's breach rate in last 7 days: 0.5 (usual: 0.36), increases risk"
+          },
+          {
+            "feature": "category_cat",
+            "label": "Category",
+            "value": "Category 61",
+            "typical_value": "Category 42",
+            "effect": 0.392,
+            "direction": "increases risk",
+            "sentence": "Category: Category 61 (most common: Category 42), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (83%) of missing SLA, mainly because: Assigned team: Group 9 (most common: Group 70), increases risk; Team's breach rate in last 7 days: 0.5 (usual: 0.36), increases risk; Category: Category 61 (most common: Category 42), increases risk.",
+        "similar_past_cases": {
+          "rule": "same category and team, training period",
+          "count": 1,
+          "breach_rate": 1.0,
+          "median_resolution_hours": 248.8
         },
         "recommended_action": {
           "recommendation_id": "REC3",
@@ -1666,17 +1666,17 @@
         "tickets": "the model's top 10% risk"
       },
       "evidence": [
-        "RISK: The 10% of tickets the model flags hold 28% of all breaches (2.75x the normal rate)."
+        "RISK: The 10% of tickets the model flags hold 28% of all breaches (2.82x the normal rate)."
       ],
       "expected_impact": {
         "metric": "sla_breach_rate",
         "baseline": 0.225,
-        "expected": 0.206,
-        "change_pct_points": -1.9,
-        "breaches_avoided_per_period": 92,
+        "expected": 0.205,
+        "change_pct_points": -2.0,
+        "breaches_avoided_per_period": 94,
         "range_breaches_avoided": [
-          46,
-          92
+          47,
+          94
         ]
       },
       "estimate_method": "Assumes fast-tracking prevents 30% of breaches among flagged tickets (to be validated in a pilot).",
@@ -1759,8 +1759,8 @@
       },
       {
         "recommendation_id": "REC3",
-        "breach_rate": 0.206,
-        "breaches_avoided": 92
+        "breach_rate": 0.205,
+        "breaches_avoided": 94
       },
       {
         "recommendation_id": "REC2",
@@ -1834,12 +1834,12 @@
     "note": "Scenarios are estimated separately and are not additive (they overlap)."
   },
   "model_performance": {
-    "algorithm": "LightGBM + logistic regression (average of both risks)",
-    "test_auc": 0.806,
-    "train_auc": 0.899,
+    "algorithm": "LightGBM + logistic regression (70% / 30% blend)",
+    "test_auc": 0.811,
+    "train_auc": 0.905,
     "base_rate_test": 0.225,
-    "precision_top_10pct": 0.619,
-    "lift_top_10pct": 2.75,
+    "precision_top_10pct": 0.633,
+    "lift_top_10pct": 2.82,
     "n_features": 32,
     "train_rows": 19715,
     "test_rows": 4929,
@@ -1889,21 +1889,21 @@
         "id": "RISK",
         "type": "high_risk",
         "title": "High-risk new tickets",
-        "finding": "The 10% of tickets the model flags hold 28% of all breaches (2.75x the normal rate).",
+        "finding": "The 10% of tickets the model flags hold 28% of all breaches (2.82x the normal rate).",
         "subject": null,
-        "size": 0.275,
+        "size": 0.282,
         "confidence": "high",
         "urgency": 1.0,
-        "score": 0.275,
+        "score": 0.282,
         "evidence": [
           {
-            "precision_top_10pct": 0.619,
+            "precision_top_10pct": 0.633,
             "base_rate": 0.225
           }
         ],
         "source": "predictions",
         "rank": 2,
-        "why": "Ranked 2: 28% of all problems sit in the riskiest 10% of items; confidence high (score 0.275)."
+        "why": "Ranked 2: 28% of all problems sit in the riskiest 10% of items; confidence high (score 0.282)."
       },
       {
         "id": "RC2",
@@ -2114,11 +2114,11 @@
   "priority_queue": [
     {
       "id": "INC0034380",
-      "risk": 0.847,
+      "risk": 0.909,
       "weight": 4,
-      "score": 3.388,
+      "score": 3.636,
       "team": "Group 55",
-      "why": "risk 85% x priority weight 4",
+      "why": "risk 91% x priority weight 4",
       "rank": 1
     },
     {
@@ -2132,74 +2132,74 @@
     },
     {
       "id": "INC0034416",
-      "risk": 0.926,
+      "risk": 0.922,
       "weight": 3,
-      "score": 2.778,
+      "score": 2.766,
       "team": "Group 22",
-      "why": "risk 93% x priority weight 3",
+      "why": "risk 92% x priority weight 3",
       "rank": 3
     },
     {
       "id": "INC0034429",
-      "risk": 0.898,
+      "risk": 0.915,
       "weight": 3,
-      "score": 2.694,
+      "score": 2.745,
       "team": "Group 57",
-      "why": "risk 90% x priority weight 3",
+      "why": "risk 92% x priority weight 3",
       "rank": 4
     },
     {
       "id": "INC0033653",
-      "risk": 0.867,
+      "risk": 0.868,
       "weight": 3,
-      "score": 2.601,
+      "score": 2.604,
       "team": "Group 53",
       "why": "risk 87% x priority weight 3",
       "rank": 5
     },
     {
       "id": "INC0034330",
-      "risk": 0.903,
+      "risk": 0.915,
       "weight": 2,
-      "score": 1.806,
+      "score": 1.83,
       "team": "Group 9",
-      "why": "risk 90% x priority weight 2",
+      "why": "risk 92% x priority weight 2",
       "rank": 6
     },
     {
       "id": "INC0034301",
-      "risk": 0.897,
+      "risk": 0.904,
       "weight": 2,
-      "score": 1.794,
+      "score": 1.808,
       "team": "Group 9",
       "why": "risk 90% x priority weight 2",
       "rank": 7
     },
     {
       "id": "INC0034268",
-      "risk": 0.883,
+      "risk": 0.893,
       "weight": 2,
-      "score": 1.766,
+      "score": 1.786,
       "team": "Group 9",
-      "why": "risk 88% x priority weight 2",
+      "why": "risk 89% x priority weight 2",
       "rank": 8
     },
     {
-      "id": "INC0034048",
-      "risk": 0.869,
+      "id": "INC0033915",
+      "risk": 0.829,
       "weight": 2,
-      "score": 1.738,
-      "team": "Group 9",
-      "why": "risk 87% x priority weight 2",
+      "score": 1.658,
+      "team": "Group 66",
+      "why": "risk 83% x priority weight 2",
       "rank": 9
     },
     {
-      "id": "INC0033915",
-      "risk": 0.843,
+      "id": "INC0034048",
+      "risk": 0.827,
       "weight": 2,
-      "score": 1.686,
-      "team": "Group 66",
-      "why": "risk 84% x priority weight 2",
+      "score": 1.654,
+      "team": "Group 9",
+      "why": "risk 83% x priority weight 2",
       "rank": 10
     }
   ],

@@ -22,18 +22,32 @@ LGBM_PARAMS = dict(n_estimators=300, learning_rate=0.03, num_leaves=15, min_chil
 # Step 5 result: averaging LightGBM with logistic regression ranks better on the validation period
 USE_BLEND = True
 
+# Share of LightGBM in the blend (the rest is logistic regression), picked on two validation periods inside the
+# training data: tickets lean on LightGBM (it learns team x priority combinations), orders on the steadier LR.
+BLEND_WEIGHT = {"incidents": 0.7, "sales": 0.3, "sales_pickup": 0.5}
+# Newer rows count more when training: a row this many days older than the newest training row counts half.
+# Tickets drift fast (March 2016 spike), so 30 days helped on both validation periods; for orders it did not.
+RECENCY_HALF_LIFE_DAYS = {"incidents": 30, "sales": None, "sales_pickup": None}
+
 
 DOMAINS = {
     "incidents": {
         "features_file": ROOT / "data/processed/incidents_features.parquet",
         "id_col": "number", "target": "breached", "target_name": "sla_breach",
-        "target_text": "missing SLA", "item_type": "ticket", "prediction_moment": "ticket opened",
+        "target_text": "missing SLA", "item_type": "ticket", "time_col": "opened_at", "prediction_moment": "ticket opened",
         "non_feature_cols": ["number", "opened_at", "split", "breached"],
     },
     "sales": {
         "features_file": ROOT / "data/processed/sales_orders_features.parquet",
         "id_col": "order_id", "target": "late", "target_name": "late_delivery",
-        "target_text": "late delivery", "item_type": "order", "prediction_moment": "order approved",
+        "target_text": "late delivery", "item_type": "order", "time_col": "purchased_at", "prediction_moment": "order approved",
+        "non_feature_cols": ["order_id", "purchased_at", "approved_at", "split", "late"],
+    },
+    # Stage 2: the same orders scored again once the carrier has picked them up (dispatch facts are known then)
+    "sales_pickup": {
+        "features_file": ROOT / "data/processed/sales_pickup_features.parquet",
+        "id_col": "order_id", "target": "late", "target_name": "late_delivery",
+        "target_text": "late delivery", "item_type": "order", "time_col": "purchased_at", "prediction_moment": "carrier pickup",
         "non_feature_cols": ["order_id", "purchased_at", "approved_at", "split", "late"],
     },
 }
@@ -71,3 +85,8 @@ LABELS = {
         "main_payment_type_cat": "Payment type", "approve_hour": "Hour approved",
     },
 }
+LABELS["sales_pickup"] = {**LABELS["sales"], "dispatch_days": "Days the seller took to ship",
+                          "days_left_at_pickup": "Days left to the promise at pickup",
+                          "handed_over_late": "Seller missed its shipping deadline",
+                          "dispatch_vs_seller_usual": "Days slower than this seller's usual",
+                          "pickup_weekday": "Day of week picked up (0 = Mon)"}

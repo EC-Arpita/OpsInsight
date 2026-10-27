@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "meta": {
-    "analysis_id": "sales-2026-10-27",
-    "generated_at": "2026-10-27T10:19:34Z",
+    "analysis_id": "sales-2026-10-20",
+    "generated_at": "2026-10-20T10:14:31Z",
     "domain": "sales_orders",
     "dataset_name": "Olist Brazilian E-Commerce",
     "item_type": "order",
@@ -1173,19 +1173,19 @@
     },
     {
       "id": "RC2",
-      "title": "Long-distance deliveries to the North-East",
+      "title": "Late deliveries concentrate in Northeast",
       "category": "logistics",
-      "finding": "North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo.",
+      "finding": "Northeast customers get late orders 14% of the time vs 7% in South.",
       "evidence": [
         {
-          "segment": "North-East states",
+          "segment": "Northeast",
           "late_rate": 0.144,
           "orders": 9002
         },
         {
-          "segment": "S\u00e3o Paulo (SP)",
-          "late_rate": 0.059,
-          "orders": 40335
+          "segment": "South",
+          "late_rate": 0.071,
+          "orders": 13727
         }
       ],
       "affected_orders_current_period": 1708,
@@ -1651,8 +1651,8 @@
     "count_shown": 10,
     "sorted_by": "risk",
     "risk_level_rules": {
-      "high": "risk \u2265 0.186 (top 10%)",
-      "medium": "risk \u2265 0.075 (top 40%)",
+      "high": "risk \u2265 0.180 (top 10%)",
+      "medium": "risk \u2265 0.072 (top 40%)",
       "low": "below medium"
     },
     "items": [
@@ -1673,7 +1673,7 @@
         },
         "prediction": {
           "target": "late_delivery",
-          "risk": 0.785,
+          "risk": 0.805,
           "risk_level": "high",
           "risk_percentile": 100.0,
           "prediction_moment": "order approved"
@@ -1707,7 +1707,7 @@
             "sentence": "Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk"
           }
         ],
-        "explanation_summary": "High risk (79%) of late delivery, mainly because: Days promised for delivery: 10.32 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk.",
+        "explanation_summary": "High risk (80%) of late delivery, mainly because: Days promised for delivery: 10.32 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk.",
         "similar_past_cases": {
           "rule": "same seller state \u2192 customer state route, training period",
           "count": 19,
@@ -1741,7 +1741,7 @@
         },
         "prediction": {
           "target": "late_delivery",
-          "risk": 0.741,
+          "risk": 0.754,
           "risk_level": "high",
           "risk_percentile": 100.0,
           "prediction_moment": "order approved"
@@ -1775,7 +1775,7 @@
             "sentence": "Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk"
           }
         ],
-        "explanation_summary": "High risk (74%) of late delivery, mainly because: Days promised for delivery: 12.55 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk.",
+        "explanation_summary": "High risk (75%) of late delivery, mainly because: Days promised for delivery: 12.55 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk.",
         "similar_past_cases": {
           "rule": "same seller state \u2192 customer state route, training period",
           "count": 19,
@@ -1809,7 +1809,7 @@
         },
         "prediction": {
           "target": "late_delivery",
-          "risk": 0.699,
+          "risk": 0.702,
           "risk_level": "high",
           "risk_percentile": 100.0,
           "prediction_moment": "order approved"
@@ -1877,7 +1877,7 @@
         },
         "prediction": {
           "target": "late_delivery",
-          "risk": 0.688,
+          "risk": 0.702,
           "risk_level": "high",
           "risk_percentile": 100.0,
           "prediction_moment": "order approved"
@@ -1911,7 +1911,7 @@
             "sentence": "Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk"
           }
         ],
-        "explanation_summary": "High risk (69%) of late delivery, mainly because: Days promised for delivery: 14.2 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk.",
+        "explanation_summary": "High risk (70%) of late delivery, mainly because: Days promised for delivery: 14.2 (usual: 23.17), increases risk; Customer state: RJ (most common: SP), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk.",
         "similar_past_cases": {
           "rule": "same seller state \u2192 customer state route, training period",
           "count": 19,
@@ -1945,7 +1945,7 @@
         },
         "prediction": {
           "target": "late_delivery",
-          "risk": 0.636,
+          "risk": 0.633,
           "risk_level": "high",
           "risk_percentile": 100.0,
           "prediction_moment": "order approved"
@@ -1979,7 +1979,7 @@
             "sentence": "Seller-to-customer distance (km): 2,288.25 (usual: 442.78), increases risk"
           }
         ],
-        "explanation_summary": "High risk (64%) of late delivery, mainly because: Days promised for delivery: 13.8 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk; Seller-to-customer distance (km): 2,288.25 (usual: 442.78), increases risk.",
+        "explanation_summary": "High risk (63%) of late delivery, mainly because: Days promised for delivery: 13.8 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 4.51 (usual: 2.64), increases risk; Seller-to-customer distance (km): 2,288.25 (usual: 442.78), increases risk.",
         "similar_past_cases": {
           "rule": "same seller state \u2192 customer state route, training period",
           "count": 1,
@@ -1993,74 +1993,6 @@
         },
         "actual_outcome": {
           "late": false,
-          "note": "known only because this is historical data; hidden in a live system"
-        }
-      },
-      {
-        "id": "6c353b764e0d5e28cb2852e8e8603def",
-        "item_type": "order",
-        "context": {
-          "approved_at": "2018-07-14T14:50",
-          "promised_by": "2018-08-03",
-          "customer_state": "SE",
-          "customer_city": "aracaju",
-          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
-          "seller_state": "MA",
-          "category": "health_beauty",
-          "order_value": 144.12,
-          "n_items": 1,
-          "payment_type": "credit_card"
-        },
-        "prediction": {
-          "target": "late_delivery",
-          "risk": 0.591,
-          "risk_level": "high",
-          "risk_percentile": 100.0,
-          "prediction_moment": "order approved"
-        },
-        "top_reasons": [
-          {
-            "feature": "customer_state_cat",
-            "label": "Customer state",
-            "value": "SE",
-            "typical_value": "SP",
-            "effect": 0.851,
-            "direction": "increases risk",
-            "sentence": "Customer state: SE (most common: SP), increases risk"
-          },
-          {
-            "feature": "promised_days",
-            "label": "Days promised for delivery",
-            "value": 19.38,
-            "typical_value": 23.17,
-            "effect": 0.615,
-            "direction": "increases risk",
-            "sentence": "Days promised for delivery: 19.38 (usual: 23.17), increases risk"
-          },
-          {
-            "feature": "seller_past_dispatch_days",
-            "label": "Seller's usual dispatch time (days)",
-            "value": 3.85,
-            "typical_value": 2.64,
-            "effect": 0.386,
-            "direction": "increases risk",
-            "sentence": "Seller's usual dispatch time (days): 3.85 (usual: 2.64), increases risk"
-          }
-        ],
-        "explanation_summary": "High risk (59%) of late delivery, mainly because: Customer state: SE (most common: SP), increases risk; Days promised for delivery: 19.38 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 3.85 (usual: 2.64), increases risk.",
-        "similar_past_cases": {
-          "rule": "same seller state \u2192 customer state route, training period",
-          "count": 2,
-          "late_rate": 1.0,
-          "avg_delivery_days": 36.9
-        },
-        "recommended_action": {
-          "recommendation_id": "REC3",
-          "action": "Contact seller to ship within 24h and use express carrier",
-          "urgency": "now"
-        },
-        "actual_outcome": {
-          "late": true,
           "note": "known only because this is historical data; hidden in a live system"
         }
       },
@@ -2081,9 +2013,9 @@
         },
         "prediction": {
           "target": "late_delivery",
-          "risk": 0.577,
+          "risk": 0.561,
           "risk_level": "high",
-          "risk_percentile": 100.0,
+          "risk_percentile": 99.9,
           "prediction_moment": "order approved"
         },
         "top_reasons": [
@@ -2115,7 +2047,7 @@
             "sentence": "Seller-to-customer distance (km): 2,479.69 (usual: 442.78), increases risk"
           }
         ],
-        "explanation_summary": "High risk (58%) of late delivery, mainly because: Customer state: PA (most common: SP), increases risk; Days promised for delivery: 16.57 (usual: 23.17), increases risk; Seller-to-customer distance (km): 2,479.69 (usual: 442.78), increases risk.",
+        "explanation_summary": "High risk (56%) of late delivery, mainly because: Customer state: PA (most common: SP), increases risk; Days promised for delivery: 16.57 (usual: 23.17), increases risk; Seller-to-customer distance (km): 2,479.69 (usual: 442.78), increases risk.",
         "similar_past_cases": {
           "rule": "same seller state \u2192 customer state route, training period",
           "count": 565,
@@ -2149,9 +2081,9 @@
         },
         "prediction": {
           "target": "late_delivery",
-          "risk": 0.572,
+          "risk": 0.556,
           "risk_level": "high",
-          "risk_percentile": 100.0,
+          "risk_percentile": 99.9,
           "prediction_moment": "order approved"
         },
         "top_reasons": [
@@ -2183,7 +2115,7 @@
             "sentence": "Seller-to-customer distance (km): 2,479.97 (usual: 442.78), increases risk"
           }
         ],
-        "explanation_summary": "High risk (57%) of late delivery, mainly because: Customer state: PA (most common: SP), increases risk; Days promised for delivery: 16.45 (usual: 23.17), increases risk; Seller-to-customer distance (km): 2,479.97 (usual: 442.78), increases risk.",
+        "explanation_summary": "High risk (56%) of late delivery, mainly because: Customer state: PA (most common: SP), increases risk; Days promised for delivery: 16.45 (usual: 23.17), increases risk; Seller-to-customer distance (km): 2,479.97 (usual: 442.78), increases risk.",
         "similar_past_cases": {
           "rule": "same seller state \u2192 customer state route, training period",
           "count": 565,
@@ -2197,6 +2129,74 @@
         },
         "actual_outcome": {
           "late": false,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "6c353b764e0d5e28cb2852e8e8603def",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-07-14T14:50",
+          "promised_by": "2018-08-03",
+          "customer_state": "SE",
+          "customer_city": "aracaju",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 144.12,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.552,
+          "risk_level": "high",
+          "risk_percentile": 99.9,
+          "prediction_moment": "order approved"
+        },
+        "top_reasons": [
+          {
+            "feature": "customer_state_cat",
+            "label": "Customer state",
+            "value": "SE",
+            "typical_value": "SP",
+            "effect": 0.851,
+            "direction": "increases risk",
+            "sentence": "Customer state: SE (most common: SP), increases risk"
+          },
+          {
+            "feature": "promised_days",
+            "label": "Days promised for delivery",
+            "value": 19.38,
+            "typical_value": 23.17,
+            "effect": 0.615,
+            "direction": "increases risk",
+            "sentence": "Days promised for delivery: 19.38 (usual: 23.17), increases risk"
+          },
+          {
+            "feature": "seller_past_dispatch_days",
+            "label": "Seller's usual dispatch time (days)",
+            "value": 3.85,
+            "typical_value": 2.64,
+            "effect": 0.386,
+            "direction": "increases risk",
+            "sentence": "Seller's usual dispatch time (days): 3.85 (usual: 2.64), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (55%) of late delivery, mainly because: Customer state: SE (most common: SP), increases risk; Days promised for delivery: 19.38 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 3.85 (usual: 2.64), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 2,
+          "late_rate": 1.0,
+          "avg_delivery_days": 36.9
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Contact seller to ship within 24h and use express carrier",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
           "note": "known only because this is historical data; hidden in a live system"
         }
       },
@@ -2217,9 +2217,9 @@
         },
         "prediction": {
           "target": "late_delivery",
-          "risk": 0.538,
+          "risk": 0.47,
           "risk_level": "high",
-          "risk_percentile": 99.9,
+          "risk_percentile": 99.7,
           "prediction_moment": "order approved"
         },
         "top_reasons": [
@@ -2251,7 +2251,7 @@
             "sentence": "Customer state: PE (most common: SP), increases risk"
           }
         ],
-        "explanation_summary": "High risk (54%) of late delivery, mainly because: Days promised for delivery: 15.52 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk; Customer state: PE (most common: SP), increases risk.",
+        "explanation_summary": "High risk (47%) of late delivery, mainly because: Days promised for delivery: 15.52 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 4.49 (usual: 2.64), increases risk; Customer state: PE (most common: SP), increases risk.",
         "similar_past_cases": {
           "rule": "same seller state \u2192 customer state route, training period",
           "count": 8,
@@ -2285,9 +2285,9 @@
         },
         "prediction": {
           "target": "late_delivery",
-          "risk": 0.502,
+          "risk": 0.462,
           "risk_level": "high",
-          "risk_percentile": 99.9,
+          "risk_percentile": 99.7,
           "prediction_moment": "order approved"
         },
         "top_reasons": [
@@ -2319,7 +2319,7 @@
             "sentence": "Seller's usual dispatch time (days): 3.73 (usual: 2.64), increases risk"
           }
         ],
-        "explanation_summary": "High risk (50%) of late delivery, mainly because: Customer state: BA (most common: SP), increases risk; Days promised for delivery: 20.5 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 3.73 (usual: 2.64), increases risk.",
+        "explanation_summary": "High risk (46%) of late delivery, mainly because: Customer state: BA (most common: SP), increases risk; Days promised for delivery: 20.5 (usual: 23.17), increases risk; Seller's usual dispatch time (days): 3.73 (usual: 2.64), increases risk.",
         "similar_past_cases": {
           "rule": "same seller state \u2192 customer state route, training period",
           "count": 7,
@@ -2424,6 +2424,50 @@
         "comment": null
       },
       "quick_win": false
+    },
+    {
+      "id": "REC2",
+      "title": "Add buffer days to promises for Northeast",
+      "type": "policy",
+      "description": "Add 2-3 days to the promised date for high-risk routes so promises match reality.",
+      "target": {
+        "region": "Northeast"
+      },
+      "evidence": [
+        "RC2: Northeast customers get late orders 14% of the time vs 7% in South."
+      ],
+      "expected_impact": {
+        "metric": "late_delivery_rate",
+        "baseline": 0.053,
+        "expected": 0.051,
+        "change_pct_points": -0.2,
+        "late_orders_avoided_per_period": 36,
+        "range_late_orders_avoided": [
+          18,
+          36
+        ]
+      },
+      "estimate_method": "Assumes 40% of Northeast late orders arrive within the added buffer (validate with delivery-day distribution).",
+      "assumptions": [
+        "Slightly longer promises don't reduce conversion much"
+      ],
+      "confidence": "high",
+      "effort": "low",
+      "suggested_owner": "Logistics manager",
+      "linked_findings": [
+        "RC2"
+      ],
+      "linked_root_causes": [
+        "RC2"
+      ],
+      "status": "pending",
+      "approval": {
+        "decided_by": null,
+        "decided_at": null,
+        "decision": null,
+        "comment": null
+      },
+      "quick_win": false
     }
   ],
   "impact_simulation": {
@@ -2443,6 +2487,11 @@
         "recommendation_id": "REC3",
         "late_rate": 0.05,
         "late_orders_avoided": 61
+      },
+      {
+        "recommendation_id": "REC2",
+        "late_rate": 0.051,
+        "late_orders_avoided": 36
       }
     ],
     "replays": {
@@ -2459,9 +2508,9 @@
     "note": "Scenarios are estimated separately and are not additive (they overlap)."
   },
   "model_performance": {
-    "algorithm": "LightGBM + logistic regression (average of both risks)",
-    "test_auc": 0.732,
-    "train_auc": 0.813,
+    "algorithm": "LightGBM + logistic regression (30% / 70% blend)",
+    "test_auc": 0.736,
+    "train_auc": 0.795,
     "base_rate_test": 0.053,
     "precision_top_10pct": 0.106,
     "lift_top_10pct": 1.99,
@@ -2526,23 +2575,23 @@
       {
         "id": "RC2",
         "type": "logistics",
-        "title": "Long-distance deliveries to the North-East",
-        "finding": "North-East customers get late orders 14% of the time vs 6% in S\u00e3o Paulo.",
-        "subject": "North-East states",
+        "title": "Late deliveries concentrate in Northeast",
+        "finding": "Northeast customers get late orders 14% of the time vs 7% in South.",
+        "subject": "Northeast",
         "size": 0.087,
         "confidence": "high",
         "urgency": 1.0,
         "score": 0.087,
         "evidence": [
           {
-            "segment": "North-East states",
+            "segment": "Northeast",
             "late_rate": 0.144,
             "orders": 9002
           },
           {
-            "segment": "S\u00e3o Paulo (SP)",
-            "late_rate": 0.059,
-            "orders": 40335
+            "segment": "South",
+            "late_rate": 0.071,
+            "orders": 13727
           }
         ],
         "source": "root_causes",
@@ -2944,95 +2993,801 @@
     "today": [
       {
         "id": "be72c04d946d396d2383f4fd49a4f19f",
-        "risk": 0.577,
+        "risk": 0.561,
         "weight": 351.22,
-        "score": 202.65,
+        "score": 197.03,
         "region": "PA",
-        "why": "risk 58% x order value R$ 351.22 = R$ 202.65 at risk",
+        "why": "risk 56% x order value R$ 351.22 = R$ 197.03 at risk",
         "rank": 1
       },
       {
         "id": "f3a3becaf45a4f7799cd93b1fdeea2c7",
-        "risk": 0.572,
+        "risk": 0.556,
         "weight": 351.22,
-        "score": 200.9,
+        "score": 195.28,
         "region": "PA",
-        "why": "risk 57% x order value R$ 351.22 = R$ 200.90 at risk",
+        "why": "risk 56% x order value R$ 351.22 = R$ 195.28 at risk",
         "rank": 2
       },
       {
         "id": "97415fb39aa90a8bfea4424d7bfbc5db",
-        "risk": 0.785,
+        "risk": 0.805,
         "weight": 153.1,
-        "score": 120.18,
+        "score": 123.25,
         "region": "RJ",
-        "why": "risk 78% x order value R$ 153.10 = R$ 120.18 at risk",
+        "why": "risk 80% x order value R$ 153.10 = R$ 123.25 at risk",
         "rank": 3
       },
       {
         "id": "38fc09accaec15642b3f2ce5fc46ebb0",
-        "risk": 0.636,
+        "risk": 0.633,
         "weight": 153.1,
-        "score": 97.37,
+        "score": 96.91,
         "region": "MS",
-        "why": "risk 64% x order value R$ 153.10 = R$ 97.37 at risk",
+        "why": "risk 63% x order value R$ 153.10 = R$ 96.91 at risk",
         "rank": 4
       },
       {
-        "id": "458e6791b5c8c62d0a48aae7f660b637",
-        "risk": 0.538,
-        "weight": 162.12,
-        "score": 87.22,
-        "region": "PE",
-        "why": "risk 54% x order value R$ 162.12 = R$ 87.22 at risk",
+        "id": "6c353b764e0d5e28cb2852e8e8603def",
+        "risk": 0.552,
+        "weight": 144.12,
+        "score": 79.55,
+        "region": "SE",
+        "why": "risk 55% x order value R$ 144.12 = R$ 79.55 at risk",
         "rank": 5
       },
       {
-        "id": "6c353b764e0d5e28cb2852e8e8603def",
-        "risk": 0.591,
-        "weight": 144.12,
-        "score": 85.17,
-        "region": "SE",
-        "why": "risk 59% x order value R$ 144.12 = R$ 85.17 at risk",
+        "id": "458e6791b5c8c62d0a48aae7f660b637",
+        "risk": 0.47,
+        "weight": 162.12,
+        "score": 76.2,
+        "region": "PE",
+        "why": "risk 47% x order value R$ 162.12 = R$ 76.20 at risk",
         "rank": 6
       },
       {
         "id": "3e734ad65fdbca928a1a4de48d096ce4",
-        "risk": 0.741,
+        "risk": 0.754,
         "weight": 94.74,
-        "score": 70.2,
+        "score": 71.43,
         "region": "RJ",
-        "why": "risk 74% x order value R$ 94.74 = R$ 70.20 at risk",
+        "why": "risk 75% x order value R$ 94.74 = R$ 71.43 at risk",
         "rank": 7
       },
       {
         "id": "11cfb7ef8394269889a34ee7832fe16c",
-        "risk": 0.699,
+        "risk": 0.702,
         "weight": 94.74,
-        "score": 66.22,
+        "score": 66.51,
         "region": "RJ",
-        "why": "risk 70% x order value R$ 94.74 = R$ 66.22 at risk",
+        "why": "risk 70% x order value R$ 94.74 = R$ 66.51 at risk",
         "rank": 8
       },
       {
         "id": "7484cb86db28da2d4d7c3f41dc265201",
-        "risk": 0.688,
+        "risk": 0.702,
         "weight": 94.74,
-        "score": 65.18,
+        "score": 66.51,
         "region": "RJ",
-        "why": "risk 69% x order value R$ 94.74 = R$ 65.18 at risk",
+        "why": "risk 70% x order value R$ 94.74 = R$ 66.51 at risk",
         "rank": 9
       },
       {
         "id": "ab42eac47de85e36ba4622c26f9c9dcd",
-        "risk": 0.502,
+        "risk": 0.462,
         "weight": 79.32,
-        "score": 39.82,
+        "score": 36.65,
         "region": "BA",
-        "why": "risk 50% x order value R$ 79.32 = R$ 39.82 at risk",
+        "why": "risk 46% x order value R$ 79.32 = R$ 36.65 at risk",
         "rank": 10
       }
     ],
     "later": []
+  },
+  "predictions_at_pickup": {
+    "count_shown": 10,
+    "sorted_by": "risk",
+    "risk_level_rules": {
+      "high": "risk \u2265 0.233 (top 10%)",
+      "medium": "risk \u2265 0.069 (top 40%)",
+      "low": "below medium"
+    },
+    "items": [
+      {
+        "id": "734e66350ff1d845ab707409554c76c4",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-03T17:15",
+          "promised_by": "2018-08-17",
+          "customer_state": "RS",
+          "customer_city": "bom principio",
+          "seller_id": "8f2ce03f928b567e3d56181ae20ae952",
+          "seller_state": "SP",
+          "category": "sports_leisure",
+          "order_value": 235.06,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.981,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "carrier pickup"
+        },
+        "top_reasons": [
+          {
+            "feature": "days_left_at_pickup",
+            "label": "Days left to the promise at pickup",
+            "value": -11.51,
+            "typical_value": 20.39,
+            "effect": 3.973,
+            "direction": "increases risk",
+            "sentence": "Days left to the promise at pickup: -11.51 (usual: 20.39), increases risk"
+          },
+          {
+            "feature": "dispatch_vs_seller_usual",
+            "label": "Days slower than this seller's usual",
+            "value": 21.89,
+            "typical_value": -0.62,
+            "effect": 0.904,
+            "direction": "increases risk",
+            "sentence": "Days slower than this seller's usual: 21.89 (usual: -0.62), increases risk"
+          },
+          {
+            "feature": "handed_over_late",
+            "label": "Seller missed its shipping deadline",
+            "value": 1.0,
+            "typical_value": 0.0,
+            "effect": 0.635,
+            "direction": "increases risk",
+            "sentence": "Seller missed its shipping deadline: 1 (usual: 0), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (98%) of late delivery, mainly because: Days left to the promise at pickup: -11.51 (usual: 20.39), increases risk; Days slower than this seller's usual: 21.89 (usual: -0.62), increases risk; Seller missed its shipping deadline: 1 (usual: 0), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 2974,
+          "late_rate": 0.087,
+          "avg_delivery_days": 17.1
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Already with the courier: upgrade to express delivery and tell the customer the new date",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "3b43a1faa9745dfcd8ef87937f4cab08",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-07-11T21:45",
+          "promised_by": "2018-07-31",
+          "customer_state": "SP",
+          "customer_city": "sao paulo",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 94.74,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.975,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "carrier pickup"
+        },
+        "top_reasons": [
+          {
+            "feature": "days_left_at_pickup",
+            "label": "Days left to the promise at pickup",
+            "value": -2.3,
+            "typical_value": 20.39,
+            "effect": 4.109,
+            "direction": "increases risk",
+            "sentence": "Days left to the promise at pickup: -2.3 (usual: 20.39), increases risk"
+          },
+          {
+            "feature": "dispatch_vs_seller_usual",
+            "label": "Days slower than this seller's usual",
+            "value": 17.67,
+            "typical_value": -0.62,
+            "effect": 0.915,
+            "direction": "increases risk",
+            "sentence": "Days slower than this seller's usual: 17.67 (usual: -0.62), increases risk"
+          },
+          {
+            "feature": "handed_over_late",
+            "label": "Seller missed its shipping deadline",
+            "value": 1.0,
+            "typical_value": 0.0,
+            "effect": 0.63,
+            "direction": "increases risk",
+            "sentence": "Seller missed its shipping deadline: 1 (usual: 0), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (97%) of late delivery, mainly because: Days left to the promise at pickup: -2.3 (usual: 20.39), increases risk; Days slower than this seller's usual: 17.67 (usual: -0.62), increases risk; Seller missed its shipping deadline: 1 (usual: 0), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 51,
+          "late_rate": 0.353,
+          "avg_delivery_days": 20.5
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Already with the courier: upgrade to express delivery and tell the customer the new date",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "6a8074244958b34abe3e949b948bb9f9",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-07-23T12:31",
+          "promised_by": "2018-08-21",
+          "customer_state": "RJ",
+          "customer_city": "niteroi",
+          "seller_id": "7fdb0720c8d7c9075538b365dc8c3a22",
+          "seller_state": "PR",
+          "category": "furniture_decor",
+          "order_value": 119.77,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.973,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "carrier pickup"
+        },
+        "top_reasons": [
+          {
+            "feature": "days_left_at_pickup",
+            "label": "Days left to the promise at pickup",
+            "value": -1.63,
+            "typical_value": 20.39,
+            "effect": 3.889,
+            "direction": "increases risk",
+            "sentence": "Days left to the promise at pickup: -1.63 (usual: 20.39), increases risk"
+          },
+          {
+            "feature": "dispatch_vs_seller_usual",
+            "label": "Days slower than this seller's usual",
+            "value": 26.67,
+            "typical_value": -0.62,
+            "effect": 0.756,
+            "direction": "increases risk",
+            "sentence": "Days slower than this seller's usual: 26.67 (usual: -0.62), increases risk"
+          },
+          {
+            "feature": "handed_over_late",
+            "label": "Seller missed its shipping deadline",
+            "value": 1.0,
+            "typical_value": 0.0,
+            "effect": 0.552,
+            "direction": "increases risk",
+            "sentence": "Seller missed its shipping deadline: 1 (usual: 0), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (97%) of late delivery, mainly because: Days left to the promise at pickup: -1.63 (usual: 20.39), increases risk; Days slower than this seller's usual: 26.67 (usual: -0.62), increases risk; Seller missed its shipping deadline: 1 (usual: 0), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 774,
+          "late_rate": 0.172,
+          "avg_delivery_days": 18.9
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Already with the courier: upgrade to express delivery and tell the customer the new date",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "628111ec0fcace16f3112336b1138aef",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-07-14T21:50",
+          "promised_by": "2018-08-02",
+          "customer_state": "SP",
+          "customer_city": "sao paulo",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 94.74,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.968,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "carrier pickup"
+        },
+        "top_reasons": [
+          {
+            "feature": "days_left_at_pickup",
+            "label": "Days left to the promise at pickup",
+            "value": -0.23,
+            "typical_value": 20.39,
+            "effect": 4.085,
+            "direction": "increases risk",
+            "sentence": "Days left to the promise at pickup: -0.23 (usual: 20.39), increases risk"
+          },
+          {
+            "feature": "dispatch_vs_seller_usual",
+            "label": "Days slower than this seller's usual",
+            "value": 14.47,
+            "typical_value": -0.62,
+            "effect": 0.924,
+            "direction": "increases risk",
+            "sentence": "Days slower than this seller's usual: 14.47 (usual: -0.62), increases risk"
+          },
+          {
+            "feature": "handed_over_late",
+            "label": "Seller missed its shipping deadline",
+            "value": 1.0,
+            "typical_value": 0.0,
+            "effect": 0.63,
+            "direction": "increases risk",
+            "sentence": "Seller missed its shipping deadline: 1 (usual: 0), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (97%) of late delivery, mainly because: Days left to the promise at pickup: -0.23 (usual: 20.39), increases risk; Days slower than this seller's usual: 14.47 (usual: -0.62), increases risk; Seller missed its shipping deadline: 1 (usual: 0), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 51,
+          "late_rate": 0.353,
+          "avg_delivery_days": 20.5
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Already with the courier: upgrade to express delivery and tell the customer the new date",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "6d0940a8f5fba47562bb14cd97dfd6da",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-10T00:30",
+          "promised_by": "2018-08-28",
+          "customer_state": "RS",
+          "customer_city": "caxias do sul",
+          "seller_id": "c004e5ea15737026cecaee0447e00b75",
+          "seller_state": "SP",
+          "category": "home_appliances_2",
+          "order_value": 2455.12,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.968,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "carrier pickup"
+        },
+        "top_reasons": [
+          {
+            "feature": "days_left_at_pickup",
+            "label": "Days left to the promise at pickup",
+            "value": -6.54,
+            "typical_value": 20.39,
+            "effect": 3.942,
+            "direction": "increases risk",
+            "sentence": "Days left to the promise at pickup: -6.54 (usual: 20.39), increases risk"
+          },
+          {
+            "feature": "dispatch_vs_seller_usual",
+            "label": "Days slower than this seller's usual",
+            "value": 21.6,
+            "typical_value": -0.62,
+            "effect": 0.896,
+            "direction": "increases risk",
+            "sentence": "Days slower than this seller's usual: 21.6 (usual: -0.62), increases risk"
+          },
+          {
+            "feature": "handed_over_late",
+            "label": "Seller missed its shipping deadline",
+            "value": 1.0,
+            "typical_value": 0.0,
+            "effect": 0.635,
+            "direction": "increases risk",
+            "sentence": "Seller missed its shipping deadline: 1 (usual: 0), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (97%) of late delivery, mainly because: Days left to the promise at pickup: -6.54 (usual: 20.39), increases risk; Days slower than this seller's usual: 21.6 (usual: -0.62), increases risk; Seller missed its shipping deadline: 1 (usual: 0), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 2974,
+          "late_rate": 0.087,
+          "avg_delivery_days": 17.1
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Already with the courier: upgrade to express delivery and tell the customer the new date",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "4505acb3759da6b9c7d79a80d29ab3bb",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-06T14:44",
+          "promised_by": "2018-08-17",
+          "customer_state": "SP",
+          "customer_city": "campinas",
+          "seller_id": "cac4c8e7b1ca6252d8f20b2fc1a2e4af",
+          "seller_state": "SP",
+          "category": "furniture_decor",
+          "order_value": 42.5,
+          "n_items": 1,
+          "payment_type": "boleto"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.968,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "carrier pickup"
+        },
+        "top_reasons": [
+          {
+            "feature": "days_left_at_pickup",
+            "label": "Days left to the promise at pickup",
+            "value": -25.83,
+            "typical_value": 20.39,
+            "effect": 4.356,
+            "direction": "increases risk",
+            "sentence": "Days left to the promise at pickup: -25.83 (usual: 20.39), increases risk"
+          },
+          {
+            "feature": "dispatch_vs_seller_usual",
+            "label": "Days slower than this seller's usual",
+            "value": 32.03,
+            "typical_value": -0.62,
+            "effect": 0.995,
+            "direction": "increases risk",
+            "sentence": "Days slower than this seller's usual: 32.03 (usual: -0.62), increases risk"
+          },
+          {
+            "feature": "handed_over_late",
+            "label": "Seller missed its shipping deadline",
+            "value": 1.0,
+            "typical_value": 0.0,
+            "effect": 0.69,
+            "direction": "increases risk",
+            "sentence": "Seller missed its shipping deadline: 1 (usual: 0), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (97%) of late delivery, mainly because: Days left to the promise at pickup: -25.83 (usual: 20.39), increases risk; Days slower than this seller's usual: 32.03 (usual: -0.62), increases risk; Seller missed its shipping deadline: 1 (usual: 0), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 23781,
+          "late_rate": 0.055,
+          "avg_delivery_days": 8.5
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Already with the courier: upgrade to express delivery and tell the customer the new date",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "3816ba21917f2a17a58a38a108985d0c",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-07-14T19:30",
+          "promised_by": "2018-08-02",
+          "customer_state": "SP",
+          "customer_city": "sao paulo",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 94.74,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.967,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "carrier pickup"
+        },
+        "top_reasons": [
+          {
+            "feature": "days_left_at_pickup",
+            "label": "Days left to the promise at pickup",
+            "value": -0.3,
+            "typical_value": 20.39,
+            "effect": 4.092,
+            "direction": "increases risk",
+            "sentence": "Days left to the promise at pickup: -0.3 (usual: 20.39), increases risk"
+          },
+          {
+            "feature": "dispatch_vs_seller_usual",
+            "label": "Days slower than this seller's usual",
+            "value": 14.65,
+            "typical_value": -0.62,
+            "effect": 0.923,
+            "direction": "increases risk",
+            "sentence": "Days slower than this seller's usual: 14.65 (usual: -0.62), increases risk"
+          },
+          {
+            "feature": "handed_over_late",
+            "label": "Seller missed its shipping deadline",
+            "value": 1.0,
+            "typical_value": 0.0,
+            "effect": 0.63,
+            "direction": "increases risk",
+            "sentence": "Seller missed its shipping deadline: 1 (usual: 0), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (97%) of late delivery, mainly because: Days left to the promise at pickup: -0.3 (usual: 20.39), increases risk; Days slower than this seller's usual: 14.65 (usual: -0.62), increases risk; Seller missed its shipping deadline: 1 (usual: 0), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 51,
+          "late_rate": 0.353,
+          "avg_delivery_days": 20.5
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Already with the courier: upgrade to express delivery and tell the customer the new date",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "0d4677b0223bd9ec9dc8182d6afa70aa",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-07-14T15:45",
+          "promised_by": "2018-08-02",
+          "customer_state": "SP",
+          "customer_city": "sao paulo",
+          "seller_id": "06a2c3af7b3aee5d69171b0e14f0ee87",
+          "seller_state": "MA",
+          "category": "health_beauty",
+          "order_value": 94.74,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.965,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "carrier pickup"
+        },
+        "top_reasons": [
+          {
+            "feature": "days_left_at_pickup",
+            "label": "Days left to the promise at pickup",
+            "value": -0.3,
+            "typical_value": 20.39,
+            "effect": 4.108,
+            "direction": "increases risk",
+            "sentence": "Days left to the promise at pickup: -0.3 (usual: 20.39), increases risk"
+          },
+          {
+            "feature": "dispatch_vs_seller_usual",
+            "label": "Days slower than this seller's usual",
+            "value": 14.8,
+            "typical_value": -0.62,
+            "effect": 0.927,
+            "direction": "increases risk",
+            "sentence": "Days slower than this seller's usual: 14.8 (usual: -0.62), increases risk"
+          },
+          {
+            "feature": "handed_over_late",
+            "label": "Seller missed its shipping deadline",
+            "value": 1.0,
+            "typical_value": 0.0,
+            "effect": 0.627,
+            "direction": "increases risk",
+            "sentence": "Seller missed its shipping deadline: 1 (usual: 0), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (96%) of late delivery, mainly because: Days left to the promise at pickup: -0.3 (usual: 20.39), increases risk; Days slower than this seller's usual: 14.8 (usual: -0.62), increases risk; Seller missed its shipping deadline: 1 (usual: 0), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 51,
+          "late_rate": 0.353,
+          "avg_delivery_days": 20.5
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Already with the courier: upgrade to express delivery and tell the customer the new date",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "d115642fba3060e4082472bb2801b111",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-03T08:15",
+          "promised_by": "2018-08-10",
+          "customer_state": "RJ",
+          "customer_city": "rio de janeiro",
+          "seller_id": "7ad32824caee82087b3e2e5f33b1bf32",
+          "seller_state": "SP",
+          "category": "bed_bath_table",
+          "order_value": 344.89,
+          "n_items": 1,
+          "payment_type": "credit_card"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.962,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "carrier pickup"
+        },
+        "top_reasons": [
+          {
+            "feature": "days_left_at_pickup",
+            "label": "Days left to the promise at pickup",
+            "value": -3.5,
+            "typical_value": 20.39,
+            "effect": 3.805,
+            "direction": "increases risk",
+            "sentence": "Days left to the promise at pickup: -3.5 (usual: 20.39), increases risk"
+          },
+          {
+            "feature": "handed_over_late",
+            "label": "Seller missed its shipping deadline",
+            "value": 1.0,
+            "typical_value": 0.0,
+            "effect": 0.496,
+            "direction": "increases risk",
+            "sentence": "Seller missed its shipping deadline: 1 (usual: 0), increases risk"
+          },
+          {
+            "feature": "dispatch_vs_seller_usual",
+            "label": "Days slower than this seller's usual",
+            "value": 8.46,
+            "typical_value": -0.62,
+            "effect": 0.431,
+            "direction": "increases risk",
+            "sentence": "Days slower than this seller's usual: 8.46 (usual: -0.62), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (96%) of late delivery, mainly because: Days left to the promise at pickup: -3.5 (usual: 20.39), increases risk; Seller missed its shipping deadline: 1 (usual: 0), increases risk; Days slower than this seller's usual: 8.46 (usual: -0.62), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 6785,
+          "late_rate": 0.18,
+          "avg_delivery_days": 17.5
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Already with the courier: upgrade to express delivery and tell the customer the new date",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      },
+      {
+        "id": "3e43e4dedffaf5c15e579786d0b5317f",
+        "item_type": "order",
+        "context": {
+          "approved_at": "2018-08-04T04:15",
+          "promised_by": "2018-08-17",
+          "customer_state": "DF",
+          "customer_city": "brasilia",
+          "seller_id": "e504a4e2efaa45cbff7e268a2c58c956",
+          "seller_state": "SP",
+          "category": "housewares",
+          "order_value": 134.36,
+          "n_items": 1,
+          "payment_type": "boleto"
+        },
+        "prediction": {
+          "target": "late_delivery",
+          "risk": 0.959,
+          "risk_level": "high",
+          "risk_percentile": 100.0,
+          "prediction_moment": "carrier pickup"
+        },
+        "top_reasons": [
+          {
+            "feature": "days_left_at_pickup",
+            "label": "Days left to the promise at pickup",
+            "value": -7.57,
+            "typical_value": 20.39,
+            "effect": 4.068,
+            "direction": "increases risk",
+            "sentence": "Days left to the promise at pickup: -7.57 (usual: 20.39), increases risk"
+          },
+          {
+            "feature": "dispatch_vs_seller_usual",
+            "label": "Days slower than this seller's usual",
+            "value": 17.61,
+            "typical_value": -0.62,
+            "effect": 0.929,
+            "direction": "increases risk",
+            "sentence": "Days slower than this seller's usual: 17.61 (usual: -0.62), increases risk"
+          },
+          {
+            "feature": "handed_over_late",
+            "label": "Seller missed its shipping deadline",
+            "value": 1.0,
+            "typical_value": 0.0,
+            "effect": 0.633,
+            "direction": "increases risk",
+            "sentence": "Seller missed its shipping deadline: 1 (usual: 0), increases risk"
+          }
+        ],
+        "explanation_summary": "High risk (96%) of late delivery, mainly because: Days left to the promise at pickup: -7.57 (usual: 20.39), increases risk; Days slower than this seller's usual: 17.61 (usual: -0.62), increases risk; Seller missed its shipping deadline: 1 (usual: 0), increases risk.",
+        "similar_past_cases": {
+          "rule": "same seller state \u2192 customer state route, training period",
+          "count": 1090,
+          "late_rate": 0.095,
+          "avg_delivery_days": 14.3
+        },
+        "recommended_action": {
+          "recommendation_id": "REC3",
+          "action": "Already with the courier: upgrade to express delivery and tell the customer the new date",
+          "urgency": "now"
+        },
+        "actual_outcome": {
+          "late": true,
+          "note": "known only because this is historical data; hidden in a live system"
+        }
+      }
+    ],
+    "model_performance": {
+      "algorithm": "LightGBM + logistic regression (50% / 50% blend)",
+      "test_auc": 0.869,
+      "train_auc": 0.852,
+      "base_rate_test": 0.053,
+      "precision_top_10pct": 0.273,
+      "lift_top_10pct": 5.15,
+      "train_rows": 76814,
+      "test_rows": 19204,
+      "n_features": 46,
+      "validation": "time-based split: trained on older items, tested on the newest 20%",
+      "trained_on": "the reference dataset",
+      "note": "the saved model was trained on the reference dataset; retrain on this company's data for its own scores"
+    },
+    "prediction_moment": "when the carrier picks the order up"
   }
 }

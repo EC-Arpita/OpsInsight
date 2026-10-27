@@ -68,6 +68,11 @@ def fact_cards(analysis: dict) -> list:
         add("MODEL", f"The risk model ({mp['algorithm']}) has test AUC {mp['test_auc']}; the riskiest 10% flagged have a "
                      f"problem rate of {_pct(mp['precision_top_10pct'])} against {_pct(mp['base_rate_test'])} overall "
                      f"({mp['lift_top_10pct']}x).")
+    pk = (analysis.get("predictions_at_pickup") or {}).get("model_performance")
+    if pk:
+        add("MODEL_PICKUP", f"Second check when the carrier picks the order up: that model has test AUC {pk['test_auc']}; "
+                            f"the riskiest 10% of picked-up orders have a late rate of {_pct(pk['precision_top_10pct'])} "
+                            f"against {_pct(pk['base_rate_test'])} overall ({pk['lift_top_10pct']}x).")
     return cards
 
 

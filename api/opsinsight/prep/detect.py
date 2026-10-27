@@ -6,7 +6,7 @@
 """
 import pandas as pd
 
-from .mapping import SCHEMAS, suggest_mapping
+from .mapping import ALTERNATIVES, SCHEMAS, suggest_mapping
 
 CONFIDENT = 0.80      # best score at least this ...
 MARGIN = 0.20         # ... and this far ahead of the runner-up -> decide automatically
@@ -20,7 +20,9 @@ def detect_domain(columns, df: pd.DataFrame = None) -> dict:
         s = suggest_mapping(list(columns), domain, df)
         required = [name for name, (req, _, _) in schema.items() if req]
         found = [name for name in required if name not in s["missing_required"]]     # a days column counts too
-        confidence = {x["standard"]: x["score"] for x in s["suggestions"] if x["standard"] in found and x["score"]}
+        scores = {x["standard"]: x["score"] for x in s["suggestions"] if x["score"]}
+        # a date found through its days column (e.g. "Delivery Days" for the delivery date) counts with that column's score
+        confidence = {n: scores.get(n) or scores.get(ALTERNATIVES.get(n)) for n in found}
         coverage = len(found) / len(required)                        # share of required columns found
         avg_conf = sum(confidence.values()) / len(found) if found else 0   # how sure each match is
         results.append({"domain": domain, "score": round(coverage * avg_conf, 2),

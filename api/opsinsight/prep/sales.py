@@ -264,6 +264,25 @@ def build_features(orders: pd.DataFrame, test_share=0.2, m=20):
     return features, fd
 
 
+# --------------------------------------------------------------------------- stage 2: at carrier pickup
+PICKUP_FEATURES = ["dispatch_days", "days_left_at_pickup", "handed_over_late", "dispatch_vs_seller_usual", "pickup_weekday"]
+
+
+def pickup_features(features: pd.DataFrame, orders: pd.DataFrame) -> pd.DataFrame:
+    """Stage 2: the approval features plus what is known once the carrier has picked the order up.
+    Only orders that have a pickup date; nothing that happens after the pickup (delivery, review) is used."""
+    o = orders[["order_id", "carrier_at", "estimated_at", "shipping_limit_at"]]
+    df = features.merge(o, on="order_id", how="inner")
+    df = df[df["carrier_at"].notna()].copy()
+    days = lambda s: s.dt.total_seconds() / 86400
+    df["dispatch_days"] = days(df["carrier_at"] - df["approved_at"]).clip(lower=0)
+    df["days_left_at_pickup"] = days(df["estimated_at"] - df["carrier_at"])
+    df["handed_over_late"] = (df["carrier_at"] > df["shipping_limit_at"]).astype(int)    # seller missed its own deadline
+    df["dispatch_vs_seller_usual"] = df["dispatch_days"] - df["seller_past_dispatch_days"]
+    df["pickup_weekday"] = df["carrier_at"].dt.dayofweek
+    return df.drop(columns=["carrier_at", "estimated_at", "shipping_limit_at"]).reset_index(drop=True)
+
+
 # --------------------------------------------------------------------------- one call
 def prepare_sales(raw_dir, window=DEFAULT_WINDOW, test_share=0.2, save_to=None):
     """Run the whole sales pipeline on the folder with the 9 Olist CSV files.
@@ -276,11 +295,13 @@ def prepare_sales(raw_dir, window=DEFAULT_WINDOW, test_share=0.2, save_to=None):
     log = QualityLog()
     orders = clean_and_join(load_tables(raw_dir), window=window, log=log)
     features, fd = build_features(orders, test_share=test_share)
-    out = {"orders": orders, "features": features, "quality": log.to_frame(), "feature_dictionary": fd.to_frame()}
+    out = {"orders": orders, "features": features, "quality": log.to_frame(), "feature_dictionary": fd.to_frame(),
+           "pickup_features": pickup_features(features, orders)}
     if save_to:
         data = Path(save_to)
         (data / "interim").mkdir(parents=True, exist_ok=True)
         (data / "processed").mkdir(parents=True, exist_ok=True)
         orders.to_parquet(data / "interim/sales_orders_clean.parquet", index=False)
         features.to_parquet(data / "processed/sales_orders_features.parquet", index=False)
+        out["pickup_features"].to_parquet(data / "processed/sales_pickup_features.parquet", index=False)
     return out

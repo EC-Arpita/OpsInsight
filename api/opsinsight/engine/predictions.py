@@ -4,7 +4,8 @@ import pandas as pd
 from ..models.predict import model_info, predict
 
 ACTIONS = {"incidents": "Fast-track: senior agent picks it up within 1 hour",
-           "sales": "Contact seller to ship within 24h and use express carrier"}
+           "sales": "Contact seller to ship within 24h and use express carrier",
+           "sales_pickup": "Already with the courier: upgrade to express delivery and tell the customer the new date"}
 
 
 def _ts(v):
@@ -56,7 +57,7 @@ def predictions_section(domain: str, table: pd.DataFrame, features: pd.DataFrame
     rows.index = rows.index.astype(str)                    # predictions use text ids; some files have numbers
     train_ids = set(features.loc[features["split"] == "train", id_col])
     history = table[table[id_col].isin(train_ids)]
-    if domain == "sales":
+    if domain != "incidents":
         history = history[history["is_model_row"] == 1]
     meta = model_info(domain, model)
     items = []
@@ -85,7 +86,8 @@ def reference_fit(domain: str, features: pd.DataFrame) -> dict:
     X, y = _align(features, bundle["meta"]), features[DOMAINS[domain]["target"]].astype(int).to_numpy()
     p = bundle["model"].predict_proba(X)[:, 1]
     if bundle.get("lr") is not None:
-        p = (p + bundle["lr"].predict_proba(X)[:, 1]) / 2
+        w = bundle.get("w", 0.5)
+        p = w * p + (1 - w) * bundle["lr"].predict_proba(X)[:, 1]
     cats = bundle["meta"]["categories"]
     known = float(np.mean([features[c].astype(str).isin(set(v) - {"Other"}).mean() for c, v in cats.items()]))
     out = {"rows": len(y), "problems": int(y.sum()), "known_values_share": round(known, 2), "auc": None, "lift_top_10pct": None}
@@ -111,3 +113,14 @@ def model_section(domain: str, model: str = None, features: pd.DataFrame = None)
             "trained_on": "this company's own history" if model else "the reference dataset",
             "note": ("trained on this file's older items and tested on its newest 20%" if model else
                      "the saved model was trained on the reference dataset; retrain on this company's data for its own scores")}
+
+
+def pickup_section(orders: pd.DataFrame, pickup: pd.DataFrame, model: str = None, uploaded=True) -> dict | None:
+    """Stage 2 for sales: orders already with the courier, scored again with the pickup model (dispatch facts known).
+    None when the file has no pickup (ship) dates in its current period. uploaded=False for the reference data itself."""
+    if pickup is None or not (pickup["split"] == "test").any():
+        return None
+    out = predictions_section("sales_pickup", orders, pickup, model=model)
+    out["model_performance"] = model_section("sales_pickup", model, pickup if (uploaded and model is None) else None)
+    out["prediction_moment"] = "when the carrier picks the order up"
+    return out

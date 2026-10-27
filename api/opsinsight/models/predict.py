@@ -52,7 +52,8 @@ def predict(domain: str, rows: pd.DataFrame, top_k: int = 3, model: str = None) 
     X = _align(rows, meta)
     risk = model.predict_proba(X)[:, 1]
     if bundle.get("lr") is not None:                          # blend (Step 5): average with logistic regression
-        risk = (risk + bundle["lr"].predict_proba(X)[:, 1]) / 2
+        w = bundle.get("w", 0.5)                                 # older model files: 50/50
+        risk = w * risk + (1 - w) * bundle["lr"].predict_proba(X)[:, 1]
 
     contrib = model.predict(X, pred_contrib=True)[:, :-1]      # SHAP values (log-odds); last column = bias
     dist = np.array(meta["test_risk_distribution"])

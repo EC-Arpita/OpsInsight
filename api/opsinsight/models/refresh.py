@@ -62,6 +62,12 @@ def refresh(domain: str, data: dict) -> dict:
     for s in data["impact_simulation"]["scenarios"]:
         if s["recommendation_id"] == "REC3":
             s[rate_key], s[avoided_key] = round(new_rate, 3), round(saved)
+    if domain == "sales":                                                # stage 2: scored again at carrier pickup
+        from ..engine.predictions import pickup_section
+        orders = pd.read_parquet(ROOT / "data/interim/sales_orders_clean.parquet")
+        stage2 = pickup_section(orders, pd.read_parquet(DOMAINS["sales_pickup"]["features_file"]), uploaded=False)
+        if stage2:
+            data["predictions_at_pickup"] = stage2
     return data
 
 
@@ -78,6 +84,9 @@ def main():
         rec = next(r for r in data["recommendations"] if r["id"] == "REC3")
         print(f"{domain:9s} AUC {mp['test_auc']}  top-10% {mp['precision_top_10pct']:.1%}  lift {mp['lift_top_10pct']}x   "
               f"riskiest item {top['id'][:10]} at {top['prediction']['risk']:.0%}   REC3: {rec['evidence'][0]}")
+        if "predictions_at_pickup" in data:
+            pm = data["predictions_at_pickup"]["model_performance"]
+            print(f"{'':9s} at carrier pickup: AUC {pm['test_auc']}  top-10% {pm['precision_top_10pct']:.1%}  lift {pm['lift_top_10pct']}x")
     print("Updated contracts/ and frontend/public/")
 
 

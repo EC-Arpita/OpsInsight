@@ -128,11 +128,11 @@ export default function App() {
                   <Breakdown breakdowns={data.breakdowns} words={words} />
                   <RootCauses causes={data.root_causes} />
                 </div>
-                <DataHealth quality={data.data_quality} model={data.model_performance} />
+                <DataHealth quality={data.data_quality} model={data.model_performance} pickup={data.predictions_at_pickup?.model_performance} />
               </>
             )}
             {data && !loading && tab === "fix" && <FixFirst data={data} words={words} />}
-            {data && !loading && tab === "risk" && <RiskList key={key} predictions={data.predictions} words={words} />}
+            {data && !loading && tab === "risk" && <RiskList key={key} predictions={data.predictions} pickup={data.predictions_at_pickup} words={words} />}
             {data && !loading && tab === "forecast" && <Forecast key={key} forecast={data.forecast} />}
             {data && !loading && tab === "actions" && (
               <Recommendations key={key} analysisKey={key} recs={data.recommendations} impact={data.impact_simulation}

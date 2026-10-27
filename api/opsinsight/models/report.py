@@ -8,7 +8,8 @@ import json
 from .compare import compare
 from .config import DOMAINS, MODELS_DIR, ROOT
 
-NAMES = {"incidents": "Support tickets: SLA breach at opening", "sales": "Sales orders: late delivery at approval"}
+NAMES = {"incidents": "Support tickets: SLA breach at opening", "sales": "Sales orders: late delivery at approval",
+         "sales_pickup": "Sales orders: late delivery at carrier pickup (stage 2)"}
 
 
 def table(rows, cols):

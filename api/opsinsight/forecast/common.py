@@ -1,4 +1,4 @@
-"""Shared forecasting tools: daily counts, four simple methods, and the backtest that picks one."""
+"""Shared forecasting tools: daily counts, four simple methods + AutoETS and MSTL, and the backtest that picks one."""
 from pathlib import Path
 
 import numpy as np
@@ -51,23 +51,46 @@ def weekday_average_x_trend(h):
     return base * level.fillna(1).clip(0.5, 1.5).to_numpy()
 
 
+def statsforecast_method(model):
+    """Wrap a statsforecast model (fitted per group on its own history) as a method: history -> next 7 days."""
+    from statsforecast import StatsForecast
+
+    def method(h):
+        long = h.rename_axis("ds").reset_index().melt("ds", var_name="unique_id", value_name="y")
+        fc = StatsForecast(models=[model], freq="D").forecast(df=long, h=HORIZON)
+        wide = fc.pivot(index="ds", columns="unique_id", values=fc.columns[-1])
+        return np.clip(wide[list(h.columns)].to_numpy(), 0, None)   # counts cannot go below 0
+    return method
+
+
 METHODS = {
     "same day last week": same_day_last_week,
     "flat 4-week average": flat_average_4w,
     "weekday average (4 weeks)": weekday_average_4w,
     "weekday average x recent trend": weekday_average_x_trend,
 }
+try:    # industry models; if statsforecast is not installed the four simple methods still run
+    from statsforecast.models import MSTL, AutoETS
+    METHODS["AutoETS (Holt-Winters, auto-tuned)"] = statsforecast_method(AutoETS(season_length=7))
+    METHODS["MSTL (trend + weekly pattern)"] = statsforecast_method(MSTL(season_length=7))
+except ImportError:
+    pass
 
 
-
-
-def backtest(counts: pd.DataFrame, origins=(14, 7)) -> pd.DataFrame:
-    """Average error (items per group per day) of each method when forecasting from 14 and 7 days before the end."""
+def backtest(counts: pd.DataFrame, weeks=8, min_history=28) -> pd.DataFrame:
+    """Average error (items per group per day) of each method, forecasting 7 days from each of the last `weeks`
+    weeks (fewer if the file is short, so every method still has 4 weeks of history)."""
+    origins = [7 * k for k in range(weeks, 0, -1) if len(counts) - 7 * k >= min_history] or [7]
     rows = []
     for name, f in METHODS.items():
         errors = []
         for back in origins:
             hist, actual = counts.iloc[:-back], counts.iloc[-back:][:HORIZON]
-            errors.append(np.abs(f(hist) - actual.to_numpy()).mean())
-        rows.append({"method": name, "mean_abs_error": round(float(np.mean(errors)), 2)})
+            try:
+                errors.append(np.abs(f(hist) - actual.to_numpy()).mean())
+            except Exception:   # a model that cannot fit this history (too short, all zeros) just drops out
+                errors = []
+                break
+        if errors:
+            rows.append({"method": name, "mean_abs_error": round(float(np.mean(errors)), 2)})
     return pd.DataFrame(rows).sort_values("mean_abs_error").reset_index(drop=True)

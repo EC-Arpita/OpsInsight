@@ -20,6 +20,8 @@ EVAL = {
         ("How good is the risk model?", "MODEL"),
         ("Which week was unusual in March?", "AN:"),
         ("What should we do about high-risk tickets?", "REC3"),
+        ("Which tickets are most at risk right now?", "RISK:top"),
+        ("Which teams will be overloaded next week?", "FC:overloaded"),
     ],
     "sales": [
         ("What is the late delivery rate?", "KPI:late_delivery_rate"),
@@ -30,6 +32,8 @@ EVAL = {
         ("Do late orders hurt reviews?", "RC4"),
         ("How many orders will Southeast get next week?", "FC:Southeast"),
         ("How late is health_beauty?", "BD:main_category:health_beauty"),
+        ("Which orders are most likely to be late?", "RISK"),         # the list card or a single risky order
+        ("Which orders already with the courier are at risk?", "RISK_PICKUP:top"),
     ],
 }
 

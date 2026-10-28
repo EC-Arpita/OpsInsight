@@ -52,6 +52,10 @@ def fact_cards(analysis: dict) -> list:
                                f"capacity {g['expected_capacity_7d']}; "
                                + (f"overloaded on all {len(days)} days ({days[0]} to {days[-1]})." if days and len(days) == len(g["daily"])
                                   else f"overloaded on {', '.join(days)}." if days else "within capacity every day."))
+    over = sorted(((g["team"], sum(d["overload"] for d in g["daily"])) for g in fc.get("teams", [])), key=lambda x: -x[1])
+    if any(n for _, n in over):     # one card naming every overloaded team, so the answer never lists just one
+        add("FC:overloaded", "Teams expected to be overloaded next week: "
+            + ", ".join(f"{t} on {n} of 7 days" for t, n in over if n) + ".")
     for g in fc.get("regions", []):
         days = [d["date"] for d in g["daily"] if d["busy"]]
         add(f"FC:{g['region']}", f"Forecast for {g['region']}: {g['expected_orders_7d']} orders expected next 7 days, "
@@ -73,7 +77,30 @@ def fact_cards(analysis: dict) -> list:
         add("MODEL_PICKUP", f"Second check when the carrier picks the order up: that model has test AUC {pk['test_auc']}; "
                             f"the riskiest 10% of picked-up orders have a late rate of {_pct(pk['precision_top_10pct'])} "
                             f"against {_pct(pk['base_rate_test'])} overall ({pk['lift_top_10pct']}x).")
+    tickets = analysis["meta"]["domain"] == "support_tickets"
+    _risk_cards(add, analysis.get("predictions"), "RISK", "Highest-risk tickets right now, most likely to miss their SLA"
+                if tickets else "Highest-risk orders right now, most likely to be late")
+    _risk_cards(add, analysis.get("predictions_at_pickup"), "RISK_PICKUP",
+                "Highest-risk orders already with the courier, most likely to be late")
     return cards
+
+
+TOP_RISK = 5     # one card for the list, one per item for "why is this one risky?"
+
+
+def _risk_cards(add, section, prefix, heading):
+    """The riskiest items as fact cards, so Ask can answer 'which ticket is at risk, and why?'."""
+    items = (section or {}).get("items", [])[:TOP_RISK]
+    if not items:
+        return
+    where = lambda c: c.get("team") or " to ".join(x for x in (c.get("seller_state"), c.get("customer_state")) if x)
+    # the % as written in the item's own explanation, so both cards show the same number
+    pct = lambda it: (re.search(r"\((\d+%)\)", it["explanation_summary"]) or [None, f"{it['prediction']['risk']:.0%}"])[1]
+    add(f"{prefix}:top", f"{heading} (risk = chance of the problem): " + "; ".join(
+        f"{it['id']} {pct(it)}" + (f" ({where(it['context'])})" if where(it["context"]) else "")
+        for it in items) + ".")
+    for it in items:
+        add(f"{prefix}:{it['id']}", f"{it['item_type'].capitalize()} {it['id']}: {it['explanation_summary']}")
 
 
 # --------------------------------------------------------------------------- 2. search
@@ -82,7 +109,8 @@ MIN_MATCH = 0.05          # below this, a card is not really about the question
 SYNONYMS = {"do": "recommendation", "fix": "recommendation", "action": "recommendation", "should": "recommendation",
             "deadline": "breach sla", "deadlines": "breach sla", "late": "late breach", "tomorrow": "forecast expected", "first": "recommendation",
             "busy": "overloaded busy", "overload": "overloaded forecast", "overloaded": "forecast", "coming": "forecast expected", "accurate": "model auc", "good": "model auc",
-            "why": "root cause", "cause": "root cause", "team": "group"}
+            "why": "root cause", "cause": "root cause", "team": "group",
+            "risky": "risk high", "riskiest": "risk high", "danger": "risk high", "which": "highest"}
 
 
 def _stem(word: str) -> str:
@@ -182,6 +210,8 @@ def ollama(prompt: str) -> str | None:
 
 PROMPT = """You answer questions for a business manager using ONLY the facts below.
 Rules: use only numbers that appear in the facts; put the fact ID in square brackets after each claim, like [RC1];
+answer in 2 to 4 full sentences: give the main number, name EVERY team, region, ticket or order the facts list
+for this question (not just one), and say why when the facts give a reason;
 if the facts do not answer the question, set "answer" to "Not enough evidence in this data to answer that."
 Reply as JSON: {{"answer": "...", "cited_ids": ["..."]}}
 

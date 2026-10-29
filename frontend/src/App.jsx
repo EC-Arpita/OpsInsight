@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { loadAnalysis } from "./api.js";
 import { DOMAINS, fmtDate } from "./format.js";
 import KpiStrip from "./components/KpiStrip.jsx";
@@ -13,6 +13,7 @@ import FixFirst from "./components/FixFirst.jsx";
 import Outcomes from "./components/Outcomes.jsx";
 import Ask from "./components/Ask.jsx";
 import Upload from "./components/Upload.jsx";
+import Landing from "./components/Landing.jsx";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -30,6 +31,8 @@ export default function App() {
   const [company, setCompany] = useState(null);
   const [tab, setTab] = useState("upload");
   const [state, setState] = useState({ loading: true, error: null, data: null, source: null });
+  const [started, setStarted] = useState(false);         // false = show the intro screen first
+  const start = useCallback(() => setStarted(true), []);
 
   useEffect(() => {
     if (tab === "upload") return;
@@ -60,6 +63,8 @@ export default function App() {
     setCompany(name);
     setTab("fix");
   }
+
+  if (!started) return <Landing onStart={start} />;
 
   return (
     <div className="app">

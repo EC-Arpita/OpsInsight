@@ -23,6 +23,8 @@ const guessDays = (m) => {
   return 5;
 };
 const KIND = { incidents: "Support tickets", sales_orders: "Sales orders" };
+const GETS = [["Fix first", "The issues worth your time, ranked."], ["At risk", "Items likely to fail, with the reason."],
+              ["Forecast", "Where the numbers are heading."], ["Actions", "Recommendations you can approve."]];
 
 // Step 1: send files or a database table. Step 2: check what we recognised and fix columns. Step 3: run.
 export default function Upload({ onAnalysed }) {
@@ -37,6 +39,8 @@ export default function Upload({ onAnalysed }) {
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
   const [earlier, setEarlier] = useState([]);
+  const [source, setSource] = useState("files");      // "files" or "db"
+  const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
     listUploads().then((all) => setEarlier(all.filter((u) => u.status === "analysed"))).catch(() => {});   // no API: no list
@@ -83,49 +87,108 @@ export default function Upload({ onAnalysed }) {
   const rows = (result?.suggestions || []).filter((s) => s.required || s.needs_review || s.uploaded_column);
   const canRun = result && result.domain && result.status !== "refused";
 
+  const step = busy === "run" ? 3 : result ? 2 : 1;
+  const drop = (e) => {
+    e.preventDefault();
+    setDragging(false);
+    const dropped = [...e.dataTransfer.files].filter((f) => /\.(csv|xlsx)$/i.test(f.name));
+    if (dropped.length) setFiles(dropped);
+  };
+
   return (
     <section className="upload">
-      <div className="panel">
-        <h2>1. Send your data</h2>
-        <p className="muted small">Support tickets or sales orders, as CSV or Excel. For sales, the orders file is enough.</p>
-        <div className="form-grid">
-          <label htmlFor="company">Company name</label>
-          <input id="company" className="input" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="QuickHelp" />
-          <label htmlFor="files">Files</label>
-          <input id="files" type="file" multiple accept=".csv,.xlsx" onChange={(e) => setFiles([...e.target.files])} />
-        </div>
-        <button className="btn primary" disabled={!files.length || busy} onClick={() => send("files")}>
-          {busy === "files" ? "Uploading…" : `Upload ${files.length || ""} file${files.length === 1 ? "" : "s"}`}
-        </button>
-        <details>
-          <summary>Or connect a database</summary>
-          <div className="form-grid">
-            <label htmlFor="dburl">Database address</label>
-            <input id="dburl" className="input" value={db.url} onChange={(e) => setDb({ ...db, url: e.target.value })}
-                   placeholder="postgresql://user:password@host:5432/dbname" />
-            <label htmlFor="dbtable">Table</label>
-            <input id="dbtable" className="input" value={db.table} onChange={(e) => setDb({ ...db, table: e.target.value })} placeholder="tickets" />
-          </div>
-          <button className="btn" disabled={!db.url || !db.table || busy} onClick={() => send("db")}>
-            {busy === "db" ? "Reading the table…" : "Read the table"}
-          </button>
-          <p className="note">Read only: OpsInsight copies the table and never writes to your database.</p>
-        </details>
-      </div>
+      <header className="upload-hero">
+        <h1>Find what to fix first in your operations</h1>
+        <p>Upload your support tickets or sales orders. OpsInsight cleans the data, spots what is going wrong, and ranks the actions that matter.</p>
+        <ol className="steps" aria-label="Steps">
+          {["Send your data", "Check columns", "Analyse"].map((label, i) => (
+            <li key={label} className={i + 1 === step ? "on" : i + 1 < step ? "done" : ""} aria-current={i + 1 === step ? "step" : undefined}>
+              <span className="step-no">{i + 1 < step ? "✓" : i + 1}</span>{label}
+            </li>
+          ))}
+        </ol>
+      </header>
 
-      {earlier.length > 0 && !result && (
-        <div className="panel">
-          <h2>Your earlier uploads</h2>
-          <ul className="earlier">
-            {earlier.map((u) => (
-              <li key={u.id}>
-                <button className="btn" onClick={() => onAnalysed(u.id, u.company)}>Open</button>{" "}
-                {u.company} · {u.main_file} · {KIND[u.domain] || u.domain} · <span className="muted small">{u.created_at.slice(0, 10)}</span>
-              </li>
-            ))}
-          </ul>
+      <div className="upload-grid">
+        <div className="panel send">
+          <h2>Send your data</h2>
+          <p className="muted small">Support tickets or sales orders, as CSV or Excel. For sales, the orders file is enough.</p>
+          <div className="source-tabs" role="tablist" aria-label="How to send your data">
+            <button role="tab" aria-selected={source === "files"} className={source === "files" ? "on" : ""} onClick={() => setSource("files")}>Upload files</button>
+            <button role="tab" aria-selected={source === "db"} className={source === "db" ? "on" : ""} onClick={() => setSource("db")}>Connect a database</button>
+          </div>
+
+          {source === "files" ? (
+            <>
+              <label htmlFor="files" className={dragging ? "dropzone over" : "dropzone"}
+                     onDragOver={(e) => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
+                <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 16V4m0 0-5 5m5-5 5 5M4 20h16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <strong>Drop your files here, or click to browse</strong>
+                <span className="muted small">.csv or .xlsx</span>
+                <input id="files" type="file" multiple accept=".csv,.xlsx" className="visually-hidden" onChange={(e) => setFiles([...e.target.files])} />
+              </label>
+              <label htmlFor="company" className="field-label">Company name</label>
+              <input id="company" className="input" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="QuickHelp" />
+              <div className="send-row">
+                <span className="muted small">{files.length ? files.map((f) => f.name).join(", ") : "No files selected"}</span>
+                <button className="btn primary" disabled={!files.length || busy} onClick={() => send("files")}>
+                  {busy === "files" ? "Uploading…" : `Upload ${files.length > 1 ? files.length + " files" : "files"}`}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <label htmlFor="dburl" className="field-label">Database address</label>
+              <input id="dburl" className="input" value={db.url} onChange={(e) => setDb({ ...db, url: e.target.value })}
+                     placeholder="postgresql://user:password@host:5432/dbname" />
+              <label htmlFor="dbtable" className="field-label">Table</label>
+              <input id="dbtable" className="input" value={db.table} onChange={(e) => setDb({ ...db, table: e.target.value })} placeholder="tickets" />
+              <label htmlFor="company-db" className="field-label">Company name</label>
+              <input id="company-db" className="input" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="QuickHelp" />
+              <div className="send-row">
+                <span className="muted small">Read only: OpsInsight copies the table and never writes to your database.</span>
+                <button className="btn primary" disabled={!db.url || !db.table || busy} onClick={() => send("db")}>
+                  {busy === "db" ? "Reading the table…" : "Read the table"}
+                </button>
+              </div>
+            </>
+          )}
         </div>
-      )}
+
+        <aside className="upload-side">
+          <div className="panel">
+            <h2>What we can read</h2>
+            <ul className="kinds">
+              <li>
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 5h14v10H9l-4 4z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>
+                <div><strong>Support tickets</strong><span className="muted small">Finds SLA breaches and what drives them.</span></div>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>
+                <div><strong>Sales orders</strong><span className="muted small">Finds late deliveries and where they start.</span></div>
+              </li>
+            </ul>
+          </div>
+          <div className="panel">
+            <h2>Your earlier uploads</h2>
+            {earlier.length === 0 ? (
+              <p className="muted small">Nothing yet. Each file you analyse appears here so you can reopen it.</p>
+            ) : (
+              <ul className="earlier">
+                {earlier.slice(0, 5).map((u) => (
+                  <li key={u.id}>
+                    <div>
+                      <strong>{u.company}</strong>
+                      <span className="muted small">{u.main_file} · {KIND[u.domain] || u.domain} · {u.created_at.slice(0, 10)}</span>
+                    </div>
+                    <button className="btn" onClick={() => onAnalysed(u.id, u.company)}>Open</button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </aside>
+      </div>
 
       {error && <p className="error" role="alert">{error}</p>}
 
@@ -215,6 +278,10 @@ export default function Upload({ onAnalysed }) {
           )}
         </div>
       )}
+
+      <ul className="gets" aria-label="What you get">
+        {GETS.map(([title, text]) => <li key={title}><strong>{title}</strong><span className="muted small">{text}</span></li>)}
+      </ul>
     </section>
   );
 }

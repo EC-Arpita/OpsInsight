@@ -10,6 +10,7 @@ An "analysis key" names one analysis:
 """
 import io
 import json
+import os
 from datetime import datetime, timezone
 from typing import Literal, Optional
 
@@ -33,7 +34,8 @@ EDITABLE = ("title", "description", "suggested_owner")      # what a manager may
 app = FastAPI(title="OpsInsight API", version="0.2.0",
               description="Uploads, analysis, risk predictions with reasons, recommendations, approvals, outcomes "
                           "and Ask your data.")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173",
+                                                  *filter(None, os.environ.get("FRONTEND_URL", "").split(","))],
                    allow_methods=["*"], allow_headers=["*"])
 
 

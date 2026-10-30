@@ -45,6 +45,16 @@ async def global_exception_handler(request, exc):
     return JSONResponse(status_code=500, content={"detail": f"{type(exc).__name__}: {str(exc)}", "traceback": traceback.format_exc()})
 
 
+@app.middleware("http")
+async def plain_text_is_json(request, call_next):
+    """The dashboard sends JSON as text/plain: a "simple" cross-site request that needs no CORS preflight
+    (some hosts, like Catalyst AppSail, drop the preflight). Read such bodies as JSON."""
+    if request.headers.get("content-type", "").startswith("text/plain"):
+        request.scope["headers"] = [(k, b"application/json" if k == b"content-type" else v)
+                                    for k, v in request.scope["headers"]]
+    return await call_next(request)
+
+
 # --------------------------------------------------------------------------- helpers
 def check_domain(domain: str):
     if domain not in DOMAINS:

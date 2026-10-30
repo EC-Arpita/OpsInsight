@@ -136,3 +136,10 @@ def test_run_in_background():
     assert status == "analysed"
     assert client.get(f"/api/analysis/{up['upload_id']}").json()["recommendations"]
     assert client.post("/api/uploads/upload-nothere/run?background=true", json={}).status_code == 404
+
+
+def test_json_sent_as_plain_text():
+    # the dashboard sends JSON as text/plain to avoid CORS preflights
+    r = client.post("/api/ask/incidents", content='{"question": "What should we fix first?"}',
+                    headers={"Content-Type": "text/plain"})
+    assert r.status_code == 200 and r.json()["answer"]

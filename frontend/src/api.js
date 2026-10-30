@@ -15,7 +15,9 @@ async function call(path, options = {}) {
   return body;
 }
 
-const json = (body) => ({ method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+// JSON is sent as text/plain so the browser makes a "simple" request with no CORS preflight (some hosts drop
+// preflights); the API reads text/plain bodies as JSON.
+const json = (body) => ({ method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(body) });
 
 // Load the full analysis JSON. key = "incidents", "sales" or an upload id.
 // If the API isn't running, the two demo analyses fall back to the sample files in /public.

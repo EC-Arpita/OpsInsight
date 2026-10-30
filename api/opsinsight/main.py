@@ -10,6 +10,7 @@ An "analysis key" names one analysis:
 """
 import io
 import json
+import threading
 import os
 from datetime import datetime, timezone
 from typing import Literal, Optional
@@ -124,6 +125,8 @@ def get_upload(upload_id: str):
     if row is None:
         raise HTTPException(404, f"no upload '{upload_id}'")
     row.pop("folder", None)                    # never show where files sit on the server
+    if upload_id in RUN_ERRORS:
+        row["error"] = RUN_ERRORS[upload_id]
     return row
 
 
@@ -135,9 +138,32 @@ class RunRequest(BaseModel):
                                           examples=[{"column": "Ship Mode", "days": {"Standard Class": 5}, "default_days": 4}])
 
 
+RUN_ERRORS = {}      # upload id -> why its background run failed (kept in memory; lost on a restart)
+
+
+def _run_in_background(upload_id: str, body: RunRequest):
+    try:
+        run_upload(upload_id, body.mapping, body.sla_rules, date_order=body.date_order, promise_rules=body.promise_rules)
+    except UploadError as e:
+        RUN_ERRORS[upload_id] = str(e)
+        store.update_upload(upload_id, status="failed")
+    except Exception as e:                                  # keep the reason so the screen can show it
+        RUN_ERRORS[upload_id] = f"The data could not be analysed: {e}"
+        store.update_upload(upload_id, status="failed")
+
+
 @app.post("/api/uploads/{upload_id}/run")
-def run(upload_id: str, body: RunRequest):
-    """Clean, model, analyse, forecast and decide. Takes from seconds to about a minute."""
+def run(upload_id: str, body: RunRequest, background: bool = False):
+    """Clean, model, analyse, forecast and decide. Takes from seconds to about a minute.
+    background=true answers at once with status "running"; poll GET /api/uploads/{id} until "analysed" or "failed".
+    Hosts that cut long requests (serverless platforms) need this."""
+    if background:
+        if store.get_upload(upload_id) is None:
+            raise HTTPException(404, f"no upload '{upload_id}'")
+        RUN_ERRORS.pop(upload_id, None)
+        store.update_upload(upload_id, status="running")
+        threading.Thread(target=_run_in_background, args=(upload_id, body), daemon=True).start()
+        return {"analysis_id": upload_id, "status": "running"}
     try:
         analysis = run_upload(upload_id, body.mapping, body.sla_rules, date_order=body.date_order,
                               promise_rules=body.promise_rules)

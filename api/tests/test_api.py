@@ -119,3 +119,20 @@ def test_vector_search_finds_by_meaning():
     cards = [{"id": "RC2", "text": "Group 20 is overloaded"}, {"id": "RC1", "text": "Orders to the North-East are late"}]
     found = rag.vector_search("Which team has too much work?", cards, embed=Topics())
     assert [c["id"] for c in found] == ["RC2"] and found[0]["search"] == "vector"
+
+
+def test_run_in_background():
+    import time
+    folder = DEMO / "sales"
+    files = [("files", (p.name, p.read_bytes(), "text/csv")) for p in sorted(folder.glob("*.csv"))]
+    up = client.post("/api/uploads", files=files, data={"company": "BgCo"}).json()
+    started = client.post(f"/api/uploads/{up['upload_id']}/run?background=true", json={}).json()
+    assert started["status"] == "running"
+    for _ in range(120):
+        status = client.get(f"/api/uploads/{up['upload_id']}").json()["status"]
+        if status != "running":
+            break
+        time.sleep(1)
+    assert status == "analysed"
+    assert client.get(f"/api/analysis/{up['upload_id']}").json()["recommendations"]
+    assert client.post("/api/uploads/upload-nothere/run?background=true", json={}).status_code == 404

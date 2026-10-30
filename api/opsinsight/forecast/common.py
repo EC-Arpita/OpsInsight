@@ -30,7 +30,11 @@ def daily_counts(df: pd.DataFrame, time_col: str, group_col: str, groups) -> pd.
 
 # --- forecasting methods: history (days x groups) -> next 7 days (7 x groups) ---
 def same_day_last_week(h):
-    return h.iloc[-7:].to_numpy()
+    res = h.iloc[-7:].to_numpy()
+    if res.shape[0] < HORIZON:
+        repeat_count = int(np.ceil(HORIZON / max(1, res.shape[0])))
+        res = np.tile(res, (repeat_count, 1))[:HORIZON]
+    return res
 
 
 def flat_average_4w(h):

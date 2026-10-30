@@ -2359,6 +2359,14 @@
     },
     "moves": [
       {
+        "date": "2016-06-05",
+        "tickets": 2,
+        "from_team": "Group 65",
+        "to_team": "Group 65",
+        "to_date": "2016-06-06",
+        "why": "low-risk tickets with time left; Group 65 has 3 spare on 2016-06-06"
+      },
+      {
         "date": "2016-06-01",
         "tickets": 2,
         "from_team": "Group 25",
@@ -2373,14 +2381,6 @@
         "to_team": "Group 24",
         "to_date": "2016-06-01",
         "why": "Group 24 has 3 spare and knows 84% of Group 25's kinds of tickets"
-      },
-      {
-        "date": "2016-06-05",
-        "tickets": 2,
-        "from_team": "Group 65",
-        "to_team": "Group 65",
-        "to_date": "2016-06-06",
-        "why": "low-risk tickets with time left; Group 65 has 3 spare on 2016-06-06"
       },
       {
         "date": "2016-06-07",
@@ -2435,21 +2435,9 @@
         "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
       },
       {
-        "date": "2016-06-01",
-        "team": "Group 25",
-        "tickets": 2,
-        "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
-      },
-      {
         "date": "2016-06-02",
         "team": "Group 20",
         "tickets": 4,
-        "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
-      },
-      {
-        "date": "2016-06-04",
-        "team": "Group 65",
-        "tickets": 3,
         "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
       },
       {
@@ -2459,9 +2447,9 @@
         "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
       },
       {
-        "date": "2016-06-03",
-        "team": "Group 24",
-        "tickets": 2,
+        "date": "2016-06-04",
+        "team": "Group 65",
+        "tickets": 3,
         "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
       },
       {
@@ -2479,6 +2467,18 @@
       {
         "date": "2016-06-07",
         "team": "Group 20",
+        "tickets": 2,
+        "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
+      },
+      {
+        "date": "2016-06-01",
+        "team": "Group 25",
+        "tickets": 2,
+        "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
+      },
+      {
+        "date": "2016-06-03",
+        "team": "Group 24",
         "tickets": 2,
         "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"
       },
@@ -2739,7 +2739,8 @@
     "check": {
       "every_ticket_assigned_once": true,
       "no_team_over_capacity_after_plan_and_cover": true,
-      "no_high_risk_ticket_moved": true
+      "no_high_risk_ticket_moved": true,
+      "plan_is_optimal": true
     }
   }
 }

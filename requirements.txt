@@ -21,3 +21,4 @@ requests>=2.31       # talks to Ollama (the optional local AI writer)
 openpyxl>=3.1         # reads uploaded Excel files
 chromadb>=1.0         # vector database for Ask your data (downloads a small embedding model once)
 statsforecast>=2.0     # forecasting models AutoETS and MSTL (the forecast falls back to simple methods without it)
+ortools>=9.10         # min-cost flow solver for the workload plan

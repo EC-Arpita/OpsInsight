@@ -5,7 +5,8 @@
      a. move low-risk tickets that have time left to the next day that has spare capacity,
      b. else give them to another team that has spare capacity and knows the same kind of tickets,
      c. else report a staffing gap (people needed).
-   It is a greedy plan: it fixes the biggest overload first and takes the first option that fits.
+   It is solved as a min-cost flow (Google OR-Tools): the plan places as many tickets as the rules allow
+   (fewest left for extra cover), and among those plans makes the fewest team changes.
 """
 import pandas as pd
 
@@ -57,41 +58,57 @@ RULES = {"low_risk_share_movable": LOW_RISK_SHARE, "helper_min_category_overlap"
 def workload_plan(forecast: dict, tickets: pd.DataFrame) -> dict:
     if not (forecast or {}).get("teams"):                         # too little data to forecast: nothing to plan
         return {"rules": RULES, "moves": [], "staffing_gaps": [], "after": [], "check": {}}
+    from ortools.graph.python import min_cost_flow                # imported here: only needed for ticket plans
     teams = [t["team"] for t in forecast["teams"]]
     dates = [d["date"] for d in forecast["teams"][0]["daily"]]
     expected = {t["team"]: [d["expected_tickets"] for d in t["daily"]] for t in forecast["teams"]}
     capacity = {t["team"]: [d["expected_capacity"] for d in t["daily"]] for t in forecast["teams"]}   # per day
-    plan = {k: list(v) for k, v in expected.items()}             # expected tickets after the moves
     skills = team_skills(tickets)
-    moves, gaps = [], []
+    ov = {(h, b): overlap(h, b, tickets, skills) for h in teams for b in teams if h != b}
 
-    overloads = [(plan[t][i] - capacity[t][i], t, i) for t in teams for i in range(len(dates)) if plan[t][i] > capacity[t][i]]
-    for _, team, i in sorted(overloads, reverse=True):            # biggest overload first
-        extra = plan[team][i] - capacity[team][i]
-        movable = expected[team][i] * LOW_RISK_SHARE                # never move high- or medium-risk tickets
-        # a. the next day of the same team, if it has spare capacity
-        if i + 1 < len(dates):
-            spare = capacity[team][i + 1] - plan[team][i + 1]
-            n = int(min(extra, spare, movable))
-            if n > 0:
-                plan[team][i] -= n; plan[team][i + 1] += n; extra -= n; movable -= n
-                moves.append({"date": dates[i], "tickets": n, "from_team": team, "to_team": team, "to_date": dates[i + 1],
-                              "why": f"low-risk tickets with time left; {team} has {spare:.0f} spare on {dates[i + 1]}"})
-        # b. another team with spare capacity the same day that knows these tickets
-        for helper in teams:
-            if extra < 1 or movable < 1 or helper == team:
-                continue
-            spare = capacity[helper][i] - plan[helper][i]
-            ov = overlap(helper, team, tickets, skills)
-            n = int(min(extra, spare, movable))
-            if n > 0 and ov >= MIN_OVERLAP:
-                plan[team][i] -= n; plan[helper][i] += n; extra -= n; movable -= n
-                moves.append({"date": dates[i], "tickets": n, "from_team": team, "to_team": helper, "to_date": dates[i],
-                              "why": f"{helper} has {spare:.0f} spare and knows {ov:.0%} of {team}'s kinds of tickets"})
-        # c. what is left needs people
-        if extra >= 1:
-            gaps.append({"date": dates[i], "team": team, "tickets": int(round(extra)),
-                         "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"})
+    # Network: source -> overloaded slot (up to its movable low-risk tickets) -> allowed slot -> sink (up to its
+    # spare capacity). Max flow = most tickets placed; min cost = fewest team changes (next day 1, other team 2).
+    slots = [(t, i) for t in teams for i in range(len(dates))]
+    num = {s: k for k, s in enumerate(slots)}
+    out, inn, src, snk = 0, len(slots), 2 * len(slots), 2 * len(slots) + 1
+    flow = min_cost_flow.SimpleMinCostFlow()
+    arcs = []
+    for t, i in slots:
+        extra = expected[t][i] - capacity[t][i]
+        if extra > 0:
+            movable = expected[t][i] * LOW_RISK_SHARE                 # never move high- or medium-risk tickets
+            flow.add_arc_with_capacity_and_unit_cost(src, out + num[(t, i)], int(min(extra, movable)), 0)
+            if i + 1 < len(dates):                                    # a. same team, next day
+                arcs.append((flow.add_arc_with_capacity_and_unit_cost(out + num[(t, i)], inn + num[(t, i + 1)], 10**6, 1),
+                             t, i, t, i + 1))
+            for h in teams:                                           # b. a team that knows these tickets, same day
+                if h != t and ov[(h, t)] >= MIN_OVERLAP:
+                    arcs.append((flow.add_arc_with_capacity_and_unit_cost(out + num[(t, i)], inn + num[(h, i)], 10**6, 2),
+                                 t, i, h, i))
+        spare = capacity[t][i] - expected[t][i]
+        if spare >= 1:
+            flow.add_arc_with_capacity_and_unit_cost(inn + num[(t, i)], snk, int(spare), 0)
+    flow.set_node_supply(src, 10**6)
+    flow.set_node_supply(snk, -10**6)
+    if flow.solve_max_flow_with_min_cost() != flow.OPTIMAL:
+        raise RuntimeError("The workload optimiser could not solve the plan.")
+
+    plan = {k: list(v) for k, v in expected.items()}             # expected tickets after the moves
+    moves = []
+    for a, t, i, h, j in arcs:
+        n = flow.flow(a)
+        if not n:
+            continue
+        plan[t][i] -= n; plan[h][j] += n
+        spare = capacity[h][j] - expected[h][j]
+        why = (f"low-risk tickets with time left; {t} has {spare:.0f} spare on {dates[j]}" if h == t
+               else f"{h} has {spare:.0f} spare and knows {ov[(h, t)]:.0%} of {t}'s kinds of tickets")
+        moves.append({"date": dates[i], "tickets": n, "from_team": t, "to_team": h, "to_date": dates[j], "why": why})
+    # c. what is left needs people
+    gaps = [{"date": dates[i], "team": t, "tickets": int(round(plan[t][i] - capacity[t][i])),
+             "why": "no rule-respecting move left; add cover (overtime or a temporary agent)"}
+            for t, i in slots if plan[t][i] - capacity[t][i] >= 1]
+    gaps.sort(key=lambda g: -g["tickets"])
 
     after = [{"team": t, "date": dates[i], "expected_before": round(expected[t][i], 1), "expected_after": round(plan[t][i], 1),
               "capacity": capacity[t][i]} for t in teams for i in range(len(dates))]
@@ -101,6 +118,7 @@ def workload_plan(forecast: dict, tickets: pd.DataFrame) -> dict:
         "no_team_over_capacity_after_plan_and_cover": all(
             a["expected_after"] - gap_total.get((a["team"], a["date"]), 0) <= a["capacity"] + 1 for a in after),
         "no_high_risk_ticket_moved": True,      # only the low-risk share is ever moved
+        "plan_is_optimal": True,                # min-cost flow: no rule-respecting plan leaves fewer tickets uncovered
     }
     return {"rules": RULES, "moves": moves, "staffing_gaps": gaps, "after": after, "check": check}
 

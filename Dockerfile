@@ -12,6 +12,10 @@ COPY api ./api
 COPY contracts ./contracts
 COPY models ./models
 
+# Pre-create data directories with full read/write permissions for AppSail non-root user
+RUN mkdir -p /app/data/uploads /app/data/app/analysis /app/data/app/models \
+    && chmod -R 777 /app/data /app
+
 WORKDIR /app/api
 # Catalyst passes the port in X_ZOHO_CATALYST_LISTEN_PORT; elsewhere it falls back to 9000
 CMD ["sh", "-c", "uvicorn opsinsight.main:app --host 0.0.0.0 --port ${X_ZOHO_CATALYST_LISTEN_PORT:-9000}"]

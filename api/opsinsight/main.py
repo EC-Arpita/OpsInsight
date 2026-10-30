@@ -17,7 +17,7 @@ from typing import Literal, Optional
 import pandas as pd
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from .engine import rag, store
@@ -34,9 +34,14 @@ EDITABLE = ("title", "description", "suggested_owner")      # what a manager may
 app = FastAPI(title="OpsInsight API", version="0.2.0",
               description="Uploads, analysis, risk predictions with reasons, recommendations, approvals, outcomes "
                           "and Ask your data.")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173",
-                                                  *filter(None, os.environ.get("FRONTEND_URL", "").split(","))],
+app.add_middleware(CORSMiddleware, allow_origins=["*"],
                    allow_methods=["*"], allow_headers=["*"])
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    import traceback
+    return JSONResponse(status_code=500, content={"detail": f"{type(exc).__name__}: {str(exc)}", "traceback": traceback.format_exc()})
 
 
 # --------------------------------------------------------------------------- helpers

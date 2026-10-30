@@ -97,4 +97,8 @@ def backtest(counts: pd.DataFrame, weeks=8, min_history=28) -> pd.DataFrame:
                 break
         if errors:
             rows.append({"method": name, "mean_abs_error": round(float(np.mean(errors)), 2)})
-    return pd.DataFrame(rows).sort_values("mean_abs_error").reset_index(drop=True)
+    # shortcut: with under ~2 weeks of history no method can be backtested; callers then use FALLBACK
+    return pd.DataFrame(rows, columns=["method", "mean_abs_error"]).sort_values("mean_abs_error").reset_index(drop=True)
+
+
+FALLBACK = "flat 4-week average"     # used when the file is too short to compare methods

@@ -1,7 +1,7 @@
 """Support tickets: expected tickets per team for the next 7 days, and which days will overload a team."""
 import pandas as pd
 
-from .common import HORIZON, METHODS, ROOT, backtest, daily_counts
+from .common import FALLBACK, HORIZON, METHODS, ROOT, backtest, daily_counts
 
 TICKETS_FILE = ROOT / "data/interim/incidents_clean.parquet"
 
@@ -15,7 +15,7 @@ def forecast_tickets(tickets: pd.DataFrame = None, n_teams=5, overload_margin=1.
     opened = daily_counts(tickets, "opened_at", "assignment_group", teams)
 
     scores = backtest(opened)
-    best = scores.iloc[0]["method"]
+    best = scores.iloc[0]["method"] if len(scores) else FALLBACK
     future = METHODS[best](opened)
 
     # capacity = tickets each team resolved on that weekday, averaged over the last 4 weeks (a Monday is not a Sunday)
@@ -34,6 +34,6 @@ def forecast_tickets(tickets: pd.DataFrame = None, n_teams=5, overload_margin=1.
         out.append({"team": team, "expected_tickets_7d": round(float(future[:, j].sum())),
                     "expected_capacity_7d": round(sum(cap(team, d) for d in days)),
                     "overloaded_days": sum(x["overload"] for x in daily), "daily": daily})
-    return {"method": best, "horizon_days": HORIZON, "backtest_mean_abs_error": scores.to_dict(orient="records"),
+    return {"method": best, "horizon_days": HORIZON, "backtest_mean_abs_error": scores.to_dict(orient="records") or None,
             "capacity_rule": "tickets the team resolved on the same weekday, averaged over the last 4 weeks",
             "overload_rule": f"expected tickets > capacity x {overload_margin} and at least 1 ticket more", "teams": out}

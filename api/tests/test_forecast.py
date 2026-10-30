@@ -45,3 +45,14 @@ def test_backtest_includes_industry_models_and_survives_a_short_file():
     short = pd.DataFrame({"A": np.arange(20) % 7 + 5, "B": 3}, index=days)
     scores = backtest(short)
     assert len(scores) >= 4 and scores["mean_abs_error"].notna().all()
+
+
+def test_short_file_still_gets_a_forecast():
+    # two days of tickets: too short to compare methods, so the simple fallback is used instead of crashing
+    opened = pd.date_range("2026-01-05 08:00", periods=48, freq="h")
+    tickets = pd.DataFrame({"opened_at": opened, "resolved_at": opened + pd.Timedelta(hours=3),
+                            "assignment_group": ["A", "B"] * 24})
+    fc = forecast_tickets(tickets)
+    assert fc["method"] == "flat 4-week average"
+    assert fc["backtest_mean_abs_error"] is None
+    assert len(fc["teams"]) == 2 and len(fc["teams"][0]["daily"]) == 7

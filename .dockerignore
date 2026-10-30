@@ -1,7 +1,11 @@
-data
+﻿.venv
+.git
+__pycache__
+.pytest_cache
+.ipynb_checkpoints
 frontend
 notebooks
 reports
-.venv
-**/__pycache__
-.git
+data/uploads
+data/raw
+data/interim

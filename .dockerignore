@@ -1,0 +1,7 @@
+data
+frontend
+notebooks
+reports
+.venv
+**/__pycache__
+.git

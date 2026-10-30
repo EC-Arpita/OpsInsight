@@ -11,9 +11,7 @@ COPY api ./api
 COPY contracts ./contracts
 COPY models ./models
 
-COPY data/processed/incidents_features.parquet ./data/processed/
-COPY data/processed/sales_orders_features.parquet ./data/processed/
-COPY data/processed/sales_pickup_features.parquet ./data/processed/
+
 
 RUN mkdir -p /app/data/uploads /app/data/app/analysis /app/data/app/models \
     && chmod -R 777 /app/data /app
